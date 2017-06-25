@@ -1,7 +1,7 @@
 {
   "name": "react-slex-form",
   "version": "0.0.1",
-  "main": "complied/reactSlexForm.js",
+  "main": "compiled/reactSlexForm.js",
   "standard": {
     "globals": [
       "describe",
