@@ -21,7 +21,11 @@ const config = {
     umdNamedDefine: true,
     sourcePrefix: '\t'
   },
-
+  externals: {
+    'react': 'react',
+    'lodash': 'lodash',
+    'react-slex-store': 'react-slex-store'
+  },
   module: {
     rules: [
       {
