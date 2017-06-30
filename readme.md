@@ -1,10 +1,10 @@
-# Slex Router
+# Slex Form
 
 ```
-$ npm install slex-router
+$ npm install slex-form
 ```
 
-`react-slex-form` is a component driven router implementation for `react`. It is connected to `slex-store` via `react-slex-store` and its state is kept in its own store similar to `redux-form`.
+`react-slex-form` is a component driven form implementation for `react`. It is connected to `slex-store` via `react-slex-store` and its state is kept in its own store similar to `redux-form`.
 
 Sync and async validation is built into the value change workflow by default.
 
