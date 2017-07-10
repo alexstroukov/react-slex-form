@@ -21,7 +21,7 @@
     "mocha": "mocha",
     "watch": "webpack --config webpack/webpack.config.js --watch",
     "build": "webpack --config webpack/webpack.config.js",
-    "test": "mocha compiled/test",
+    "test": "mocha --require ./test/setup.js compiled/test",
     "typings": "typings",
     "clean": "rm -rf compiled",
     "deep-clean": "rm -rf node_modules && npm run clean",
@@ -29,11 +29,14 @@
   },
   "dependencies": {
     "lodash": "4.17.2",
-    "react": "15.4.1",
-    "react-slex-store": "0.0.5",
-    "slex-store": "0.0.4"
+    "react": "15.4.2",
+    "react-slex-store": "0.0.6",
+    "slex-store": "0.0.5"
   },
   "devDependencies": {
+    "react-dom": "15.4.2",
+    "react-addons-test-utils": "15.6.0",
+    "enzyme": "2.9.1",
     "babel": "6.5.2",
     "babel-cli": "6.18.0",
     "babel-core": "6.18.2",
@@ -50,7 +53,8 @@
     "sinon": "1.17.6",
     "typings": "2.0.0",
     "webpack": "2.2.1",
-    "webpack-node-externals": "1.5.4"
+    "webpack-node-externals": "1.5.4",
+    "jsdom": "9.8.3"
   },
   "engines": {
     "node": "7.1.0",

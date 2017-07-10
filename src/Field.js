@@ -49,6 +49,8 @@ Field.propTypes = {
   unregister: PropTypes.func.isRequired
 }
 
+export { Field }
+
 export default connect((dispatch, getState, ownProps) => {
   const { formName, fieldName, value: componentInitialValue, validate } = ownProps
   const [ value = initialValue || componentInitialValue, status = statuses.INITIAL, error, isTouched = false, initialValue ] = _.chain(getState())

@@ -8,7 +8,11 @@
 			// Notice, we bypass the launcher and start the test runner directly
 			"program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
 			// run the tests in the test folder
-			"args": ["${workspaceRoot}/compiled/test"],
+			"args": [
+				"--require",
+				"./test/setup.js",
+				"${workspaceRoot}/compiled/test"
+			],
 			"cwd": "${workspaceRoot}",
 			"runtimeExecutable": null,
 			"console": "externalTerminal",
