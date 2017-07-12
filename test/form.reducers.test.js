@@ -185,7 +185,54 @@ describe('form.reducers', function () {
     })
   })
   describe('unregisterField', function () {
-    it('should return a new state')
+    describe('when the field is the only field on the form', function () {
+      const state = {
+        testForm: {
+          testField: {
+            status: 'existingStatus',
+            isTouched: 'existingIsTouched',
+            error: 'existingError'
+          }
+        }
+      }
+      it('should return a new state', function () {
+        const action = { formName: 'testForm', fieldName: 'testField' }
+        const nextState = formReducers.unregisterField(state, action)
+        expect(state).to.not.equal(nextState)
+      })
+      it('should remove form from state', function () {
+        const action = { formName: 'testForm', fieldName: 'testField' }
+        const nextState = formReducers.unregisterField(state, action)
+        expect(nextState.testForm).to.be.empty
+      })
+    })
+    describe('when the field is is among other fields on the form', function () {
+      const state = {
+        testForm: {
+          testField: {
+            status: 'existingStatus',
+            isTouched: 'existingIsTouched',
+            error: 'existingError'
+          },
+          testField2: {
+            status: 'existingStatus2',
+            isTouched: 'existingIsTouched2',
+            error: 'existingError2'
+          }
+        }
+      }
+      it('should return a new state', function () {
+        const action = { formName: 'testForm', fieldName: 'testField' }
+        const nextState = formReducers.unregisterField(state, action)
+        expect(state).to.not.equal(nextState)
+      })
+      it('should remove field from state', function () {
+        const action = { formName: 'testForm', fieldName: 'testField' }
+        debugger
+        const nextState = formReducers.unregisterField(state, action)
+        expect(nextState.testForm.testField).to.equal(undefined)
+      })
+    })
   })
 
   describe('resetForm', function () {

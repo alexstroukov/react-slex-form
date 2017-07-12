@@ -16,7 +16,7 @@ describe('form.actions', function () {
   })
 
   describe('changeInitialValue', function () {
-    it('should create an function action', function () {
+    it('should create a function action', function () {
       const params = { formName: 'testformName', fieldName: 'testFieldName', value: 'testValue' }
       const changeInitialValueAction = formActions.changeInitialValue(params)
       expect(typeof changeInitialValueAction === 'function').to.equal(true)
@@ -55,7 +55,7 @@ describe('form.actions', function () {
   })
 
   describe('submitForm', function () {
-    it('should create an function action', function () {
+    it('should create a function action', function () {
       const formName = 'testFormName'
       const submitServiceFn = () => Promise.resolve()
       const submitFormAction = formActions.submitForm(formName, submitServiceFn)
@@ -211,7 +211,7 @@ describe('form.actions', function () {
   })
 
   describe('validateForm', function () {
-    it('should create an function action', function () {
+    it('should create a function action', function () {
       const params = { formName: 'testFormName' }
       const validateFormAction = formActions.validateForm(params)
       expect(typeof validateFormAction === 'function').to.equal(true)
@@ -285,7 +285,7 @@ describe('form.actions', function () {
   })
 
   describe('resetForm', function () {
-    it('should create an function action', function () {
+    it('should create a function action', function () {
       const params = { formName: 'testFormName' }
       const resetFormAction = formActions.resetForm(params)
       expect(resetFormAction !== null && typeof resetFormAction === 'object').to.equal(true)
@@ -304,7 +304,7 @@ describe('form.actions', function () {
 
 
   describe('changeValue', function () {
-    it('should create an function action', function () {
+    it('should create a function action', function () {
       const params = { formName: 'testformName', fieldName: 'testFieldName', value: 'testValue', isSilent: false }
       const changeValueAction = formActions.changeValue(params)
       expect(typeof changeValueAction === 'function').to.equal(true)
@@ -332,7 +332,7 @@ describe('form.actions', function () {
   })
 
   describe('validate', function () {
-    it('should create an function action', function () {
+    it('should create a function action', function () {
       const params = { formName: 'testFormName', fieldName: 'testFieldName', value: 'testValue' }
       const validateAction = formActions.validate(params)
       expect(typeof validateAction === 'function').to.equal(true)
@@ -783,10 +783,44 @@ describe('form.actions', function () {
     })
   })
   describe('registerField', function () {
-    it('should create a function action')
-    it('should addFormField')
+    it('should create a function action', function () {
+      const params = { formName: 'formNameTest', fieldName: 'fieldNameTest', value: 'valueTest', validate: 'validateTest' }
+      const validateFormAction = formActions.registerField(params)
+      expect(typeof validateFormAction === 'function').to.equal(true)
+    })
+    it('should dispatch addFormField', function () {
+      const params = { formName: 'formNameTest', fieldName: 'fieldNameTest', value: 'valueTest', validate: 'validateTest' }
+      const dispatchStub = sandbox.stub()
+      const getStateStub = sandbox.stub()
+      const addFormFieldStub = sandbox.stub(formActions, 'addFormField')
+      const registerFieldAction = formActions.registerField(params)
+      registerFieldAction(dispatchStub, getStateStub)
+      expect(addFormFieldStub.callCount).to.equal(1)
+      expect(addFormFieldStub.firstCall.args[0].formName).to.equal(params.formName)
+      expect(addFormFieldStub.firstCall.args[0].fieldName).to.equal(params.fieldName)
+      expect(addFormFieldStub.firstCall.args[0].value).to.equal(params.value)
+      expect(addFormFieldStub.firstCall.args[0].validate).to.equal(params.validate)
+    })
     describe('given that the form is not INITIAL', function () {
-      it('should validate')
+      it('should validate', function () {
+        const params = { formName: 'formNameTest', fieldName: 'fieldNameTest', value: 'valueTest', validate: 'validateTest' }
+        const dispatchStub = sandbox.stub()
+        const getStateStub = sandbox.stub().returns({
+          form: {
+            [params.formName]: {
+              status: formStatuses.VALIDATING
+            }
+          }
+        })
+        const addFormFieldStub = sandbox.stub(formActions, 'addFormField')
+        const validateStub = sandbox.stub(formActions, 'validate')
+        const registerFieldAction = formActions.registerField(params)
+        registerFieldAction(dispatchStub, getStateStub)
+        expect(validateStub.callCount).to.equal(1)
+        expect(validateStub.firstCall.args[0].formName).to.equal(params.formName)
+        expect(validateStub.firstCall.args[0].fieldName).to.equal(params.fieldName)
+        expect(validateStub.firstCall.args[0].value).to.equal(params.value)
+      })
     })
   })
   describe('unregisterField', function () {

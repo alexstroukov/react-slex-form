@@ -121,15 +121,18 @@ describe('Field', function () {
     })
   })
 
-  describe('given that the field is valid on the store', function () {
+  describe('given a registered field', function () {
     let store
     let wrapper
     let registerFieldStub
     let unregisterFieldStub
     let getStateStub
     let renderStub
+    let dispatchSpy
     const stubRegisterFieldAction = {}
     const stubUnregisterFieldAction = {}
+    const stubChangeValueAction = {}
+    const renderedElement = (<div className='rendered'>render</div>)
     beforeEach(function () {
       store = createStore({
         reducers: {
@@ -149,8 +152,23 @@ describe('Field', function () {
       })
       registerFieldStub = sandbox.stub(formActions, 'registerField').returns(stubRegisterFieldAction)
       unregisterFieldStub = sandbox.stub(formActions, 'unregisterField').returns(stubUnregisterFieldAction)
-      renderStub = sandbox.stub().returns(null)
+      renderStub = sandbox.stub().returns(renderedElement)
+      dispatchSpy = sandbox.spy(store, 'dispatch')
       wrapper = mount(<Field store={store} formName={formName} fieldName={fieldName} render={renderStub} />)
+    })
+    it('should render the result of the render function passed in props', function () {
+      const renderedHtml = wrapper.html()
+      expect(renderedHtml).to.equal(`<div class="rendered">render</div>`)
+    })
+    it('should render with a changeValue function which changes value on the store', function () {
+      const changeValueStub = sandbox.stub(formActions, 'changeValue').returns(stubChangeValueAction)
+      expect(renderStub.calledOnce).to.be.true
+      expect(renderStub.firstCall.args[0].changeValue).to.be.a('function')
+
+      const nextValue = 'nextValue'
+      renderStub.firstCall.args[0].changeValue(nextValue)
+      expect(dispatchSpy.callCount).to.equal(2)
+      expect(dispatchSpy.secondCall.args[0]).to.equal(stubChangeValueAction)
     })
     it('should render the field value from the store', function () {
       expect(renderStub.calledOnce).to.be.true

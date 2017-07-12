@@ -105,7 +105,7 @@ class FormReducers {
   unregisterField (state, action) {
     const { formName, fieldName } = action
     const form = _.omit({ ...state[formName] }, fieldName)
-    const formHasNoMoreRegisteredFields = _.keys(form).length === 1
+    const formHasNoMoreRegisteredFields = _.keys(form).length === 0
     if (formHasNoMoreRegisteredFields) {
       return _.omit(state, formName)
     } else {
