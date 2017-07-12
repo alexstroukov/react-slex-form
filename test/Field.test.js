@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Component } from 'react'
 import { mount } from 'enzyme'
 import { expect } from 'chai'
 import sinon from 'sinon'
@@ -132,7 +132,11 @@ describe('Field', function () {
     const stubRegisterFieldAction = {}
     const stubUnregisterFieldAction = {}
     const stubChangeValueAction = {}
-    const renderedElement = (<div className='rendered'>render</div>)
+    class MyField extends Component {
+      render () {
+        return null
+      }
+    }
     beforeEach(function () {
       store = createStore({
         reducers: {
@@ -152,13 +156,13 @@ describe('Field', function () {
       })
       registerFieldStub = sandbox.stub(formActions, 'registerField').returns(stubRegisterFieldAction)
       unregisterFieldStub = sandbox.stub(formActions, 'unregisterField').returns(stubUnregisterFieldAction)
-      renderStub = sandbox.stub().returns(renderedElement)
+      renderStub = sandbox.stub().returns(<MyField />)
       dispatchSpy = sandbox.spy(store, 'dispatch')
       wrapper = mount(<Field store={store} formName={formName} fieldName={fieldName} render={renderStub} />)
     })
     it('should render the result of the render function passed in props', function () {
-      const renderedHtml = wrapper.html()
-      expect(renderedHtml).to.equal(`<div class="rendered">render</div>`)
+      const renderedField = wrapper.find('MyField')
+      expect(renderedField).to.have.length(1)
     })
     it('should render with a changeValue function which changes value on the store', function () {
       const changeValueStub = sandbox.stub(formActions, 'changeValue').returns(stubChangeValueAction)
