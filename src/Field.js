@@ -73,7 +73,7 @@ export default connect((dispatch, getState, ownProps) => {
       `form.${formName}.${fieldName}.initialValue`,
       `form.${formName}.${fieldName}.value`
     ])
-    if (initialValue === valueInStore && initialValue !== componentInitialValue) {
+    if (_.isEqual(initialValue, valueInStore) && !_.isEqual(initialValue, componentInitialValue)) {
       dispatch(actions.changeInitialValue({ formName, fieldName, value: componentInitialValue }))
     }
   }
