@@ -3,34 +3,14 @@ import * as actionTypes from './form.actionTypes'
 import * as statuses from './form.statuses'
 
 class FormActions {
-
-  constructor () {
-    this.resetFormStore = this.resetFormStore.bind(this)
-    this.submitForm = this.submitForm.bind(this)
-    this.resetForm = this.resetForm.bind(this)
-    this.resetField = this.resetField.bind(this)
-    this.validateForm = this.validateForm.bind(this)
-    this.changeValue = this.changeValue.bind(this)
-    this.registerField = this.registerField.bind(this)
-    this.unregisterField = this.unregisterField.bind(this)
-    this.changeInitialValue = this.changeInitialValue.bind(this)
-    this.updateInitialValue = this.updateInitialValue.bind(this) // _
-    this.isValid = this.isValid.bind(this)
-    this.isInvalid = this.isInvalid.bind(this)
-    this.updateValue = this.updateValue.bind(this) // _
-    this.validate = this.validate.bind(this) // _
-    this.validating = this.validating.bind(this)
-    this.addFormField = this.addFormField.bind(this) // _
-  }
-
-  resetFormStore () {
+  resetFormStore = () => {
     const action = {
       type: actionTypes.RESET_FORM_STORE
     }
     return action
   }
 
-  changeInitialValue ({ formName, fieldName, value }) {
+  changeInitialValue = ({ formName, fieldName, value }) => {
     return (dispatch, getState) => {
       dispatch(this.updateInitialValue({ formName, fieldName, value }))
       const fieldIsCurrentlyValidating = _.chain(getState())
@@ -43,7 +23,7 @@ class FormActions {
     }
   }
 
-  updateInitialValue ({ formName, fieldName, value }) {
+  updateInitialValue = ({ formName, fieldName, value }) => {
     const action = {
       type: actionTypes.UPDATE_INITIAL_VALUE,
       formName,
@@ -53,7 +33,7 @@ class FormActions {
     return action
   }
 
-  submitForm (formName, submitServiceFn = () => {}) {
+  submitForm = (formName, submitServiceFn = () => {}) => {
     return (dispatch, getState) => {
       return dispatch(this.validateForm({ formName }))
         .then(formErrors => {
@@ -71,7 +51,7 @@ class FormActions {
     }
   }
 
-  validateForm ({ formName }) {
+  validateForm = ({ formName }) => {
     return (dispatch, getState) => {
       const validateFormPromise = _.chain(getState())
           .get(`form.${formName}`)
@@ -92,7 +72,7 @@ class FormActions {
     }
   }
 
-  resetForm ({ formName }) {
+  resetForm = ({ formName }) => {
     const action = {
       type: actionTypes.RESET_FORM,
       formName
@@ -100,7 +80,7 @@ class FormActions {
     return action
   }
 
-  resetField ({ formName, fieldName }) {
+  resetField = ({ formName, fieldName }) => {
     const action = {
       type: actionTypes.RESET_FIELD,
       formName,
@@ -109,7 +89,7 @@ class FormActions {
     return action
   }
 
-  validate ({ formName, fieldName, value }) {
+  validate = ({ formName, fieldName, value }) => {
     return (dispatch, getState) => {
       const [ form, validate, status ] = _.at(getState(), [`form.${formName}`, `form.${formName}.${fieldName}.validate`, `form.${formName}.${fieldName}.status`])
       if (validate) {
@@ -141,7 +121,7 @@ class FormActions {
     }
   }
 
-  updateValue ({ formName, fieldName, value, isSilent }) {
+  updateValue = ({ formName, fieldName, value, isSilent }) => {
     const action = {
       type: actionTypes.UPDATE_VALUE,
       formName,
@@ -152,14 +132,14 @@ class FormActions {
     return action
   }
 
-  changeValue ({ formName, fieldName, value, isSilent = true }) {
+  changeValue = ({ formName, fieldName, value, isSilent = true }) => {
     return (dispatch, getState) => {
       dispatch(this.updateValue({ formName, fieldName, value, isSilent }))
       dispatch(this.validate({ formName, fieldName, value }))
     }
   }
 
-  validating ({ formName, fieldName }) {
+  validating = ({ formName, fieldName }) => {
     const action = {
       type: actionTypes.VALIDATING,
       formName,
@@ -168,7 +148,7 @@ class FormActions {
     return action
   }
 
-  isValid ({ formName, fieldName }) {
+  isValid = ({ formName, fieldName }) => {
     const action = {
       type: actionTypes.IS_VALID,
       formName,
@@ -177,7 +157,7 @@ class FormActions {
     return action
   }
 
-  isInvalid ({ formName, fieldName, error }) {
+  isInvalid = ({ formName, fieldName, error }) => {
     const action = {
       type: actionTypes.IS_INVALID,
       formName,
@@ -187,7 +167,7 @@ class FormActions {
     return action
   }
 
-  registerField ({ formName, fieldName, value, validate }) {
+  registerField = ({ formName, fieldName, value, validate }) => {
     return (dispatch, getState) => {
       const pristine = _.chain(getState())
         .get(`form.${formName}.status`, statuses.INITIAL)
@@ -200,8 +180,7 @@ class FormActions {
     }
   }
 
-
-  addFormField ({ formName, fieldName, value, validate }) {
+  addFormField = ({ formName, fieldName, value, validate }) => {
     const action = {
       type: actionTypes.REGISTER_FIELD,
       formName,
@@ -212,7 +191,7 @@ class FormActions {
     return action
   }
 
-  unregisterField ({ formName, fieldName }) {
+  unregisterField = ({ formName, fieldName }) => {
     const action = {
       type: actionTypes.UNREGISTER_FIELD,
       formName,

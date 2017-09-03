@@ -3,25 +3,11 @@ import * as statuses from './form.statuses'
 import initialState from './initialState'
 
 class FormReducers {
-
-  constructor () {
-    this.resetFormStore = this.resetFormStore.bind(this)
-    this.validating = this.validating.bind(this)
-    this.updateValue = this.updateValue.bind(this)
-    this.registerField = this.registerField.bind(this)
-    this.unregisterField = this.unregisterField.bind(this)
-    this.resetField = this.resetField.bind(this)
-    this.updateInitialValue = this.updateInitialValue.bind(this)
-    this.isValid = this.isValid.bind(this)
-    this.isInvalid = this.isInvalid.bind(this)
-    this._getNextFormStatus = this._getNextFormStatus.bind(this)
-  }
-
-  resetFormStore (state, action) {
+  resetFormStore = (state, action) => {
     return initialState
   }
 
-  validating (state, action) {
+  validating = (state, action) => {
     const { formName, fieldName } = action
     const form = state[formName]
     const field = form && form[fieldName]
@@ -39,7 +25,7 @@ class FormReducers {
     return nextState
   }
 
-  updateValue (state, action) {
+  updateValue = (state, action) => {
     const { formName, fieldName, value, isSilent = false } = action
     const form = state[formName]
     const field = form && form[fieldName]
@@ -60,7 +46,7 @@ class FormReducers {
     return nextState
   }
 
-  registerField (state, action) {
+  registerField = (state, action) => {
     const { formName, fieldName, value, validate } = action
     const form = state[formName]
     const field = form && form[fieldName]
@@ -83,7 +69,7 @@ class FormReducers {
     return nextState
   }
 
-  updateInitialValue (state, action) {
+  updateInitialValue = (state, action) => {
     const { formName, fieldName, value: nextInitialValue } = action
     const form = state[formName]
     const field = form && form[fieldName]
@@ -102,7 +88,7 @@ class FormReducers {
     return nextState
   }
 
-  unregisterField (state, action) {
+  unregisterField = (state, action) => {
     const { formName, fieldName } = action
     const form = _.omit({ ...state[formName] }, fieldName)
     const formHasNoMoreRegisteredFields = _.keys(form).length === 0
@@ -117,7 +103,7 @@ class FormReducers {
     }
   }
 
-  isValid (state, action) {
+  isValid = (state, action) => {
     const { formName, fieldName } = action
     const form = state[formName]
     const field = form && form[fieldName]
@@ -137,7 +123,7 @@ class FormReducers {
     return nextState
   }
 
-  _getNextFormStatus ({ form, omitFieldName, replaceFieldName, replaceFieldValue, defaultStatus }) {
+  _getNextFormStatus = ({ form, omitFieldName, replaceFieldName, replaceFieldValue, defaultStatus }) => {
     return _.chain(form)
       .omit(omitFieldName, 'status')
       .thru(form => {
@@ -166,7 +152,7 @@ class FormReducers {
       .value()
   }
 
-  resetField (state, action) {
+  resetField = (state, action) => {
     const { formName, fieldName } = action
     const form = state[formName]
     const field = form && form[fieldName]
@@ -192,7 +178,7 @@ class FormReducers {
     }
   }
 
-  resetForm (state, action) {
+  resetForm = (state, action) => {
     const { formName } = action
     const nextState = _.chain(state)
         .get(formName)
@@ -205,7 +191,7 @@ class FormReducers {
     return nextState
   }
 
-  isInvalid (state, action) {
+  isInvalid = (state, action) => {
     const { formName, fieldName, error } = action
     const form = state[formName]
     const field = form && form[fieldName]
@@ -225,7 +211,6 @@ class FormReducers {
     }
     return nextState
   }
-
 }
 
 export default new FormReducers()

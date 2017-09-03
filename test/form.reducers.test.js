@@ -203,7 +203,7 @@ describe('form.reducers', function () {
       it('should remove form from state', function () {
         const action = { formName: 'testForm', fieldName: 'testField' }
         const nextState = formReducers.unregisterField(state, action)
-        expect(nextState.testForm).to.be.empty
+        expect(nextState.testForm).to.equal(undefined)
       })
     })
     describe('when the field is is among other fields on the form', function () {
@@ -228,7 +228,6 @@ describe('form.reducers', function () {
       })
       it('should remove field from state', function () {
         const action = { formName: 'testForm', fieldName: 'testField' }
-        debugger
         const nextState = formReducers.unregisterField(state, action)
         expect(nextState.testForm.testField).to.equal(undefined)
       })

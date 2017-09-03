@@ -38,7 +38,8 @@ const config = {
           presets: ['es2015', 'react'],
           plugins: [
             'transform-object-rest-spread',
-            'transform-es2015-destructuring'
+            'transform-es2015-destructuring',
+            'transform-class-properties'
           ]
         }
       },

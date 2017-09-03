@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import { mount } from 'enzyme'
+import { mount, configure } from 'enzyme'
+import ReactSixteenAdapter from 'enzyme/build/adapters/ReactSixteenAdapter'
 import { expect } from 'chai'
 import sinon from 'sinon'
 import Field from '../src/Field'
@@ -7,6 +8,9 @@ import form from '../src'
 import formActions from '../src/form.actions'
 import * as formStatuses from '../src/form.statuses'
 import createStore from 'slex-store'
+
+// need adapter to work with react ^16
+configure({ adapter: new ReactSixteenAdapter() })
 
 describe('Field', function () {
   const sandbox = sinon.sandbox.create()
@@ -113,11 +117,11 @@ describe('Field', function () {
       const stubChangeInitialValue = {}
       const changeInitialValueStub = sandbox.stub(formActions, 'changeInitialValue').returns(stubChangeInitialValue)
       wrapper.setProps({ value: 2 })
-
+      debugger
       expect(dispatchSpy.callCount).to.equal(1)
       expect(changeInitialValueStub.calledOnce).to.be.true
+      expect(changeInitialValueStub.firstCall.args[0].value).to.equal(2)
       expect(dispatchSpy.firstCall.args[0]).to.equal(stubChangeInitialValue)
-      expect(wrapper.node.props.value).to.equal(2)
     })
   })
 
