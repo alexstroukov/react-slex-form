@@ -55,7 +55,6 @@ describe('Field', function () {
       expect(renderStub.firstCall.args[0].testOwnProp).to.equal(ownProps.testOwnProp)
     })
   })
-
   describe('when unmounting', function () {
     let store
     beforeEach(function () {
@@ -94,38 +93,7 @@ describe('Field', function () {
       expect(dispatchSpy.firstCall.args[0]).to.equal(stubRegisterFieldAction)
     })
   })
-
-  describe('given that the value given to the field from its own props has changed', function () {
-    let store
-    let wrapper
-    let registerFieldStub
-    let unregisterFieldStub
-    const stubRegisterFieldAction = {}
-    const stubUnregisterFieldAction = {}
-    beforeEach(function () {
-      store = createStore({
-        reducers: {
-          form
-        }
-      })
-      registerFieldStub = sandbox.stub(formActions, 'registerField').returns(stubRegisterFieldAction)
-      unregisterFieldStub = sandbox.stub(formActions, 'unregisterField').returns(stubUnregisterFieldAction)
-      wrapper = mount(<Field store={store} value={1} formName={formName} fieldName={fieldName} />)
-    })
-    it('should change the fields initial value in the store', function () {
-      const dispatchSpy = sandbox.spy(store, 'dispatch')
-      const stubChangeInitialValue = {}
-      const changeInitialValueStub = sandbox.stub(formActions, 'changeInitialValue').returns(stubChangeInitialValue)
-      wrapper.setProps({ value: 2 })
-      debugger
-      expect(dispatchSpy.callCount).to.equal(1)
-      expect(changeInitialValueStub.calledOnce).to.be.true
-      expect(changeInitialValueStub.firstCall.args[0].value).to.equal(2)
-      expect(dispatchSpy.firstCall.args[0]).to.equal(stubChangeInitialValue)
-    })
-  })
-
-  describe('given a registered field', function () {
+  describe('when its a valid field', function () {
     let store
     let wrapper
     let registerFieldStub
@@ -164,7 +132,7 @@ describe('Field', function () {
       dispatchSpy = sandbox.spy(store, 'dispatch')
       wrapper = mount(<Field store={store} formName={formName} fieldName={fieldName} render={renderStub} />)
     })
-    it('should render the result of the render function passed in props', function () {
+    it('should render the result of the render function that was passed through props', function () {
       const renderedField = wrapper.find('MyField')
       expect(renderedField).to.have.length(1)
     })
@@ -191,7 +159,81 @@ describe('Field', function () {
       expect(renderStub.firstCall.args[0].isLoading).to.equal(false)
     })
   })
-  describe('given that the field is validating on the store', function () {
+  describe('when its a field with a cleared value', function () {
+    let store
+    let wrapper
+    let registerFieldStub
+    let unregisterFieldStub
+    let getStateStub
+    let renderStub
+    let dispatchSpy
+    const stubRegisterFieldAction = {}
+    const stubUnregisterFieldAction = {}
+    const stubChangeValueAction = {}
+    class MyField extends Component {
+      render () {
+        return null
+      }
+    }
+    beforeEach(function () {
+      store = createStore({
+        reducers: {
+          form
+        }
+      })
+      getStateStub = sandbox.stub(store, 'getState').returns({
+        form: {
+          [formName]: {
+            [fieldName]: {
+              status: formStatuses.VALID,
+              initialValue: 2,
+              value: undefined,
+              isTouched: true
+            }
+          }
+        }
+      })
+      registerFieldStub = sandbox.stub(formActions, 'registerField').returns(stubRegisterFieldAction)
+      unregisterFieldStub = sandbox.stub(formActions, 'unregisterField').returns(stubUnregisterFieldAction)
+      renderStub = sandbox.stub().returns(<MyField />)
+      dispatchSpy = sandbox.spy(store, 'dispatch')
+      wrapper = mount(<Field store={store} formName={formName} fieldName={fieldName} render={renderStub} />)
+    })
+    it('should render the field value from the store', function () {
+      expect(renderStub.calledOnce).to.be.true
+      expect(renderStub.firstCall.args[0].value).to.equal(undefined)
+    })
+  })
+  describe('when its a field that has been provided a value different from the one on the store', function () {
+    let store
+    let wrapper
+    let registerFieldStub
+    let unregisterFieldStub
+    const stubRegisterFieldAction = {}
+    const stubUnregisterFieldAction = {}
+    beforeEach(function () {
+      store = createStore({
+        reducers: {
+          form
+        }
+      })
+      registerFieldStub = sandbox.stub(formActions, 'registerField').returns(stubRegisterFieldAction)
+      unregisterFieldStub = sandbox.stub(formActions, 'unregisterField').returns(stubUnregisterFieldAction)
+      wrapper = mount(<Field store={store} value={1} formName={formName} fieldName={fieldName} />)
+    })
+    it('should change the fields initial value in the store', function () {
+      const dispatchSpy = sandbox.spy(store, 'dispatch')
+      const stubChangeInitialValue = {}
+      const changeInitialValueStub = sandbox.stub(formActions, 'changeInitialValue').returns(stubChangeInitialValue)
+      wrapper.setProps({ value: 2 })
+      debugger
+      expect(dispatchSpy.callCount).to.equal(1)
+      expect(changeInitialValueStub.calledOnce).to.be.true
+      expect(changeInitialValueStub.firstCall.args[0].value).to.equal(2)
+      expect(dispatchSpy.firstCall.args[0]).to.equal(stubChangeInitialValue)
+    })
+  })
+  describe('when its a validating field', function () {
     let store
     let wrapper
     let registerFieldStub
@@ -227,7 +269,7 @@ describe('Field', function () {
       expect(renderStub.firstCall.args[0].isLoading).to.equal(true)
     })
   })
-  describe('given that the field has error on the store', function () {
+  describe('when its an error field', function () {
     let store
     let wrapper
     let registerFieldStub
@@ -268,4 +310,6 @@ describe('Field', function () {
       expect(renderStub.firstCall.args[0].messages[1]).to.equal('testError2')
     })
   })
+
+
 })

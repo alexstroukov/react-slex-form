@@ -54,18 +54,8 @@ export { Field }
 
 export default connect((dispatch, getState, ownProps) => {
   const { formName, fieldName, value: componentInitialValue, validate } = ownProps
-  const [ value = initialValue || componentInitialValue, status = statuses.INITIAL, error, isTouched = false, initialValue ] = _.chain(getState())
-    .get(`form.${formName}.${fieldName}`)
-    .at(['value', 'status', 'error', 'isTouched', 'initialValue'])
-    .value()
+  const { value, status, isTouched, initialValue, isLoading, messages } = getField()
 
-  const isLoading = status === statuses.VALIDATING
-  const messages = _.chain([error])
-    .flatten()
-    .reject(_.isUndefined)
-    .filter(error => error.message != null)
-    .map(error => error.message)
-    .value()
   const register = () => dispatch(actions.registerField({ formName, fieldName, value: componentInitialValue, validate }))
   const unregister = () => dispatch(actions.unregisterField({ formName, fieldName }))
   const changeValue = nextValue => dispatch(actions.changeValue({ formName, fieldName, value: nextValue }))
@@ -90,5 +80,32 @@ export default connect((dispatch, getState, ownProps) => {
     messages,
     isTouched,
     isLoading
+  }
+
+  function getField () {
+    return _.chain(getState())
+      .get(`form.${formName}.${fieldName}`)
+      .at(['value', 'status', 'error', 'isTouched', 'initialValue'])
+      .thru(([ value, status = statuses.INITIAL, error, isTouched = false, initialValue ]) => {
+        const isLoading = status === statuses.VALIDATING
+        const messages = _.chain([error])
+          .flatten()
+          .reject(_.isUndefined)
+          .filter(error => error.message != null)
+          .map(error => error.message)
+          .value() 
+        return {
+          messages,
+          isLoading,
+          status,
+          error,
+          isTouched,
+          initialValue,
+          value: status === statuses.INITIAL
+            ? value || initialValue || componentInitialValue
+            : value
+        }
+      })
+      .value()
   }
 })(Field)
