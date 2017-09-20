@@ -26,7 +26,7 @@ class FormReducers {
   }
 
   updateValue = (state, action) => {
-    const { formName, fieldName, value, isSilent = false } = action
+    const { formName, fieldName, value, isSilent = false, meta } = action
     const form = state[formName]
     const field = form && form[fieldName]
     const isTouched = isSilent ? _.get(field, `isTouched`, false) : true
@@ -37,6 +37,10 @@ class FormReducers {
         status: statuses.VALIDATING,
         [fieldName]: {
           ...field,
+          meta: {
+            ..._.get(field, 'meta', {}),
+            ...meta
+          },
           status: statuses.VALIDATING,
           value,
           isTouched
@@ -47,7 +51,7 @@ class FormReducers {
   }
 
   registerField = (state, action) => {
-    const { formName, fieldName, value, validate } = action
+    const { formName, fieldName, value, validate, meta } = action
     const form = state[formName]
     const field = form && form[fieldName]
     const nextState = {
@@ -62,6 +66,10 @@ class FormReducers {
           initialValue: value,
           value,
           validate,
+          meta: {
+            ..._.get(field, 'meta', {}),
+            ...meta
+          },
           ...field
         }
       }
@@ -70,7 +78,7 @@ class FormReducers {
   }
 
   updateInitialValue = (state, action) => {
-    const { formName, fieldName, value: nextInitialValue } = action
+    const { formName, fieldName, value: nextInitialValue, meta } = action
     const form = state[formName]
     const field = form && form[fieldName]
     const nextValue = _.get(field, 'isTouched') === false ? nextInitialValue : _.get(field, 'value')
@@ -80,6 +88,10 @@ class FormReducers {
         ...form,
         [fieldName]: {
           ...field,
+          meta: {
+            ..._.get(field, 'meta', {}),
+            ...meta
+          },
           initialValue: nextInitialValue,
           value: nextValue
         }
@@ -207,6 +219,27 @@ class FormReducers {
         ...form,
         status: nextStatus,
         [fieldName]: nextField
+      }
+    }
+    return nextState
+  }
+
+  updateMeta = (state, action) => {
+    const { formName, fieldName, meta } = action
+    const form = state[formName]
+    const field = form && form[fieldName]
+
+    const nextState = {
+      ...state,
+      [formName]: {
+        ...form,
+        [fieldName]: {
+          ...field,
+          meta: {
+            ..._.get(field, 'meta', {}),
+            ...meta
+          }
+        }
       }
     }
     return nextState

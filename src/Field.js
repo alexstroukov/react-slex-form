@@ -25,14 +25,15 @@ class Field extends Component {
   }
 
   render () {
-    const { render } = this.props
+    const { render, ...rest } = this.props
     return render
-      ? render({ ..._.omit(this.props, 'render', 'register', 'unregister', 'validate', 'changeInitialValue') })
+      ? render({ ..._.omit(rest, 'register', 'unregister', 'validate', 'changeInitialValue') })
       : null
   }
 }
 
 Field.propTypes = {
+  value: PropTypes.object,
   stayRegistered: PropTypes.bool,
   isLoading: PropTypes.bool.isRequired,
   isTouched: PropTypes.bool.isRequired,
@@ -53,10 +54,9 @@ Field.propTypes = {
 export { Field }
 
 export default connect((dispatch, getState, ownProps) => {
-  const { formName, fieldName, value: componentInitialValue, validate } = ownProps
-  const { value, status, isTouched, initialValue, isLoading, messages } = getField()
-
-  const register = () => dispatch(actions.registerField({ formName, fieldName, value: componentInitialValue, validate }))
+  const { formName, fieldName, value: componentInitialValue, validate, meta: registrationMeta } = ownProps
+  const { value, status, isTouched, initialValue, isLoading, messages, meta } = getField()
+  const register = () => dispatch(actions.registerField({ formName, fieldName, value: componentInitialValue, validate, meta: registrationMeta }))
   const unregister = () => dispatch(actions.unregisterField({ formName, fieldName }))
   const changeValue = nextValue => dispatch(actions.changeValue({ formName, fieldName, value: nextValue }))
   const changeInitialValue = () => {
@@ -65,12 +65,13 @@ export default connect((dispatch, getState, ownProps) => {
       `form.${formName}.${fieldName}.value`
     ])
     if (_.isEqual(initialValue, valueInStore) && !_.isEqual(initialValue, componentInitialValue)) {
-      dispatch(actions.changeInitialValue({ formName, fieldName, value: componentInitialValue }))
+      dispatch(actions.changeInitialValue({ formName, fieldName, value: componentInitialValue, meta: registrationMeta }))
     }
   }
 
   return {
     ...ownProps,
+    meta,
     register,
     unregister,
     changeValue,
@@ -85,8 +86,8 @@ export default connect((dispatch, getState, ownProps) => {
   function getField () {
     return _.chain(getState())
       .get(`form.${formName}.${fieldName}`)
-      .at(['value', 'status', 'error', 'isTouched', 'initialValue'])
-      .thru(([ value, status = statuses.INITIAL, error, isTouched = false, initialValue ]) => {
+      .at(['value', 'status', 'error', 'isTouched', 'initialValue', 'meta'])
+      .thru(([ value, status = statuses.INITIAL, error, isTouched = false, initialValue, meta = {} ]) => {
         const isLoading = status === statuses.VALIDATING
         const messages = _.chain([error])
           .flatten()
@@ -95,6 +96,7 @@ export default connect((dispatch, getState, ownProps) => {
           .map(error => error.message)
           .value() 
         return {
+          meta,
           messages,
           isLoading,
           status,

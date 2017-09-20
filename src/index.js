@@ -29,6 +29,8 @@ export default function reduceForm (state = intitialState, action) {
       return reducers.isInvalid(state, action)
     case actionTypes.VALIDATING:
       return reducers.validating(state, action)
+    case actionTypes.UPDATE_META:
+      return reducers.updateMeta(state, action)
     default:
       return state
   }

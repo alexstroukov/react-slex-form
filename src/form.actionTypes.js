@@ -1,3 +1,4 @@
+export const UPDATE_META = 'UPDATE_META'
 export const RESET_FORM_STORE = 'RESET_FORM_STORE'
 export const RESET_FIELD = 'RESET_FIELD'
 export const RESET_FORM = 'RESET_FORM'

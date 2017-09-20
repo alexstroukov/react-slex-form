@@ -10,9 +10,9 @@ class FormActions {
     return action
   }
 
-  changeInitialValue = ({ formName, fieldName, value }) => {
+  changeInitialValue = ({ formName, fieldName, value, meta }) => {
     return (dispatch, getState) => {
-      dispatch(this.updateInitialValue({ formName, fieldName, value }))
+      dispatch(this.updateInitialValue({ formName, fieldName, value, meta }))
       const fieldIsCurrentlyValidating = _.chain(getState())
         .get(`form.${formName}.${fieldName}.status`)
         .eq(statuses.VALIDATING)
@@ -23,12 +23,13 @@ class FormActions {
     }
   }
 
-  updateInitialValue = ({ formName, fieldName, value }) => {
+  updateInitialValue = ({ formName, fieldName, value, meta }) => {
     const action = {
       type: actionTypes.UPDATE_INITIAL_VALUE,
       formName,
       fieldName,
-      value
+      value,
+      meta
     }
     return action
   }
@@ -121,20 +122,21 @@ class FormActions {
     }
   }
 
-  updateValue = ({ formName, fieldName, value, isSilent }) => {
+  updateValue = ({ formName, fieldName, value, isSilent, meta }) => {
     const action = {
       type: actionTypes.UPDATE_VALUE,
       formName,
       fieldName,
       isSilent,
-      value
+      value,
+      meta
     }
     return action
   }
 
-  changeValue = ({ formName, fieldName, value, isSilent = true }) => {
+  changeValue = ({ formName, fieldName, value, isSilent = true, meta }) => {
     return (dispatch, getState) => {
-      dispatch(this.updateValue({ formName, fieldName, value, isSilent }))
+      dispatch(this.updateValue({ formName, fieldName, value, isSilent, meta }))
       dispatch(this.validate({ formName, fieldName, value }))
     }
   }
@@ -167,26 +169,33 @@ class FormActions {
     return action
   }
 
-  registerField = ({ formName, fieldName, value, validate }) => {
+  registerField = ({ formName, fieldName, value, validate, meta }) => {
     return (dispatch, getState) => {
-      const pristine = _.chain(getState())
-        .get(`form.${formName}.status`, statuses.INITIAL)
-        .thru(status => status === statuses.INITIAL)
+      const fieldIsRegistered = _.chain(getState())
+        .has(`form.${formName}.${fieldName}`)
         .value()
-      dispatch(this.addFormField({ formName, fieldName, value, validate }))
-      if (!pristine) {
-        dispatch(this.validate({ formName, fieldName, value }))
+      if (!fieldIsRegistered) {
+        dispatch(this.addFormField({ formName, fieldName, value, validate, meta }))
+        const pristine = _.chain(getState())
+          .get(`form.${formName}.status`, statuses.INITIAL)
+          .thru(status => status === statuses.INITIAL)
+          .value()
+        if (!pristine) {
+          dispatch(this.validate({ formName, fieldName, value }))
+        }
       }
+
     }
   }
 
-  addFormField = ({ formName, fieldName, value, validate }) => {
+  addFormField = ({ formName, fieldName, value, validate, meta }) => {
     const action = {
       type: actionTypes.REGISTER_FIELD,
       formName,
       fieldName,
       value,
-      validate
+      validate,
+      meta
     }
     return action
   }
@@ -196,6 +205,16 @@ class FormActions {
       type: actionTypes.UNREGISTER_FIELD,
       formName,
       fieldName
+    }
+    return action
+  }
+
+  updateMeta = ({ formName, fieldName, meta }) => {
+    const action = {
+      type: actionTypes.UPDATE_META,
+      formName,
+      fieldName,
+      meta
     }
     return action
   }
