@@ -29,23 +29,27 @@ class FormReducers {
     const { formName, fieldName, value, isSilent = false, meta } = action
     const form = state[formName]
     const field = form && form[fieldName]
+    const existingMeta = _.get(field, 'meta', {})
     const isTouched = isSilent ? _.get(field, `isTouched`, false) : true
+    const nextMeta = {
+      ...existingMeta,
+      ...meta
+    }
+    const nextField = {
+      ...field,
+      meta: nextMeta,
+      status: statuses.VALIDATING,
+      value,
+      isTouched
+    }
+    const nextForm = {
+      ...form,
+      status: statuses.VALIDATING,
+      [fieldName]: nextField
+    }
     const nextState = {
       ...state,
-      [formName]: {
-        ...form,
-        status: statuses.VALIDATING,
-        [fieldName]: {
-          ...field,
-          meta: {
-            ..._.get(field, 'meta', {}),
-            ...meta
-          },
-          status: statuses.VALIDATING,
-          value,
-          isTouched
-        }
-      }
+      [formName]: nextForm
     }
     return nextState
   }
@@ -54,24 +58,27 @@ class FormReducers {
     const { formName, fieldName, value, validate, meta } = action
     const form = state[formName]
     const field = form && form[fieldName]
+    const existingMeta = _.get(field, 'meta', {})
+    const nextMeta = {
+      ...existingMeta,
+      ...meta
+    }
+    const nextField = {
+      status: statuses.INITIAL,
+      error: undefined,
+      isTouched: false,
+      initialValue: value,
+      value,
+      validate,
+      ...field,
+      meta: nextMeta
+    }
     const nextState = {
       ...state,
       [formName]: {
         status: statuses.INITIAL, // will get overwritten if form exists with a status
         ...form,
-        [fieldName]: {
-          status: statuses.INITIAL,
-          error: undefined,
-          isTouched: false,
-          initialValue: value,
-          value,
-          validate,
-          meta: {
-            ..._.get(field, 'meta', {}),
-            ...meta
-          },
-          ...field
-        }
+        [fieldName]: nextField
       }
     }
     return nextState
@@ -81,21 +88,26 @@ class FormReducers {
     const { formName, fieldName, value: nextInitialValue, meta } = action
     const form = state[formName]
     const field = form && form[fieldName]
+    const existingMeta = _.get(field, 'meta', {})
+    const nextMeta = {
+      ...existingMeta,
+      ...meta
+    }
     const nextValue = _.get(field, 'isTouched') === false ? nextInitialValue : _.get(field, 'value')
+    const nextField = {
+      ...field,
+      meta: nextMeta,
+      initialValue: nextInitialValue,
+      value: nextValue
+    }
+    const nextForm = {
+      ...form,
+      [fieldName]: nextField
+    }
+
     const nextState = {
       ...state,
-      [formName]: {
-        ...form,
-        [fieldName]: {
-          ...field,
-          meta: {
-            ..._.get(field, 'meta', {}),
-            ...meta
-          },
-          initialValue: nextInitialValue,
-          value: nextValue
-        }
-      }
+      [formName]: nextForm
     }
     return nextState
   }
@@ -228,19 +240,22 @@ class FormReducers {
     const { formName, fieldName, meta } = action
     const form = state[formName]
     const field = form && form[fieldName]
-
+    const existingMeta = _.get(field, 'meta', {})
+    const nextMeta = {
+      ...existingMeta,
+      ...meta
+    }
+    const nextField = {
+      ...field,
+      meta: nextMeta
+    }
+    const nextForm = {
+      ...form,
+      [fieldName]: nextField
+    }
     const nextState = {
       ...state,
-      [formName]: {
-        ...form,
-        [fieldName]: {
-          ...field,
-          meta: {
-            ..._.get(field, 'meta', {}),
-            ...meta
-          }
-        }
-      }
+      [formName]: nextForm
     }
     return nextState
   }

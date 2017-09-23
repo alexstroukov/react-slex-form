@@ -598,6 +598,29 @@ describe('form.actions', function () {
     })
   })
 
+  describe('updateMeta', function () {
+    const params = { formName: 'testformName', fieldName: 'testFieldName', meta: { metaValue: 'testValue' } }
+    it('should create an object action', function () {
+      const updateMetaAction = formActions.updateMeta(params)
+      expect(updateMetaAction !== null && typeof updateMetaAction === 'object').to.equal(true)
+    })
+    it('should be of type UPDATE_META', function () {
+      const updateMetaAction = formActions.updateMeta(params)
+      expect(updateMetaAction.type).to.equal(formActionTypes.UPDATE_META)
+    })
+    it('should include the given formName in the returned object', function () {
+      const updateMetaAction = formActions.updateMeta(params)
+      expect(updateMetaAction.formName).to.equal(params.formName)
+    })
+    it('should include the given fieldName in the returned object', function () {
+      const updateMetaAction = formActions.updateMeta(params)
+      expect(updateMetaAction.fieldName).to.equal(params.fieldName)
+    })
+    it('should include the given meta in the returned object', function () {
+      const updateMetaAction = formActions.updateMeta(params)
+      expect(updateMetaAction.meta).to.equal(params.meta)
+    })
+  })
   describe('updateInitialValue', function () {
     it('should create an object action', function () {
       const params = { formName: 'testformName', fieldName: 'testFieldName', value: 'testValue' }

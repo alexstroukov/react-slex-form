@@ -30,28 +30,34 @@ describe('form.reducers', function () {
   describe('updateValue', function () {
     const state = {
       testForm: {
-        testField: {}
+        testField: {
+          meta: {
+            existingProp: 'existingProp'
+          }
+        }
       }
     }
+    const action = { formName: 'testForm', fieldName: 'testField', value: 'testValue', meta: { newProp: 'newProp' } }
     it('should return a new state', function () {
-      const action = { formName: 'testForm', fieldName: 'testField', value: 'testValue' }
       const nextState = formReducers.updateValue(state, action)
       expect(state).to.not.equal(nextState)
     })
     it('should set the form to validating', function () {
-      const action = { formName: 'testForm', fieldName: 'testField', value: 'testValue' }
       const nextState = formReducers.updateValue(state, action)
       expect(nextState.testForm.status).to.equal(formStatuses.VALIDATING)
     })
     it('should set the field to validating', function () {
-      const action = { formName: 'testForm', fieldName: 'testField', value: 'testValue' }
       const nextState = formReducers.updateValue(state, action)
       expect(nextState.testForm.testField.status).to.equal(formStatuses.VALIDATING)
     })
     it('should set the field to touched', function () {
-      const action = { formName: 'testForm', fieldName: 'testField', value: 'testValue' }
       const nextState = formReducers.updateValue(state, action)
       expect(nextState.testForm.testField.isTouched).to.equal(true)
+    })
+    it('should merge the meta', function () {
+      const nextState = formReducers.updateValue(state, action)
+      expect(nextState.testForm.testField.meta.existingProp).to.equal(state.testForm.testField.meta.existingProp)
+      expect(nextState.testForm.testField.meta.newProp).to.equal(action.meta.newProp)
     })
 
     describe('given that the isSilent param is true', function () {
@@ -410,19 +416,26 @@ describe('form.reducers', function () {
     const state = {
       testForm: {
         testField: {
-          initialValue: 'existingInitialValue'
+          initialValue: 'existingInitialValue',
+          meta: {
+            existingProp: 'existingProp'
+          }
         }
       }
     }
+    const action = { formName: 'testForm', fieldName: 'testField', value: 'testNextInitialValue', meta: { newProp: 'newProp' } }
     it('should return a new state', function () {
-      const action = { formName: 'testForm', fieldName: 'testField', value: 'testNextInitialValue' }
       const nextState = formReducers.updateInitialValue(state, action)
       expect(state).to.not.equal(nextState)
     })
     it('should change initialValue on the field to the given value', function () {
-      const action = { formName: 'testForm', fieldName: 'testField', value: 'testNextInitialValue' }
       const nextState = formReducers.updateInitialValue(state, action)
       expect(nextState.testForm.testField.initialValue).to.equal(action.value)
+    })
+    it('should merge the meta', function () {
+      const nextState = formReducers.updateInitialValue(state, action)
+      expect(nextState.testForm.testField.meta.existingProp).to.equal(state.testForm.testField.meta.existingProp)
+      expect(nextState.testForm.testField.meta.newProp).to.equal(action.meta.newProp)
     })
     describe('given that the field has not been touched', function () {
       const state = {
@@ -434,7 +447,6 @@ describe('form.reducers', function () {
         }
       }
       it('should change value on the field to the given value', function () {
-        const action = { formName: 'testForm', fieldName: 'testField', value: 'testNextInitialValue' }
         const nextState = formReducers.updateInitialValue(state, action)
         expect(nextState.testForm.testField.value).to.equal(action.value)
       })
@@ -450,7 +462,6 @@ describe('form.reducers', function () {
         }
       }
       it('should change not value on the field', function () {
-        const action = { formName: 'testForm', fieldName: 'testField', value: 'testNextInitialValue' }
         const nextState = formReducers.updateInitialValue(state, action)
         expect(nextState.testForm.testField.value).to.equal(state.testForm.testField.value)
       })
@@ -619,5 +630,27 @@ describe('form.reducers', function () {
         expect(nextState.testForm.status).to.equal(formStatuses.INVALID)
       })
     })
+  })
+  describe('updateMeta', function () {
+    const state = {
+      testForm: {
+        testField: {
+          meta: {
+            existingProp: 'existingProp'
+          }
+        }
+      }
+    }
+    const action = { formName: 'testForm', fieldName: 'testField', value: 'testValue', meta: { newProp: 'newProp' } }
+    it('should return a new state', function () {
+      const nextState = formReducers.updateMeta(state, action)
+      expect(state).to.not.equal(nextState)
+    })
+    it('should merge the meta', function () {
+      const nextState = formReducers.updateMeta(state, action)
+      expect(nextState.testForm.testField.meta.existingProp).to.equal(state.testForm.testField.meta.existingProp)
+      expect(nextState.testForm.testField.meta.newProp).to.equal(action.meta.newProp)
+    })
+
   })
 })
