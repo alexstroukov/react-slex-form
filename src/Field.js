@@ -12,6 +12,15 @@ class Field extends Component {
     register()
   }
 
+  componentWillReceiveProps (nextProps) {
+    const { register, formName, fieldName } = nextProps
+    const { formName: prevFormName, fieldName: prevFieldName } = this.props
+    if (formName !== prevFormName || fieldName !== prevFieldName) {
+      debugger
+      register()
+    }
+  }
+
   componentDidUpdate (nextProps) {
     const { changeInitialValue } = this.props
     changeInitialValue()
