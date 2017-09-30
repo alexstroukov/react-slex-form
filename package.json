@@ -37,15 +37,16 @@
   },
   "dependencies": {
     "lodash": "4.17.2",
-    "react": "16.0.0-beta.5",
+    "react": "16.0.0",
     "prop-types": "15.5.10",
     "react-slex-store": "0.0.8",
     "slex-store": "0.0.6"
   },
   "devDependencies": {
-    "react-dom": "16.0.0-beta.5",
-    "react-test-renderer": "16.0.0-beta.5",
-    "enzyme": "3.0.0-alpha.1",
+    "react-dom": "16.0.0",
+    "react-test-renderer": "16.0.0",
+    "enzyme": "3.0.0",
+    "enzyme-adapter-react-16": "1.0.0",
     "react-addons-test-utils": "15.6.0",
     "babel": "6.23.0",
     "babel-cli": "6.26.0",

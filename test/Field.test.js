@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { mount, configure } from 'enzyme'
-import ReactSixteenAdapter from 'enzyme/build/adapters/ReactSixteenAdapter'
+import ReactSixteenAdapter from 'enzyme-adapter-react-16'
 import { expect } from 'chai'
 import sinon from 'sinon'
 import Field from '../src/Field'
