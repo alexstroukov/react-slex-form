@@ -226,7 +226,6 @@ describe('Field', function () {
       const stubChangeInitialValue = {}
       const changeInitialValueStub = sandbox.stub(formActions, 'changeInitialValue').returns(stubChangeInitialValue)
       wrapper.setProps({ value: 2 })
-      debugger
       expect(dispatchSpy.callCount).to.equal(1)
       expect(changeInitialValueStub.calledOnce).to.be.true
       expect(changeInitialValueStub.firstCall.args[0].value).to.equal(2)

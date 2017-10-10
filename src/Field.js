@@ -16,7 +16,6 @@ class Field extends Component {
     const { register, formName, fieldName } = nextProps
     const { formName: prevFormName, fieldName: prevFieldName } = this.props
     if (formName !== prevFormName || fieldName !== prevFieldName) {
-      debugger
       register()
     }
   }
