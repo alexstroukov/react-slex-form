@@ -22,11 +22,11 @@ describe('form.actions', function () {
       expect(typeof changeInitialValueAction === 'function').to.equal(true)
     })
 
-    it('should dispatch updateInitialValue', function () {
+    it('should dispatch changeInitialValue', function () {
       const params = { formName: 'testformName', fieldName: 'testFieldName', value: 'testValue' }
       const dispatchStub = sandbox.stub()
       const getStateStub = sandbox.stub()
-      const updateInitialValueStub = sandbox.stub(formActions, 'updateInitialValue')
+      const updateInitialValueStub = sandbox.stub(formActions, 'changeInitialValue')
       const changeInitialValueAction = formActions.changeInitialValue(params)
       changeInitialValueAction(dispatchStub, getStateStub)
       expect(updateInitialValueStub.callCount).to.equal(1)
@@ -45,7 +45,7 @@ describe('form.actions', function () {
             }
           }
         })
-        const updateInitialValueStub = sandbox.stub(formActions, 'updateInitialValue')
+        const updateInitialValueStub = sandbox.stub(formActions, 'changeInitialValue')
         const validateStub = sandbox.stub(formActions, 'validate')
         const changeInitialValueAction = formActions.changeInitialValue(params)
         changeInitialValueAction(dispatchStub, getStateStub)
@@ -309,21 +309,21 @@ describe('form.actions', function () {
       const changeValueAction = formActions.changeValue(params)
       expect(typeof changeValueAction === 'function').to.equal(true)
     })
-    it('should updateValue', function () {
+    it('should changeValue', function () {
       const params = { formName: 'testformName', fieldName: 'testFieldName', value: 'testValue', isSilent: false }
       const dispatchStub = sandbox.stub()
       const getStateStub = sandbox.stub().returns()
-      const updateValueStub = sandbox.stub(formActions, 'updateValue')
+      const changeValueStub = sandbox.stub(formActions, 'changeValue')
       const validateStub = sandbox.stub(formActions, 'validate')
       const changeValueAction = formActions.changeValue(params)
       changeValueAction(dispatchStub, getStateStub)
-      expect(updateValueStub.callCount).to.equal(1)
+      expect(changeValueStub.callCount).to.equal(1)
     })
     it('should validate', function () {
       const params = { formName: 'testformName', fieldName: 'testFieldName', value: 'testValue', isSilent: false }
       const dispatchStub = sandbox.stub()
       const getStateStub = sandbox.stub().returns()
-      const updateValueStub = sandbox.stub(formActions, 'updateValue')
+      const changeValueStub = sandbox.stub(formActions, 'changeValue')
       const validateStub = sandbox.stub(formActions, 'validate')
       const changeValueAction = formActions.changeValue(params)
       changeValueAction(dispatchStub, getStateStub)
@@ -621,63 +621,63 @@ describe('form.actions', function () {
       expect(updateMetaAction.meta).to.equal(params.meta)
     })
   })
-  describe('updateInitialValue', function () {
+  describe('changeInitialValue', function () {
     it('should create an object action', function () {
       const params = { formName: 'testformName', fieldName: 'testFieldName', value: 'testValue' }
-      const updateInitialValueAction = formActions.updateInitialValue(params)
+      const updateInitialValueAction = formActions.changeInitialValue(params)
       expect(updateInitialValueAction !== null && typeof updateInitialValueAction === 'object').to.equal(true)
     })
-    it('should be of type UPDATE_INITIAL_VALUE', function () {
+    it('should be of type CHANGE_INITIAL_VALUE', function () {
       const params = { formName: 'testformName', fieldName: 'testFieldName', value: 'testValue' }
-      const updateInitialValueAction = formActions.updateInitialValue(params)
-      expect(updateInitialValueAction.type).to.equal(formActionTypes.UPDATE_INITIAL_VALUE)
+      const updateInitialValueAction = formActions.changeInitialValue(params)
+      expect(updateInitialValueAction.type).to.equal(formActionTypes.CHANGE_INITIAL_VALUE)
     })
     it('should include the given formName in the returned object', function () {
       const params = { formName: 'testformName', fieldName: 'testFieldName', value: 'testValue' }
-      const updateInitialValueAction = formActions.updateInitialValue(params)
+      const updateInitialValueAction = formActions.changeInitialValue(params)
       expect(updateInitialValueAction.formName).to.equal(params.formName)
     })
     it('should include the given fieldName in the returned object', function () {
       const params = { formName: 'testformName', fieldName: 'testFieldName', value: 'testValue' }
-      const updateInitialValueAction = formActions.updateInitialValue(params)
+      const updateInitialValueAction = formActions.changeInitialValue(params)
       expect(updateInitialValueAction.fieldName).to.equal(params.fieldName)
     })
     it('should include the given value in the returned object', function () {
       const params = { formName: 'testformName', fieldName: 'testFieldName', value: 'testValue' }
-      const updateInitialValueAction = formActions.updateInitialValue(params)
+      const updateInitialValueAction = formActions.changeInitialValue(params)
       expect(updateInitialValueAction.value).to.equal(params.value)
     })
   })
-  describe('updateValue', function () {
+  describe('changeValue', function () {
     it('should create an object action', function () {
       const params = { formName: 'testformName', fieldName: 'testFieldName', value: 'testValue', isSilent: false }
-      const updateValueAction = formActions.updateValue(params)
-      expect(updateValueAction !== null && typeof updateValueAction === 'object').to.equal(true)
+      const changeValueAction = formActions.changeValue(params)
+      expect(changeValueAction !== null && typeof changeValueAction === 'object').to.equal(true)
     })
-    it('should be of type UPDATE_VALUE', function () {
+    it('should be of type CHANGE_VALUE', function () {
       const params = { formName: 'testformName', fieldName: 'testFieldName', value: 'testValue', isSilent: false }
-      const updateValueAction = formActions.updateValue(params)
-      expect(updateValueAction.type).to.equal(formActionTypes.UPDATE_VALUE)
+      const changeValueAction = formActions.changeValue(params)
+      expect(changeValueAction.type).to.equal(formActionTypes.CHANGE_VALUE)
     })
     it('should include the given formName in the returned object', function () {
       const params = { formName: 'testformName', fieldName: 'testFieldName', value: 'testValue', isSilent: false }
-      const updateValueAction = formActions.updateValue(params)
-      expect(updateValueAction.formName).to.equal(params.formName)
+      const changeValueAction = formActions.changeValue(params)
+      expect(changeValueAction.formName).to.equal(params.formName)
     })
     it('should include the given fieldName in the returned object', function () {
       const params = { formName: 'testformName', fieldName: 'testFieldName', value: 'testValue', isSilent: false }
-      const updateValueAction = formActions.updateValue(params)
-      expect(updateValueAction.fieldName).to.equal(params.fieldName)
+      const changeValueAction = formActions.changeValue(params)
+      expect(changeValueAction.fieldName).to.equal(params.fieldName)
     })
     it('should include the given value in the returned object', function () {
       const params = { formName: 'testformName', fieldName: 'testFieldName', value: 'testValue', isSilent: false }
-      const updateValueAction = formActions.updateValue(params)
-      expect(updateValueAction.value).to.equal(params.value)
+      const changeValueAction = formActions.changeValue(params)
+      expect(changeValueAction.value).to.equal(params.value)
     })
     it('should include the given isSilent in the returned object', function () {
       const params = { formName: 'testformName', fieldName: 'testFieldName', value: 'testValue', isSilent: false }
-      const updateValueAction = formActions.updateValue(params)
-      expect(updateValueAction.isSilent).to.equal(params.isSilent)
+      const changeValueAction = formActions.changeValue(params)
+      expect(changeValueAction.isSilent).to.equal(params.isSilent)
     })
   })
   describe('validating', function () {

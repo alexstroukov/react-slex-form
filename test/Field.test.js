@@ -121,7 +121,7 @@ describe('Field', function () {
             [fieldName]: {
               status: formStatuses.VALID,
               value: 2,
-              isTouched: true
+              touched: true
             }
           }
         }
@@ -150,13 +150,13 @@ describe('Field', function () {
       expect(renderStub.calledOnce).to.be.true
       expect(renderStub.firstCall.args[0].value).to.equal(2)
     })
-    it('should render isTouched from the store', function () {
+    it('should render touched from the store', function () {
       expect(renderStub.calledOnce).to.be.true
-      expect(renderStub.firstCall.args[0].isTouched).to.equal(true)
+      expect(renderStub.firstCall.args[0].touched).to.equal(true)
     })
-    it('should get isLoading false', function () {
+    it('should get loading false', function () {
       expect(renderStub.calledOnce).to.be.true
-      expect(renderStub.firstCall.args[0].isLoading).to.equal(false)
+      expect(renderStub.firstCall.args[0].loading).to.equal(false)
     })
   })
   describe('when its a field with a cleared value', function () {
@@ -188,7 +188,7 @@ describe('Field', function () {
               status: formStatuses.VALID,
               initialValue: 2,
               value: undefined,
-              isTouched: true
+              touched: true
             }
           }
         }
@@ -253,7 +253,7 @@ describe('Field', function () {
             [fieldName]: {
               status: formStatuses.VALIDATING,
               value: 2,
-              isTouched: true
+              touched: true
             }
           }
         }
@@ -263,9 +263,9 @@ describe('Field', function () {
       renderStub = sandbox.stub().returns(null)
       wrapper = mount(<Field store={store} formName={formName} fieldName={fieldName} render={renderStub} />)
     })
-    it('should get isLoading true', function () {
+    it('should get loading true', function () {
       expect(renderStub.calledOnce).to.be.true
-      expect(renderStub.firstCall.args[0].isLoading).to.equal(true)
+      expect(renderStub.firstCall.args[0].loading).to.equal(true)
     })
   })
   describe('when its an error field', function () {

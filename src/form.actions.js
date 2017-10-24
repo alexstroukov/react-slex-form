@@ -11,21 +11,8 @@ class FormActions {
   }
 
   changeInitialValue = ({ formName, fieldName, value, meta }) => {
-    return (dispatch, getState) => {
-      dispatch(this.updateInitialValue({ formName, fieldName, value, meta }))
-      const fieldIsCurrentlyValidating = _.chain(getState())
-        .get(`form.${formName}.${fieldName}.status`)
-        .eq(statuses.VALIDATING)
-        .value()
-      if (fieldIsCurrentlyValidating) {
-        dispatch(this.validate({ formName, fieldName, value }))
-      }
-    }
-  }
-
-  updateInitialValue = ({ formName, fieldName, value, meta }) => {
     const action = {
-      type: actionTypes.UPDATE_INITIAL_VALUE,
+      type: actionTypes.CHANGE_INITIAL_VALUE,
       formName,
       fieldName,
       value,
@@ -34,43 +21,30 @@ class FormActions {
     return action
   }
 
-  submitForm = (formName, submitServiceFn = () => {}) => {
-    return (dispatch, getState) => {
-      return dispatch(this.validateForm({ formName }))
-        .then(formErrors => {
-          if (_.isEmpty(formErrors)) {
-            const formValues = _.chain(_.get(getState(), `form.${formName}`), {})
-              .omit('status')
-              .map(({ value }, fieldName) => ({ fieldName, value }))
-              .reduce((memo, { fieldName, value }) => ({ ...memo, [fieldName]: value }), {})
-              .value()
-            return Promise.resolve(submitServiceFn(formValues))
-          } else {
-            return Promise.reject(formErrors)
-          }
-        })
+  submitForm = ({ formName }) => {
+    const action = {
+      type: actionTypes.SUBMIT_FORM,
+      formName
     }
+    return action
   }
 
-  validateForm = ({ formName }) => {
-    return (dispatch, getState) => {
-      const validateFormPromise = _.chain(getState())
-          .get(`form.${formName}`)
-          .map((field, fieldName) => ({ fieldName, ...field }))
-          .map(({ fieldName, value }) => dispatch(this.validate({ formName, fieldName, value })))
-          .thru(promises => Promise
-            .all(promises)
-            .then(() => _.chain(getState())
-              .get(`form.${formName}`)
-              .map(field => field.error)
-              .reject(_.isUndefined)
-              .flatten()
-              .value()
-            )
-          )
-          .value()
-      return validateFormPromise
+  submitFormSuccess = ({ formName, result }) => {
+    const action = {
+      type: actionTypes.SUBMIT_FORM_SUCCESS,
+      formName,
+      result
     }
+    return action
+  }
+
+  submitFormFail = ({ formName, error, validationErrors }) => {
+    const action = {
+      type: actionTypes.SUBMIT_FORM_FAIL,
+      formName,
+      validationErrors
+    }
+    return action
   }
 
   resetForm = ({ formName }) => {
@@ -89,42 +63,10 @@ class FormActions {
     }
     return action
   }
-
-  validate = ({ formName, fieldName, value }) => {
-    return (dispatch, getState) => {
-      const [ form, validate, status ] = _.at(getState(), [`form.${formName}`, `form.${formName}.${fieldName}.validate`, `form.${formName}.${fieldName}.status`])
-      if (validate) {
-        if (status !== statuses.VALIDATING) {
-          dispatch(this.validating({ formName, fieldName }))
-        }
-        return Promise.resolve(validate(value, form))
-          .then(validationResult => {
-            const currentValue = _.get(getState(), `form.${formName}.${fieldName}.value`)
-            const currentStatus = _.get(getState(), `form.${formName}.${fieldName}.status`)
-            if (currentValue === value && currentStatus !== statuses.INITIAL) {
-              if (_.isError(validationResult)) {
-                dispatch(this.isInvalid({ formName, fieldName, error: validationResult }))
-              } else {
-                dispatch(this.isValid({ formName, fieldName }))
-              }
-            }
-          })
-          .catch(error => {
-            const currentValue = _.get(getState(), `form.${formName}.${fieldName}.value`)
-            const currentStatus = _.get(getState(), `form.${formName}.${fieldName}.status`)
-            if (currentValue === value && currentStatus !== statuses.INITIAL) {
-              dispatch(this.isInvalid({ formName, fieldName, error }))
-            }
-          })
-      } else {
-        return Promise.resolve(dispatch(this.isValid({ formName, fieldName })))
-      }
-    }
-  }
-
-  updateValue = ({ formName, fieldName, value, isSilent, meta }) => {
+  //
+  changeValue = ({ formName, fieldName, value, isSilent = true, meta }) => {
     const action = {
-      type: actionTypes.UPDATE_VALUE,
+      type: actionTypes.CHANGE_VALUE,
       formName,
       fieldName,
       isSilent,
@@ -132,13 +74,6 @@ class FormActions {
       meta
     }
     return action
-  }
-
-  changeValue = ({ formName, fieldName, value, isSilent = true, meta }) => {
-    return (dispatch, getState) => {
-      dispatch(this.updateValue({ formName, fieldName, value, isSilent, meta }))
-      dispatch(this.validate({ formName, fieldName, value }))
-    }
   }
 
   validating = ({ formName, fieldName }) => {
@@ -170,25 +105,6 @@ class FormActions {
   }
 
   registerField = ({ formName, fieldName, value, validate, meta }) => {
-    return (dispatch, getState) => {
-      const fieldIsRegistered = _.chain(getState())
-        .has(`form.${formName}.${fieldName}`)
-        .value()
-      if (!fieldIsRegistered) {
-        dispatch(this.addFormField({ formName, fieldName, value, validate, meta }))
-        const pristine = _.chain(getState())
-          .get(`form.${formName}.status`, statuses.INITIAL)
-          .thru(status => status === statuses.INITIAL)
-          .value()
-        if (!pristine) {
-          dispatch(this.validate({ formName, fieldName, value }))
-        }
-      }
-
-    }
-  }
-
-  addFormField = ({ formName, fieldName, value, validate, meta }) => {
     const action = {
       type: actionTypes.REGISTER_FIELD,
       formName,

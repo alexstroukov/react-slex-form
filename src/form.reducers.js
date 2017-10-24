@@ -6,6 +6,49 @@ class FormReducers {
   resetFormStore = (state, action) => {
     return initialState
   }
+  submitForm = (state, action) => {
+    const { formName } = action
+    const form = state[formName]
+    const nextForm = {
+      ...form,
+      status: statuses.SUBMITTING
+    }
+    const nextState = {
+      ...state,
+      [formName]: nextForm
+    }
+    return nextState
+  }
+
+  submitFormSuccess = (state, action) => {
+    return this.resetForm(state, action)
+  }
+
+  submitFormFail = (state, action) => {
+    const { formName, validationErrors, error } = action
+    const form = state[formName]
+    const nextState = _.chain(state)
+      .get(formName)
+      .omit('status')
+      .map((field, fieldName) => {
+        const error = validationErrors[fieldName]
+        const nextField = !error
+          ? field
+          : {
+            ...field,
+            error
+            status: statuses.INVALID
+          }
+        return {
+          fieldName,
+          field: nextField
+        }
+      })
+      .reduce((memo, { fieldName, field }) => ({ ...memo, [fieldName]: field, status: statuses.INVALID }), state)
+      .value()
+
+    return nextState
+  }
 
   validating = (state, action) => {
     const { formName, fieldName } = action
@@ -25,12 +68,22 @@ class FormReducers {
     return nextState
   }
 
-  updateValue = (state, action) => {
+  changeValue = (state, action) => {
     const { formName, fieldName, value, isSilent = false, meta } = action
     const form = state[formName]
     const field = form && form[fieldName]
+    const currentFieldStatus = _.get(field, 'status') 
+    const currentFormStatus = _.get(form, 'status') 
     const existingMeta = _.get(field, 'meta', {})
-    const isTouched = isSilent ? _.get(field, `isTouched`, false) : true
+    const touched = isSilent ? _.get(field, `touched`, false) : true
+    const hasValidator = _.has(state, `form.${formName}.${fieldName}.validate`)
+    const nextFieldStatus = hasValidator
+      ? statuses.VALIDATING
+      : statuses.VALID
+    const nextFormStatus = hasValidator
+      ? statuses.VALIDATING
+      : this._getNextFormStatus({ form, omitFieldName: fieldName, defaultStatus: statuses.VALID })
+  
     const nextMeta = {
       ...existingMeta,
       ...meta
@@ -38,13 +91,13 @@ class FormReducers {
     const nextField = {
       ...field,
       meta: nextMeta,
-      status: statuses.VALIDATING,
+      status: nextFieldStatus,
       value,
-      isTouched
+      touched
     }
     const nextForm = {
       ...form,
-      status: statuses.VALIDATING,
+      status: nextFormStatus,
       [fieldName]: nextField
     }
     const nextState = {
@@ -66,7 +119,7 @@ class FormReducers {
     const nextField = {
       status: statuses.INITIAL,
       error: undefined,
-      isTouched: false,
+      touched: false,
       initialValue: value,
       value,
       validate,
@@ -84,7 +137,7 @@ class FormReducers {
     return nextState
   }
 
-  updateInitialValue = (state, action) => {
+  changeInitialValue = (state, action) => {
     const { formName, fieldName, value: nextInitialValue, meta } = action
     const form = state[formName]
     const field = form && form[fieldName]
@@ -93,7 +146,7 @@ class FormReducers {
       ...existingMeta,
       ...meta
     }
-    const nextValue = _.get(field, 'isTouched') === false ? nextInitialValue : _.get(field, 'value')
+    const nextValue = _.get(field, 'touched') === false ? nextInitialValue : _.get(field, 'value')
     const nextField = {
       ...field,
       meta: nextMeta,
@@ -131,12 +184,12 @@ class FormReducers {
     const { formName, fieldName } = action
     const form = state[formName]
     const field = form && form[fieldName]
-    const nextStatus = this._getNextFormStatus({ form, omitFieldName: fieldName, defaultStatus: statuses.VALID })
+    const nextFormStatus = this._getNextFormStatus({ form, omitFieldName: fieldName, defaultStatus: statuses.VALID })
     const nextState = {
       ...state,
       [formName]: {
         ...form,
-        status: nextStatus,
+        status: nextFormStatus,
         [fieldName]: {
           ...field,
           error: undefined,
@@ -181,19 +234,13 @@ class FormReducers {
     const form = state[formName]
     const field = form && form[fieldName]
     if (field) {
-      const nextStatus = this._getNextFormStatus({ form, omitFieldName: fieldName, defaultStatus: statuses.INITIAL })
+      const nextFormStatus = this._getNextFormStatus({ form, omitFieldName: fieldName, defaultStatus: statuses.INITIAL })
       const nextState = {
         ...state,
         [formName]: {
           ...form,
-          status: nextStatus,
-          [fieldName]: {
-            ...field,
-            error: undefined,
-            status: statuses.INITIAL,
-            value: field.initialValue,
-            isTouched: false
-          }
+          status: nextFormStatus,
+          [fieldName]: this._resetField({ field })
         }
       }
       return nextState
@@ -202,15 +249,35 @@ class FormReducers {
     }
   }
 
+  _resetField = ({ field }) => {
+    return {
+      ...field,
+      error: undefined,
+      status: statuses.INITIAL,
+      value: field.initialValue,
+      touched: false
+    }
+  }
+
   resetForm = (state, action) => {
     const { formName } = action
     const nextState = _.chain(state)
         .get(formName)
         .omit('status')
-        .map((field, fieldName) => fieldName)
-        .reduce((state, fieldName) => {
-          return this.resetField(state, { formName, fieldName })
-        }, state)
+        .map((field, fieldName) => {
+          const nextField = this._resetField({ field })
+          return {
+            fieldName,
+            field: nextField
+          }
+        })
+        .reduce((memo, next) => {
+          const { fieldName, field } = next
+          return {
+            ...memo,
+            [fieldName]: field
+          }
+        }, { ...state, status: statuses.INITIAL })
         .value()
     return nextState
   }
@@ -224,12 +291,12 @@ class FormReducers {
       error,
       status: statuses.INVALID
     }
-    const nextStatus = this._getNextFormStatus({ form, replaceFieldName: fieldName, replaceFieldValue: nextField, defaultStatus: statuses.INVALID })
+    const nextFormStatus = this._getNextFormStatus({ form, replaceFieldName: fieldName, replaceFieldValue: nextField, defaultStatus: statuses.INVALID })
     const nextState = {
       ...state,
       [formName]: {
         ...form,
-        status: nextStatus,
+        status: nextFormStatus,
         [fieldName]: nextField
       }
     }

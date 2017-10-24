@@ -43,8 +43,8 @@ class Field extends Component {
 Field.propTypes = {
   value: PropTypes.object,
   stayRegistered: PropTypes.bool,
-  isLoading: PropTypes.bool.isRequired,
-  isTouched: PropTypes.bool.isRequired,
+  loading: PropTypes.bool.isRequired,
+  touched: PropTypes.bool.isRequired,
   formName: PropTypes.string.isRequired,
   fieldName: PropTypes.string.isRequired,
   value: PropTypes.any,
@@ -63,8 +63,15 @@ export { Field }
 
 export default connect((dispatch, getState, ownProps) => {
   const { formName, fieldName, value: componentInitialValue, validate, meta: registrationMeta } = ownProps
-  const { value, status, isTouched, initialValue, isLoading, messages, meta } = getField()
-  const register = () => dispatch(actions.registerField({ formName, fieldName, value: componentInitialValue, validate, meta: registrationMeta }))
+  const { value, status, touched, initialValue, loading, messages, meta } = getField()
+  const register = () => {
+    const fieldIsRegistered = _.chain(getState())
+      .has(`form.${formName}.${fieldName}`)
+      .value()
+    if (!fieldIsRegistered) {
+      dispatch(actions.registerField({ formName, fieldName, value: componentInitialValue, validate, meta: registrationMeta }))
+    }
+  }
   const unregister = () => dispatch(actions.unregisterField({ formName, fieldName }))
   const changeValue = nextValue => dispatch(actions.changeValue({ formName, fieldName, value: nextValue }))
   const changeInitialValue = () => {
@@ -87,16 +94,17 @@ export default connect((dispatch, getState, ownProps) => {
     value,
     status,
     messages,
-    isTouched,
-    isLoading
+    touched,
+    loading
   }
 
   function getField () {
     return _.chain(getState())
       .get(`form.${formName}.${fieldName}`)
-      .at(['value', 'status', 'error', 'isTouched', 'initialValue', 'meta'])
-      .thru(([ value, status = statuses.INITIAL, error, isTouched = false, initialValue, meta = {} ]) => {
-        const isLoading = status === statuses.VALIDATING
+      .at(['value', 'status', 'error', 'touched', 'initialValue', 'meta'])
+      .thru(([ value, status = statuses.INITIAL, error, touched = false, initialValue, meta = {} ]) => {
+        const loading = status === statuses.VALIDATING
+        const submitting = status === statuses.SUBMITTING
         const messages = _.chain([error])
           .flatten()
           .reject(_.isUndefined)
@@ -106,10 +114,11 @@ export default connect((dispatch, getState, ownProps) => {
         return {
           meta,
           messages,
-          isLoading,
+          loading,
+          submitting,
           status,
           error,
-          isTouched,
+          touched,
           initialValue,
           value: status === statuses.INITIAL
             ? value || initialValue || componentInitialValue

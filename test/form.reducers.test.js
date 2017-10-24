@@ -27,7 +27,7 @@ describe('form.reducers', function () {
       expect(nextState.testForm.testField.status).to.equal(formStatuses.VALIDATING)
     })
   })
-  describe('updateValue', function () {
+  describe('changeValue', function () {
     const state = {
       testForm: {
         testField: {
@@ -39,39 +39,39 @@ describe('form.reducers', function () {
     }
     const action = { formName: 'testForm', fieldName: 'testField', value: 'testValue', meta: { newProp: 'newProp' } }
     it('should return a new state', function () {
-      const nextState = formReducers.updateValue(state, action)
+      const nextState = formReducers.changeValue(state, action)
       expect(state).to.not.equal(nextState)
     })
     it('should set the form to validating', function () {
-      const nextState = formReducers.updateValue(state, action)
+      const nextState = formReducers.changeValue(state, action)
       expect(nextState.testForm.status).to.equal(formStatuses.VALIDATING)
     })
     it('should set the field to validating', function () {
-      const nextState = formReducers.updateValue(state, action)
+      const nextState = formReducers.changeValue(state, action)
       expect(nextState.testForm.testField.status).to.equal(formStatuses.VALIDATING)
     })
     it('should set the field to touched', function () {
-      const nextState = formReducers.updateValue(state, action)
-      expect(nextState.testForm.testField.isTouched).to.equal(true)
+      const nextState = formReducers.changeValue(state, action)
+      expect(nextState.testForm.testField.touched).to.equal(true)
     })
     it('should merge the meta', function () {
-      const nextState = formReducers.updateValue(state, action)
+      const nextState = formReducers.changeValue(state, action)
       expect(nextState.testForm.testField.meta.existingProp).to.equal(state.testForm.testField.meta.existingProp)
       expect(nextState.testForm.testField.meta.newProp).to.equal(action.meta.newProp)
     })
 
     describe('given that the isSilent param is true', function () {
-      it('should keep the current isTouched', function () {
+      it('should keep the current touched', function () {
         const state = {
           testForm: {
             testField: {
-              isTouched: 'existingIsTouched'
+              touched: 'existingIsTouched'
             }
           }
         }
         const action = { formName: 'testForm', fieldName: 'testField', value: 'testValue', isSilent: true }
-        const nextState = formReducers.updateValue(state, action)
-        expect(nextState.testForm.testField.isTouched).to.equal(state.testForm.testField.isTouched)
+        const nextState = formReducers.changeValue(state, action)
+        expect(nextState.testForm.testField.touched).to.equal(state.testForm.testField.touched)
       })
     })
   })
@@ -126,10 +126,10 @@ describe('form.reducers', function () {
         const nextState = formReducers.registerField(state, action)
         expect(nextState.testForm[action.fieldName].status).to.equal(formStatuses.INITIAL)
       })
-      it('should set the field isTouched to false', function () {
+      it('should set the field touched to false', function () {
         const action = { formName: 'testForm', fieldName: 'testField', value: 'testValue', validate: () => {} }
         const nextState = formReducers.registerField(state, action)
-        expect(nextState.testForm[action.fieldName].isTouched).to.equal(false)
+        expect(nextState.testForm[action.fieldName].touched).to.equal(false)
       })
       it('should set the field value to the value from the action', function () {
         const action = { formName: 'testForm', fieldName: 'testField', value: 'testValue', validate: () => {} }
@@ -153,7 +153,7 @@ describe('form.reducers', function () {
         testForm: {
           testField: {
             status: 'existingStatus',
-            isTouched: 'existingIsTouched',
+            touched: 'existingIsTouched',
             error: 'existingError'
           }
         }
@@ -163,10 +163,10 @@ describe('form.reducers', function () {
         const nextState = formReducers.registerField(state, action)
         expect(nextState.testForm[action.fieldName].status).to.equal(state.testForm[action.fieldName].status)
       })
-      it('should keep the existing fields isTouched', function () {
+      it('should keep the existing fields touched', function () {
         const action = { formName: 'testForm', fieldName: 'testField', value: 'testValue', validate: () => {} }
         const nextState = formReducers.registerField(state, action)
-        expect(nextState.testForm[action.fieldName].isTouched).to.equal(state.testForm[action.fieldName].isTouched)
+        expect(nextState.testForm[action.fieldName].touched).to.equal(state.testForm[action.fieldName].touched)
       })
       it('should keep the existing fields error', function () {
         const action = { formName: 'testForm', fieldName: 'testField', value: 'testValue', validate: () => {} }
@@ -196,7 +196,7 @@ describe('form.reducers', function () {
         testForm: {
           testField: {
             status: 'existingStatus',
-            isTouched: 'existingIsTouched',
+            touched: 'existingIsTouched',
             error: 'existingError'
           }
         }
@@ -217,12 +217,12 @@ describe('form.reducers', function () {
         testForm: {
           testField: {
             status: 'existingStatus',
-            isTouched: 'existingIsTouched',
+            touched: 'existingIsTouched',
             error: 'existingError'
           },
           testField2: {
             status: 'existingStatus2',
-            isTouched: 'existingIsTouched2',
+            touched: 'existingIsTouched2',
             error: 'existingError2'
           }
         }
@@ -270,10 +270,10 @@ describe('form.reducers', function () {
       const nextState = formReducers.resetForm(state, action)
       expect(nextState.testForm.testField.value).to.equal(state.testForm.testField.initialValue)
     })
-    it('should set the isTouched of all the form fields to false', function () {
+    it('should set the touched of all the form fields to false', function () {
       const action = { formName: 'testForm' }
       const nextState = formReducers.resetForm(state, action)
-      expect(nextState.testForm.testField.isTouched).to.equal(false)
+      expect(nextState.testForm.testField.touched).to.equal(false)
     })
     it('should keep the same validate of all the form fields', function () {
       const action = { formName: 'testForm' }
@@ -312,10 +312,10 @@ describe('form.reducers', function () {
       const nextState = formReducers.resetField(state, action)
       expect(nextState.testForm.testField.status).to.equal(formStatuses.INITIAL)
     })
-    it('should set the field isTouched to false', function () {
+    it('should set the field touched to false', function () {
       const action = { formName: 'testForm', fieldName: 'testField' }
       const nextState = formReducers.resetField(state, action)
-      expect(nextState.testForm.testField.isTouched).to.equal(false)
+      expect(nextState.testForm.testField.touched).to.equal(false)
     })
     it('should set the field value to its initialValue', function () {
       const action = { formName: 'testForm', fieldName: 'testField' }
@@ -412,7 +412,7 @@ describe('form.reducers', function () {
       })
     })
   })
-  describe('updateInitialValue', function () {
+  describe('changeInitialValue', function () {
     const state = {
       testForm: {
         testField: {
@@ -425,15 +425,15 @@ describe('form.reducers', function () {
     }
     const action = { formName: 'testForm', fieldName: 'testField', value: 'testNextInitialValue', meta: { newProp: 'newProp' } }
     it('should return a new state', function () {
-      const nextState = formReducers.updateInitialValue(state, action)
+      const nextState = formReducers.changeInitialValue(state, action)
       expect(state).to.not.equal(nextState)
     })
     it('should change initialValue on the field to the given value', function () {
-      const nextState = formReducers.updateInitialValue(state, action)
+      const nextState = formReducers.changeInitialValue(state, action)
       expect(nextState.testForm.testField.initialValue).to.equal(action.value)
     })
     it('should merge the meta', function () {
-      const nextState = formReducers.updateInitialValue(state, action)
+      const nextState = formReducers.changeInitialValue(state, action)
       expect(nextState.testForm.testField.meta.existingProp).to.equal(state.testForm.testField.meta.existingProp)
       expect(nextState.testForm.testField.meta.newProp).to.equal(action.meta.newProp)
     })
@@ -442,12 +442,12 @@ describe('form.reducers', function () {
         testForm: {
           testField: {
             initialValue: 'existingInitialValue',
-            isTouched: false
+            touched: false
           }
         }
       }
       it('should change value on the field to the given value', function () {
-        const nextState = formReducers.updateInitialValue(state, action)
+        const nextState = formReducers.changeInitialValue(state, action)
         expect(nextState.testForm.testField.value).to.equal(action.value)
       })
     })
@@ -456,13 +456,13 @@ describe('form.reducers', function () {
         testForm: {
           testField: {
             initialValue: 'existingInitialValue',
-            isTouched: true,
+            touched: true,
             value: 'existingValue'
           }
         }
       }
       it('should change not value on the field', function () {
-        const nextState = formReducers.updateInitialValue(state, action)
+        const nextState = formReducers.changeInitialValue(state, action)
         expect(nextState.testForm.testField.value).to.equal(state.testForm.testField.value)
       })
     })
