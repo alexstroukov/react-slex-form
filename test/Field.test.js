@@ -7,7 +7,7 @@ import Field from '../src/Field'
 import form from '../src'
 import formActions from '../src/form.actions'
 import * as formStatuses from '../src/form.statuses'
-import createStore from 'slex-store'
+import slexStore from 'slex-store'
 
 // need adapter to work with react ^16
 configure({ adapter: new ReactSixteenAdapter() })
@@ -35,11 +35,14 @@ describe('Field', function () {
     let registerFieldStub
     let renderStub
     beforeEach(function () {
-      store = createStore({
-        reducers: {
-          form
-        }
-      })
+      store =
+        slexStore.createStore(
+          slexStore.createDispatch({
+            reducer: slexStore.createReducer({
+              form
+            })
+          })
+        )
       dispatchSpy = sandbox.spy(store, 'dispatch')
       renderStub = sandbox.stub().returns(null)
       registerFieldStub = sandbox.stub(formActions, 'registerField').returns(stubRegisterFieldAction)

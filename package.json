@@ -40,7 +40,7 @@
     "react": "16.0.0",
     "prop-types": "15.5.10",
     "react-slex-store": "0.0.9",
-    "slex-store": "0.0.6"
+    "slex-store": "0.0.12"
   },
   "devDependencies": {
     "react-dom": "16.0.0",
