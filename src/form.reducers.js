@@ -36,7 +36,7 @@ class FormReducers {
           ? field
           : {
             ...field,
-            error
+            error,
             status: statuses.INVALID
           }
         return {
