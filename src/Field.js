@@ -52,7 +52,7 @@ Field.propTypes = {
   status: PropTypes.string.isRequired,
   changeValue: PropTypes.func.isRequired,
 
-  validate: PropTypes.func,
+  validate: PropTypes.string,
   render: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
   changeInitialValue: PropTypes.func.isRequired,
   register: PropTypes.func.isRequired,
@@ -63,7 +63,7 @@ export { Field }
 
 export default connect((dispatch, getState, ownProps) => {
   const { formName, fieldName, value: componentInitialValue, validate, meta: registrationMeta } = ownProps
-  const { value, status, touched, initialValue, loading, messages, meta } = getField()
+  const { value, status, touched, initialValue, loading, messages, meta, submitting } = getField()
   const register = () => {
     const fieldIsRegistered = _.chain(getState())
       .has(`form.${formName}.${fieldName}`)
@@ -95,7 +95,8 @@ export default connect((dispatch, getState, ownProps) => {
     status,
     messages,
     touched,
-    loading
+    loading,
+    submitting
   }
 
   function getField () {
@@ -108,8 +109,6 @@ export default connect((dispatch, getState, ownProps) => {
         const messages = _.chain([error])
           .flatten()
           .reject(_.isUndefined)
-          .filter(error => error.message != null)
-          .map(error => error.message)
           .value() 
         return {
           meta,

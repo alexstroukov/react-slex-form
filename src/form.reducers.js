@@ -44,7 +44,7 @@ class FormReducers {
           field: nextField
         }
       })
-      .reduce((memo, { fieldName, field }) => ({ ...memo, [fieldName]: field, status: statuses.INVALID }), state)
+      .reduce((memo, { fieldName, field }) => ({ ...memo, [fieldName]: field, status: statuses.INVALID }), { ...state, error })
       .value()
 
     return nextState
@@ -76,7 +76,7 @@ class FormReducers {
     const currentFormStatus = _.get(form, 'status') 
     const existingMeta = _.get(field, 'meta', {})
     const touched = isSilent ? _.get(field, `touched`, false) : true
-    const hasValidator = _.has(state, `form.${formName}.${fieldName}.validate`)
+    const hasValidator = _.has(field, `validate`)
     const nextFieldStatus = hasValidator
       ? statuses.VALIDATING
       : statuses.VALID
@@ -200,9 +200,16 @@ class FormReducers {
     return nextState
   }
 
+  _getFields = (form) => {
+    return _.chain(form)
+      .omit(['error', 'status'])
+      .value()
+  }
+
   _getNextFormStatus = ({ form, omitFieldName, replaceFieldName, replaceFieldValue, defaultStatus }) => {
     return _.chain(form)
-      .omit(omitFieldName, 'status')
+      .thru(this._getFields)
+      .omit([omitFieldName])
       .thru(form => {
         if (replaceFieldName) {
           return {
@@ -263,7 +270,7 @@ class FormReducers {
     const { formName } = action
     const nextState = _.chain(state)
         .get(formName)
-        .omit('status')
+        .thru(this._getFields)
         .map((field, fieldName) => {
           const nextField = this._resetField({ field })
           return {
@@ -277,7 +284,7 @@ class FormReducers {
             ...memo,
             [fieldName]: field
           }
-        }, { ...state, status: statuses.INITIAL })
+        }, { ...state, error: undefined, status: statuses.INITIAL })
         .value()
     return nextState
   }

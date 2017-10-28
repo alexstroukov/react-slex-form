@@ -42,6 +42,7 @@ class FormActions {
     const action = {
       type: actionTypes.SUBMIT_FORM_FAIL,
       formName,
+      error,
       validationErrors
     }
     return action

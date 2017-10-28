@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import * as actionTypes from './form.actionTypes'
+import * as statuses from './form.statuses'
 import actions from './form.actions'
 
 export default function createFormMiddleware ({ validators = {}, submitters = {} }) {
@@ -37,7 +38,7 @@ export default function createFormMiddleware ({ validators = {}, submitters = {}
         const { formName } = action
         const form = _.get(getState(), `form.${formName}`)
         const submitServiceFn = submitters[formName]
-        const canSubmit = form.status === formStatuses.VALID
+        const canSubmit = form.status === statuses.VALID
         if (canSubmit) {
           const validateFormPromise = _.chain(form)
             .map((field, fieldName) => this._validateField({ formName, fieldName, form, field }))
@@ -56,7 +57,7 @@ export default function createFormMiddleware ({ validators = {}, submitters = {}
             .then(validationErrors => {
               if (_.isEmpty(validationErrors)) {
                 const formValues = _.chain(form)
-                  .omit('status')
+                  .omit(['error', 'status'])
                   .map(({ value }, fieldName) => ({ fieldName, value }))
                   .reduce((memo, { fieldName, value }) => ({ ...memo, [fieldName]: value }), {})
                   .value()
@@ -92,7 +93,7 @@ export default function createFormMiddleware ({ validators = {}, submitters = {}
         const validateField = validators[formName][validate]
         if (validateField) {
           if (status !== statuses.VALIDATING) {
-            dispatch(this.validating({ formName, fieldName }))
+            dispatch(actions.validating({ formName, fieldName }))
           }
           Promise
             .resolve(validateField(value, form))
@@ -101,9 +102,9 @@ export default function createFormMiddleware ({ validators = {}, submitters = {}
               const currentStatus = _.get(getState(), `form.${formName}.${fieldName}.status`)
               if (currentValue === value && currentStatus !== statuses.INITIAL) {
                 if (_.isError(validationResult)) {
-                  dispatch(this.isInvalid({ formName, fieldName, error: validationResult.message }))
+                  dispatch(actions.isInvalid({ formName, fieldName, error: validationResult.message }))
                 } else {
-                  dispatch(this.isValid({ formName, fieldName }))
+                  dispatch(actions.isValid({ formName, fieldName }))
                 }
               }
             })
@@ -111,7 +112,7 @@ export default function createFormMiddleware ({ validators = {}, submitters = {}
               const currentValue = _.get(getState(), `form.${formName}.${fieldName}.value`)
               const currentStatus = _.get(getState(), `form.${formName}.${fieldName}.status`)
               if (currentValue === value && currentStatus !== statuses.INITIAL) {
-                dispatch(this.isInvalid({ formName, fieldName, error: error.message }))
+                dispatch(actions.isInvalid({ formName, fieldName, error: error.message }))
               }
             })
         }
