@@ -5,31 +5,45 @@ import actions from './form.actions'
 
 export default function createFormMiddleware ({ validators = {}, submitters = {} }) {
   class FormMiddleware {
-    _validateField = ({ formName, fieldName, form, field }) => {
-      const validateField = validators[formName][field.validate]
-      if (validateField) {
-        return Promise
-          .resolve(validateField(field.value, form))
-          .then(validationResult => {
-            return {
+    _validateForm = ({ form }) => {
+      return _.chain(form)
+        .omit(['error', 'status'])
+        .map((field, fieldName) => _validateField({ formName, fieldName, form, field }))
+        .thru(promises => Promise
+          .all(promises)
+          .then(validationResults => _.chain(validationResults)
+            .filter(validationResult => validationResult.error)
+            .reduce((memo, { fieldName, error }) => ({ ...memo, [fieldName]: error }), {})
+            .value()
+          )
+        )
+        .value()
+      function _validateField ({ formName, fieldName, form, field }) {
+        const validateField = validators[formName][field.validate]
+        if (validateField) {
+          return Promise
+            .resolve(validateField(field.value, form))
+            .then(validationResult => {
+              return {
+                fieldName,
+                error: _.isError(validationResult)
+                  ? validationResult.message
+                  : undefined
+              }
+            })
+            .catch(error => {
+              return {
+                fieldName,
+                error: error.message
+              }
+            })
+        } else {
+          return Promise
+            .resolve({
               fieldName,
-              error: _.isError(validationResult)
-                ? validationResult.message
-                : undefined
-            }
-          })
-          .catch(error => {
-            return {
-              fieldName,
-              error: error.message
-            }
-          })
-      } else {
-        return Promise
-          .resolve({
-            fieldName,
-            error: undefined
-          })
+              error: undefined
+            })
+        }
       }
     }
 
@@ -40,20 +54,7 @@ export default function createFormMiddleware ({ validators = {}, submitters = {}
         const submitServiceFn = submitters[formName]
         const canSubmit = form.status === statuses.VALID
         if (canSubmit) {
-          const validateFormPromise = _.chain(form)
-            .omit(['error', 'status'])
-            .map((field, fieldName) => this._validateField({ formName, fieldName, form, field }))
-            .thru(promises => Promise
-              .all(promises)
-              .then(validationResults => _.chain(validationResults)
-                .filter(validationResult => validationResult.error)
-                .reduce((memo, { fieldName, error }) => ({ ...memo, [fieldName]: error }), {})
-                .value()
-              )
-            )
-            .value()
-        
-          validateFormPromise
+          this._validateForm({ form })
             .then(validationErrors => {
               if (_.isEmpty(validationErrors)) {
                 const formValues = _.chain(form)

@@ -61,11 +61,14 @@ describe('Field', function () {
   describe('when unmounting', function () {
     let store
     beforeEach(function () {
-      store = createStore({
-        reducers: {
-          form
-        }
-      })
+      store =
+        slexStore.createStore(
+          slexStore.createDispatch({
+            reducer: slexStore.createReducer({
+              form
+            })
+          })
+        )
     })
     it('should unregister the field on the store', function () {
       const dispatchSpy = sandbox.spy(store, 'dispatch')
@@ -113,11 +116,14 @@ describe('Field', function () {
       }
     }
     beforeEach(function () {
-      store = createStore({
-        reducers: {
-          form
-        }
-      })
+      store =
+        slexStore.createStore(
+          slexStore.createDispatch({
+            reducer: slexStore.createReducer({
+              form
+            })
+          })
+        )
       getStateStub = sandbox.stub(store, 'getState').returns({
         form: {
           [formName]: {
@@ -146,8 +152,8 @@ describe('Field', function () {
 
       const nextValue = 'nextValue'
       renderStub.firstCall.args[0].changeValue(nextValue)
-      expect(dispatchSpy.callCount).to.equal(2)
-      expect(dispatchSpy.secondCall.args[0]).to.equal(stubChangeValueAction)
+      expect(dispatchSpy.callCount).to.equal(1)
+      expect(dispatchSpy.firstCall.args[0]).to.equal(stubChangeValueAction)
     })
     it('should render the field value from the store', function () {
       expect(renderStub.calledOnce).to.be.true
@@ -160,6 +166,10 @@ describe('Field', function () {
     it('should get loading false', function () {
       expect(renderStub.calledOnce).to.be.true
       expect(renderStub.firstCall.args[0].loading).to.equal(false)
+    })
+    it('should get submitting false', function () {
+      expect(renderStub.calledOnce).to.be.true
+      expect(renderStub.firstCall.args[0].submitting).to.equal(false)
     })
   })
   describe('when its a field with a cleared value', function () {
@@ -179,11 +189,14 @@ describe('Field', function () {
       }
     }
     beforeEach(function () {
-      store = createStore({
-        reducers: {
-          form
-        }
-      })
+      store =
+        slexStore.createStore(
+          slexStore.createDispatch({
+            reducer: slexStore.createReducer({
+              form
+            })
+          })
+        )
       getStateStub = sandbox.stub(store, 'getState').returns({
         form: {
           [formName]: {
@@ -215,11 +228,14 @@ describe('Field', function () {
     const stubRegisterFieldAction = {}
     const stubUnregisterFieldAction = {}
     beforeEach(function () {
-      store = createStore({
-        reducers: {
-          form
-        }
-      })
+      store =
+        slexStore.createStore(
+          slexStore.createDispatch({
+            reducer: slexStore.createReducer({
+              form
+            })
+          })
+        )
       registerFieldStub = sandbox.stub(formActions, 'registerField').returns(stubRegisterFieldAction)
       unregisterFieldStub = sandbox.stub(formActions, 'unregisterField').returns(stubUnregisterFieldAction)
       wrapper = mount(<Field store={store} value={1} formName={formName} fieldName={fieldName} />)
@@ -245,11 +261,14 @@ describe('Field', function () {
     const stubRegisterFieldAction = {}
     const stubUnregisterFieldAction = {}
     beforeEach(function () {
-      store = createStore({
-        reducers: {
-          form
-        }
-      })
+      store =
+        slexStore.createStore(
+          slexStore.createDispatch({
+            reducer: slexStore.createReducer({
+              form
+            })
+          })
+        )
       getStateStub = sandbox.stub(store, 'getState').returns({
         form: {
           [formName]: {
@@ -271,6 +290,46 @@ describe('Field', function () {
       expect(renderStub.firstCall.args[0].loading).to.equal(true)
     })
   })
+  describe('when its a submitting form', function () {
+    let store
+    let wrapper
+    let registerFieldStub
+    let unregisterFieldStub
+    let getStateStub
+    let renderStub
+    const stubRegisterFieldAction = {}
+    const stubUnregisterFieldAction = {}
+    beforeEach(function () {
+      store =
+        slexStore.createStore(
+          slexStore.createDispatch({
+            reducer: slexStore.createReducer({
+              form
+            })
+          })
+        )
+      getStateStub = sandbox.stub(store, 'getState').returns({
+        form: {
+          [formName]: {
+            status: formStatuses.SUBMITTING,
+            [fieldName]: {
+              status: formStatuses.VALID,
+              value: 2,
+              touched: true
+            }
+          }
+        }
+      })
+      registerFieldStub = sandbox.stub(formActions, 'registerField').returns(stubRegisterFieldAction)
+      unregisterFieldStub = sandbox.stub(formActions, 'unregisterField').returns(stubUnregisterFieldAction)
+      renderStub = sandbox.stub().returns(null)
+      wrapper = mount(<Field store={store} formName={formName} fieldName={fieldName} render={renderStub} />)
+    })
+    it('should get submitting true', function () {
+      expect(renderStub.calledOnce).to.be.true
+      expect(renderStub.firstCall.args[0].submitting).to.equal(true)
+    })
+  })
   describe('when its an error field', function () {
     let store
     let wrapper
@@ -281,11 +340,14 @@ describe('Field', function () {
     const stubRegisterFieldAction = {}
     const stubUnregisterFieldAction = {}
     beforeEach(function () {
-      store = createStore({
-        reducers: {
-          form
-        }
-      })
+      store =
+        slexStore.createStore(
+          slexStore.createDispatch({
+            reducer: slexStore.createReducer({
+              form
+            })
+          })
+        )
       getStateStub = sandbox.stub(store, 'getState').returns({
         form: {
           [formName]: {
@@ -293,8 +355,8 @@ describe('Field', function () {
               status: formStatuses.INVALID,
               value: 2,
               error: [
-                new Error('testError1'),
-                new Error('testError2')
+                'testError1',
+                'testError2'
               ]
             }
           }
@@ -312,6 +374,4 @@ describe('Field', function () {
       expect(renderStub.firstCall.args[0].messages[1]).to.equal('testError2')
     })
   })
-
-
 })

@@ -101,11 +101,18 @@ export default connect((dispatch, getState, ownProps) => {
 
   function getField () {
     return _.chain(getState())
-      .get(`form.${formName}.${fieldName}`)
-      .at(['value', 'status', 'error', 'touched', 'initialValue', 'meta'])
-      .thru(([ value, status = statuses.INITIAL, error, touched = false, initialValue, meta = {} ]) => {
+      .at([
+        `form.${formName}.${fieldName}.value`,
+        `form.${formName}.${fieldName}.status`,
+        `form.${formName}.${fieldName}.error`,
+        `form.${formName}.${fieldName}.touched`,
+        `form.${formName}.${fieldName}.initialValue`,
+        `form.${formName}.${fieldName}.meta`,
+        `form.${formName}.status`
+      ])
+      .thru(([ value, status = statuses.INITIAL, error, touched = false, initialValue, meta = {}, formStatus ]) => {
         const loading = status === statuses.VALIDATING
-        const submitting = status === statuses.SUBMITTING
+        const submitting = formStatus === statuses.SUBMITTING
         const messages = _.chain([error])
           .flatten()
           .reject(_.isUndefined)

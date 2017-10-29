@@ -1,10 +1,120 @@
 import { expect } from 'chai'
 import sinon from 'sinon'
 import formReducers from '../src/form.reducers'
+import initialState from '../src/initialState'
 import * as formActionTypes from '../src/form.actionTypes'
 import * as formStatuses from '../src/form.statuses'
 
 describe('form.reducers', function () {
+  const sandbox = sinon.sandbox.create()
+  beforeEach(function () {
+    sandbox.restore()
+  })
+
+  afterEach(function () {
+    sandbox.restore()
+  })
+  describe('submitForm', function () {
+    const state = {
+      testForm: {
+        testField: {}
+      }
+    }
+    const action = { formName: 'testForm' }
+    it('should return a new state', function () {
+      const nextState = formReducers.submitForm(state, action)
+      expect(state).to.not.equal(nextState)
+    })
+    it('should set the form to submitting', function () {
+      const nextState = formReducers.submitForm(state, action)
+      expect(nextState.testForm.status).to.equal(formStatuses.SUBMITTING)
+    })
+  })
+  describe('submitFormSuccess', function () {
+    const state = {
+      testForm: {
+        testField: {}
+      }
+    }
+    let resetFormStub
+    const resetFormStubResult = {}
+    beforeEach(function () {
+      resetFormStub = sandbox.stub(formReducers, 'resetForm').returns(resetFormStubResult)
+    })
+    afterEach(function () {
+      sandbox.restore()
+    })
+    const action = { formName: 'testForm' }
+    it('should reset form', function () {
+      const nextState = formReducers.submitFormSuccess(state, action)
+      expect(resetFormStub.calledOnce).to.equal(true)
+      expect(nextState).to.equal(resetFormStub.firstCall.returnValue)
+    })
+  })
+  describe('submitFormFail', function () {
+    const state = {
+      testForm: {
+        testField: {}
+      }
+    }
+    const action = { formName: 'testForm', error: 'testError' }
+    it('should return a new state', function () {
+      const nextState = formReducers.submitFormFail(state, action)
+      expect(state).to.not.equal(nextState)
+    })
+    it('should set the form error', function () {
+      const nextState = formReducers.submitFormFail(state, action)
+      expect(nextState.testForm.error).to.equal(action.error)
+    })
+    describe('given that the form has validationErrors', function () {
+      const state = {
+        testForm: {
+          testField: {}
+        }
+      }
+      const action = { formName: 'testForm', validationErrors: { testField: 'testFieldError' }, error: 'testError' }
+      it('should set the form fields to invalid', function () {
+        const nextState = formReducers.submitFormFail(state, action)
+        expect(nextState.testForm.testField.status).to.equal(formStatuses.INVALID)
+      })
+      it('should set the form to invalid', function () {
+        const nextState = formReducers.submitFormFail(state, action)
+        expect(nextState.testForm.status).to.equal(formStatuses.INVALID)
+      })
+    })
+    describe('given that the form doesnt have validationErrors', function () {
+      const state = {
+        testForm: {
+          status: 'currentStatus',
+          testField: {
+            status: 'currentStatus'
+          }
+        }
+      }
+      const action = { formName: 'testForm' }
+      it('should keep existing form fields statuses', function () {
+        const nextState = formReducers.submitFormFail(state, action)
+        expect(nextState.testForm.testField.status).to.equal(state.testForm.testField.status)
+      })
+      it('should keep existing form status', function () {
+        const nextState = formReducers.submitFormFail(state, action)
+        expect(nextState.testForm.status).to.equal(state.testForm.status)
+      })
+    })
+    describe('given that the form has validationErrors', function () {})
+  })
+  describe('resetFormStore', function () {
+    const state = {
+      testForm: {
+        testField: {}
+      }
+    }
+    const action = {}
+    it('should return initialState', function () {
+      const nextState = formReducers.resetFormStore(state, action)
+      expect(nextState).to.equal(initialState)
+    })
+  })
   describe('validating', function () {
     const state = {
       testForm: {
@@ -42,24 +152,60 @@ describe('form.reducers', function () {
       const nextState = formReducers.changeValue(state, action)
       expect(state).to.not.equal(nextState)
     })
-    it('should set the form to validating', function () {
-      const nextState = formReducers.changeValue(state, action)
-      expect(nextState.testForm.status).to.equal(formStatuses.VALIDATING)
-    })
-    it('should set the field to validating', function () {
-      const nextState = formReducers.changeValue(state, action)
-      expect(nextState.testForm.testField.status).to.equal(formStatuses.VALIDATING)
-    })
     it('should set the field to touched', function () {
       const nextState = formReducers.changeValue(state, action)
       expect(nextState.testForm.testField.touched).to.equal(true)
+    })
+    it('should set the field value', function () {
+      const nextState = formReducers.changeValue(state, action)
+      expect(nextState.testForm.testField.value).to.equal(action.value)
     })
     it('should merge the meta', function () {
       const nextState = formReducers.changeValue(state, action)
       expect(nextState.testForm.testField.meta.existingProp).to.equal(state.testForm.testField.meta.existingProp)
       expect(nextState.testForm.testField.meta.newProp).to.equal(action.meta.newProp)
     })
-
+    describe('given that the field has a validator', function () {
+      const state = {
+        testForm: {
+          testField: {
+            validate: 'validateTest',
+            meta: {
+              existingProp: 'existingProp'
+            }
+          }
+        }
+      }
+      const action = { formName: 'testForm', fieldName: 'testField', value: 'testValue' }
+      it('should set the form to validating', function () {
+        const nextState = formReducers.changeValue(state, action)
+        expect(nextState.testForm.status).to.equal(formStatuses.VALIDATING)
+      })
+      it('should set the field to validating', function () {
+        const nextState = formReducers.changeValue(state, action)
+        expect(nextState.testForm.testField.status).to.equal(formStatuses.VALIDATING)
+      })
+    })
+    describe('given that the field doesnt have a validator', function () {
+      const state = {
+        testForm: {
+          testField: {
+            meta: {
+              existingProp: 'existingProp'
+            }
+          }
+        }
+      }
+      const action = { formName: 'testForm', fieldName: 'testField', value: 'testValue' }
+      it('should set the form to validating', function () {
+        const nextState = formReducers.changeValue(state, action)
+        expect(nextState.testForm.status).to.equal(formStatuses.VALID)
+      })
+      it('should set the field to validating', function () {
+        const nextState = formReducers.changeValue(state, action)
+        expect(nextState.testForm.testField.status).to.equal(formStatuses.VALID)
+      })
+    })
     describe('given that the isSilent param is true', function () {
       it('should keep the current touched', function () {
         const state = {
@@ -239,10 +385,10 @@ describe('form.reducers', function () {
       })
     })
   })
-
   describe('resetForm', function () {
     const state = {
       testForm: {
+        error: 'existingError',
         testField: {
           validate: 'existingValidate',
           initialValue: 'existingInitialValue',
@@ -290,8 +436,12 @@ describe('form.reducers', function () {
       const nextState = formReducers.resetForm(state, action)
       expect(nextState.testForm.testField.error).to.equal(undefined)
     })
+    it('should clear the error ofthe form', function () {
+      const action = { formName: 'testForm' }
+      const nextState = formReducers.resetForm(state, action)
+      expect(nextState.testForm.error).to.equal(undefined)
+    })
   })
-
   describe('resetField', function () {
     const state = {
       testForm: {
