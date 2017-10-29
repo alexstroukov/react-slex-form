@@ -41,6 +41,7 @@ export default function createFormMiddleware ({ validators = {}, submitters = {}
         const canSubmit = form.status === statuses.VALID
         if (canSubmit) {
           const validateFormPromise = _.chain(form)
+            .omit(['error', 'status'])
             .map((field, fieldName) => this._validateField({ formName, fieldName, form, field }))
             .thru(promises => Promise
               .all(promises)
@@ -52,12 +53,11 @@ export default function createFormMiddleware ({ validators = {}, submitters = {}
             )
             .value()
         
-          dispatch(actions.submitForm({ formName }))
           validateFormPromise
             .then(validationErrors => {
               if (_.isEmpty(validationErrors)) {
                 const formValues = _.chain(form)
-                  .omit(['error', 'status'])
+                  .omit(['error', 'status']) 
                   .map(({ value }, fieldName) => ({ fieldName, value }))
                   .reduce((memo, { fieldName, value }) => ({ ...memo, [fieldName]: value }), {})
                   .value()

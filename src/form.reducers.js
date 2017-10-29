@@ -27,11 +27,10 @@ class FormReducers {
   submitFormFail = (state, action) => {
     const { formName, validationErrors, error } = action
     const form = state[formName]
-    const nextState = _.chain(state)
-      .get(formName)
-      .omit('status')
+    const nextForm = _.chain(form)
+      .thru(this._getFields)
       .map((field, fieldName) => {
-        const error = validationErrors[fieldName]
+        const error = validationErrors ? validationErrors[fieldName] : undefined
         const nextField = !error
           ? field
           : {
@@ -44,8 +43,12 @@ class FormReducers {
           field: nextField
         }
       })
-      .reduce((memo, { fieldName, field }) => ({ ...memo, [fieldName]: field, status: statuses.INVALID }), { ...state, error })
+      .reduce((memo, { fieldName, field }) => ({ ...memo, [fieldName]: field, status: statuses.INVALID }), { ...form, error })
       .value()
+    const nextState = {
+      ...state,
+      [formName]: nextForm
+    }
 
     return nextState
   }
@@ -268,8 +271,8 @@ class FormReducers {
 
   resetForm = (state, action) => {
     const { formName } = action
-    const nextState = _.chain(state)
-        .get(formName)
+    const form = state[formName]
+    const nextForm = _.chain(form)
         .thru(this._getFields)
         .map((field, fieldName) => {
           const nextField = this._resetField({ field })
@@ -284,8 +287,11 @@ class FormReducers {
             ...memo,
             [fieldName]: field
           }
-        }, { ...state, error: undefined, status: statuses.INITIAL })
+        }, { ...form, error: undefined, status: statuses.INITIAL })
         .value()
+    const nextState = {
+      [formName]: nextForm
+    }
     return nextState
   }
 

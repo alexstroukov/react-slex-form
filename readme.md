@@ -14,7 +14,6 @@ $ npm install slex-form
 import React from 'react'
 import ReactDOM from 'react-dom'
 import slexStore from 'slex-store'
-import { Provider } from 'react-slex-store'
 import form, { createFormMiddleware } from 'react-slex-form'
 
 const formMiddleware = createFormMiddleware({
