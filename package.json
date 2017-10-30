@@ -37,10 +37,10 @@
   },
   "dependencies": {
     "lodash": "4.17.2",
-    "react": "16.0.0",
     "prop-types": "15.5.10",
+    "react": "16.0.0",
     "react-slex-store": "0.0.9",
-    "slex-store": "0.0.12"
+    "slex-store": "0.0.13"
   },
   "devDependencies": {
     "react-dom": "16.0.0",

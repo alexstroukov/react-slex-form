@@ -5,7 +5,7 @@ import actions from './form.actions'
 
 export default function createFormMiddleware ({ validators = {}, submitters = {} }) {
   class FormMiddleware {
-    _validateForm = ({ form }) => {
+    _validateForm = ({ formName, form }) => {
       return _.chain(form)
         .omit(['error', 'status'])
         .map((field, fieldName) => _validateField({ formName, fieldName, form, field }))
@@ -23,11 +23,11 @@ export default function createFormMiddleware ({ validators = {}, submitters = {}
         if (validateField) {
           return Promise
             .resolve(validateField(field.value, form))
-            .then(validationResult => {
+            .then(error => {
               return {
                 fieldName,
-                error: _.isError(validationResult)
-                  ? validationResult.message
+                error: _.isError(error)
+                  ? error.message
                   : undefined
               }
             })
@@ -54,7 +54,7 @@ export default function createFormMiddleware ({ validators = {}, submitters = {}
         const submitServiceFn = submitters[formName]
         const canSubmit = form.status === statuses.VALID
         if (canSubmit) {
-          this._validateForm({ form })
+          return this._validateForm({ formName, form })
             .then(validationErrors => {
               if (_.isEmpty(validationErrors)) {
                 const formValues = _.chain(form)
@@ -62,7 +62,7 @@ export default function createFormMiddleware ({ validators = {}, submitters = {}
                   .map(({ value }, fieldName) => ({ fieldName, value }))
                   .reduce((memo, { fieldName, value }) => ({ ...memo, [fieldName]: value }), {})
                   .value()
-                Promise
+                return Promise
                   .resolve(submitServiceFn(formValues))
                   .then(result => {
                     dispatch(actions.submitFormSuccess({ formName, result }))
@@ -93,10 +93,7 @@ export default function createFormMiddleware ({ validators = {}, submitters = {}
           .value()
         const validateField = validators[formName][validate]
         if (validateField) {
-          if (status !== statuses.VALIDATING) {
-            dispatch(actions.validating({ formName, fieldName }))
-          }
-          Promise
+          return Promise
             .resolve(validateField(value, form))
             .then(validationResult => {
               const currentValue = _.get(getState(), `form.${formName}.${fieldName}.value`)
