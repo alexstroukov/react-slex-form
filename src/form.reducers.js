@@ -28,6 +28,7 @@ class FormReducers {
     if (_.isEmpty(validationErrors)) {
       const nextForm = {
         ...form,
+        status: statuses.VALID,
         error
       }
       const nextState = {

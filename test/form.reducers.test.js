@@ -96,9 +96,9 @@ describe('form.reducers', function () {
         const nextState = formReducers.submitFormFail(state, action)
         expect(nextState.testForm.testField.status).to.equal(state.testForm.testField.status)
       })
-      it('should keep existing form status', function () {
+      it('should set the form to valid', function () {
         const nextState = formReducers.submitFormFail(state, action)
-        expect(nextState.testForm.status).to.equal(state.testForm.status)
+        expect(nextState.testForm.status).to.equal(formStatuses.VALID)
       })
     })
     describe('given that the form has validationErrors', function () {})
