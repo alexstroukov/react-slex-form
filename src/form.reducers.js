@@ -157,14 +157,20 @@ class FormReducers {
   }
   unregisterField = (state, action) => {
     const { formName, fieldName } = action
-    const form = _.omit({ ...state[formName] }, fieldName)
-    const formHasNoMoreRegisteredFields = _.keys(form).length === 0
+    const form = state[formName]
+    const nextFormStatus = this._getNextFormStatus({ form, omitFieldName: fieldName, defaultStatus: statuses.INITIAL })
+    const nextForm = _.chain(form)
+      .omit(fieldName)
+      .assign({ status: nextFormStatus })
+      .value()
+
+    const formHasNoMoreRegisteredFields = _.isEmpty(this._getFields(nextForm))
     if (formHasNoMoreRegisteredFields) {
       return _.omit(state, formName)
     } else {
       const nextState = {
         ...state,
-        [formName]: form
+        [formName]: nextForm
       }
       return nextState
     }
