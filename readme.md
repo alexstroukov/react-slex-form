@@ -17,21 +17,21 @@ import slexStore from 'slex-store'
 import form, { createFormMiddleware } from 'react-slex-form'
 
 const formMiddleware = createFormMiddleware({
-  validators: {
+  forms: {
     formName: {
-      validate1: function forceValidateFail (value, form) {
-        return new Error('Return Error object when validation fails')
+      submit: function formSubmitFunction (formValues) {
+        // do async submission here
+        return Promise.resolve('Returning a promise will wait until submitter completes before dispatching submitFormSuccess or submitFormFail actions')
       },
-      validate2: function forceValidatePass (value, form) {
-        return 'Return anything else when validation resolves with no errors'
+      validators: {
+        validate1: function forceValidateFail (value, form) {
+          return new Error('Return Error object when validation fails')
+        },
+        validate2: function forceValidatePass (value, form) {
+          return 'Return anything else when validation resolves with no errors'
+        }
       }
     }
-  },
-  submitters: {
-    formName: function formSubmitFunction (formValues) {
-      // do async submission here
-      return Promise.resolve('Returning a promise will wait until submitter completes before dispatching submitFormSuccess or submitFormFail actions')
-    } 
   }
 })
 
@@ -135,8 +135,6 @@ function resetFormStoreOnLogoutMiddleware (dispatch, getState, action) {
 `resetFormStore()` - sets store back to its initial state and clears all forms
 
 `submitForm({ formName })` - revalidates and submits form using validators and submitters
-
-`validateForm({ formName })` - validates all form fields
 
 `resetForm({ formName })` - resets a form back to its initial state
 

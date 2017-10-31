@@ -11,6 +11,5 @@ export const SUBMIT_FORM_SUCCESS = 'SUBMIT_FORM_SUCCESS'
 export const SUBMIT_FORM_FAIL = 'SUBMIT_FORM_FAIL'
 
 export const CHANGE_VALUE = 'CHANGE_VALUE'
-export const VALIDATING = 'VALIDATING'
 export const IS_VALID = 'IS_VALID'
 export const IS_INVALID = 'IS_INVALID'

@@ -9,7 +9,6 @@ class FormActions {
     }
     return action
   }
-
   changeInitialValue = ({ formName, fieldName, value, meta }) => {
     const action = {
       type: actionTypes.CHANGE_INITIAL_VALUE,
@@ -20,7 +19,6 @@ class FormActions {
     }
     return action
   }
-
   submitForm = ({ formName }) => {
     const action = {
       type: actionTypes.SUBMIT_FORM,
@@ -28,7 +26,6 @@ class FormActions {
     }
     return action
   }
-
   submitFormSuccess = ({ formName, result }) => {
     const action = {
       type: actionTypes.SUBMIT_FORM_SUCCESS,
@@ -37,7 +34,6 @@ class FormActions {
     }
     return action
   }
-
   submitFormFail = ({ formName, error, validationErrors }) => {
     const action = {
       type: actionTypes.SUBMIT_FORM_FAIL,
@@ -47,7 +43,6 @@ class FormActions {
     }
     return action
   }
-
   resetForm = ({ formName }) => {
     const action = {
       type: actionTypes.RESET_FORM,
@@ -55,7 +50,6 @@ class FormActions {
     }
     return action
   }
-
   resetField = ({ formName, fieldName }) => {
     const action = {
       type: actionTypes.RESET_FIELD,
@@ -64,7 +58,6 @@ class FormActions {
     }
     return action
   }
-  //
   changeValue = ({ formName, fieldName, value, isSilent = true, meta }) => {
     const action = {
       type: actionTypes.CHANGE_VALUE,
@@ -76,16 +69,6 @@ class FormActions {
     }
     return action
   }
-
-  validating = ({ formName, fieldName }) => {
-    const action = {
-      type: actionTypes.VALIDATING,
-      formName,
-      fieldName
-    }
-    return action
-  }
-
   isValid = ({ formName, fieldName }) => {
     const action = {
       type: actionTypes.IS_VALID,
@@ -94,7 +77,6 @@ class FormActions {
     }
     return action
   }
-
   isInvalid = ({ formName, fieldName, error }) => {
     const action = {
       type: actionTypes.IS_INVALID,
@@ -104,7 +86,6 @@ class FormActions {
     }
     return action
   }
-
   registerField = ({ formName, fieldName, value, validate, meta }) => {
     const action = {
       type: actionTypes.REGISTER_FIELD,
@@ -116,7 +97,6 @@ class FormActions {
     }
     return action
   }
-
   unregisterField = ({ formName, fieldName }) => {
     const action = {
       type: actionTypes.UNREGISTER_FIELD,
@@ -125,7 +105,6 @@ class FormActions {
     }
     return action
   }
-
   updateMeta = ({ formName, fieldName, meta }) => {
     const action = {
       type: actionTypes.UPDATE_META,

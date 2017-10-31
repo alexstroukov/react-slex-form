@@ -20,8 +20,15 @@ describe('createFormMiddleware', function () {
   describe('createFormMiddleware', function () {
     it('should return an object', function () {
       const validatorsStub = new class { testFormName = sandbox.stub().returns(Promise.resolve(true)) }
-      const submittersStub = new class { testFormName = sandbox.stub().returns(Promise.resolve(true)) }
-      const formMiddleware = createFormMiddleware({ validators: validatorsStub, submitters: submittersStub })
+      const submitterStub = sandbox.stub().returns(Promise.resolve(true))
+      const formMiddleware = createFormMiddleware({
+        forms: {
+          testFormName: {
+            submit: submitterStub,
+            validators: validatorsStub
+          }
+        }
+      })
       expect(formMiddleware !== null && typeof formMiddleware === 'object').to.equal(true)
     })
     describe('submitFormMiddleware', function () {
@@ -52,20 +59,24 @@ describe('createFormMiddleware', function () {
           const validatorStub2 = sandbox.stub().returns(Promise.reject(validateResult))
           const submitterStub = sandbox.stub().returns(Promise.resolve(submitResult))
           const validatorsStub = {
-            [formName]: {
-              validate: validatorStub,
-              validate2: validatorStub2
-            }
+            validate: validatorStub,
+            validate2: validatorStub2
           }
-          const submittersStub = {
-            [formName]: submitterStub
-          }
+
+          
           const dispatchSpy = sandbox.spy()
           const getStateStub = sandbox.stub().returns(state)
           const action = formActions.submitForm({ formName })
           const submitFormFailActionStubResult = {}
           const submitFormFailActionStub = sandbox.stub(formActions, 'submitFormFail').returns(submitFormFailActionStubResult)
-          const formMiddleware = createFormMiddleware({ validators: validatorsStub, submitters: submittersStub })
+          const formMiddleware = createFormMiddleware({
+            forms: {
+              [formName]: {
+                submit: submitterStub,
+                validators: validatorsStub
+              }
+            }
+          })
           return formMiddleware
             .submitFormMiddleware(dispatchSpy, getStateStub, action)
             .then(() => {
@@ -102,19 +113,21 @@ describe('createFormMiddleware', function () {
           const validatorStub = sandbox.stub().returns(Promise.resolve(validateResult))
           const submitterStub = sandbox.stub().returns(Promise.resolve(submitResult))
           const validatorsStub = {
-            [formName]: {
-              validate: validatorStub
-            }
-          }
-          const submittersStub = {
-            [formName]: submitterStub
+            validate: validatorStub
           }
           const dispatchSpy = sandbox.spy()
           const getStateStub = sandbox.stub().returns(state)
           const action = formActions.submitForm({ formName })
           const submitFormSuccessActionStubResult = {}
           const submitFormSuccessActionStub = sandbox.stub(formActions, 'submitFormSuccess').returns(submitFormSuccessActionStubResult)
-          const formMiddleware = createFormMiddleware({ validators: validatorsStub, submitters: submittersStub })
+          const formMiddleware = createFormMiddleware({
+            forms: {
+              [formName]: {
+                submit: submitterStub,
+                validators: validatorsStub
+              }
+            }
+          })
           return formMiddleware
             .submitFormMiddleware(dispatchSpy, getStateStub, action)
             .then(() => {
@@ -150,19 +163,21 @@ describe('createFormMiddleware', function () {
           const validatorStub = sandbox.stub().returns(Promise.resolve(validateResult))
           const submitterStub = sandbox.stub().returns(Promise.reject(submitResult))
           const validatorsStub = {
-            [formName]: {
-              validate: validatorStub
-            }
-          }
-          const submittersStub = {
-            [formName]: submitterStub
+            validate: validatorStub
           }
           const dispatchSpy = sandbox.spy()
           const getStateStub = sandbox.stub().returns(state)
           const action = formActions.submitForm({ formName })
           const submitFormFailActionStubResult = {}
           const submitFormFailActionStub = sandbox.stub(formActions, 'submitFormFail').returns(submitFormFailActionStubResult)
-          const formMiddleware = createFormMiddleware({ validators: validatorsStub, submitters: submittersStub })
+          const formMiddleware = createFormMiddleware({
+            forms: {
+              [formName]: {
+                submit: submitterStub,
+                validators: validatorsStub
+              }
+            }
+          })
           return formMiddleware
             .submitFormMiddleware(dispatchSpy, getStateStub, action)
             .then(() => {
@@ -199,16 +214,20 @@ describe('createFormMiddleware', function () {
             const validateResult = {}
             const validatorStub = sandbox.stub().returns(Promise.resolve(validateResult))
             const validatorsStub = {
-              [formName]: {
-                validate: validatorStub
-              }
+              validate: validatorStub
             }
             const dispatchSpy = sandbox.spy()
             const getStateStub = sandbox.stub().returns(state)
             const action = formActions.changeValue({ formName, fieldName })
             const isValidActionStubResult = {}
             const isValidActionStub = sandbox.stub(formActions, 'isValid').returns(isValidActionStubResult)
-            const formMiddleware = createFormMiddleware({ validators: validatorsStub })
+            const formMiddleware = createFormMiddleware({
+              forms: {
+                [formName]: {
+                  validators: validatorsStub
+                }
+              }
+            })
             return formMiddleware
               .validateFieldOnChangeValueMiddleware(dispatchSpy, getStateStub, action)
               .then(() => {
@@ -220,21 +239,25 @@ describe('createFormMiddleware', function () {
           })
         })
         describe('when the validation fails', function () {
-          it('should validate field and dispatch isValid', function () {
+          it('should validate field and dispatch isInvalid', function () {
             const validateResult = new Error('validation error')
             const fieldValidateDeferred = testUtils.defer()
             const validatorStub = sandbox.stub().returns(Promise.resolve(validateResult))
             const validatorsStub = {
-              [formName]: {
-                validate: validatorStub
-              }
+              validate: validatorStub
             }
             const dispatchSpy = sandbox.spy()
             const getStateStub = sandbox.stub().returns(state)
             const action = formActions.changeValue({ formName, fieldName })
             const isInvalidActionStubResult = {}
             const isInvalidActionStub = sandbox.stub(formActions, 'isInvalid').returns(isInvalidActionStubResult)
-            const formMiddleware = createFormMiddleware({ validators: validatorsStub })
+            const formMiddleware = createFormMiddleware({
+              forms: {
+                [formName]: {
+                  validators: validatorsStub
+                }
+              }
+            })
             return formMiddleware
               .validateFieldOnChangeValueMiddleware(dispatchSpy, getStateStub, action)
               .then(() => {
@@ -246,20 +269,24 @@ describe('createFormMiddleware', function () {
           })
         })
         describe('when the validation rejects', function () {
-          it('should validate field and dispatch isValid', function () {
+          it('should validate field and dispatch isInvalid', function () {
             const validateResult = new Error('validation error')
             const validatorStub = sandbox.stub().returns(Promise.reject(validateResult))
             const validatorsStub = {
-              [formName]: {
-                validate: validatorStub
-              }
+              validate: validatorStub
             }
             const dispatchSpy = sandbox.spy()
             const getStateStub = sandbox.stub().returns(state)
             const action = formActions.changeValue({ formName, fieldName })
             const isInvalidActionStubResult = {}
             const isInvalidActionStub = sandbox.stub(formActions, 'isInvalid').returns(isInvalidActionStubResult)
-            const formMiddleware = createFormMiddleware({ validators: validatorsStub })
+            const formMiddleware = createFormMiddleware({
+              forms: {
+                [formName]: {
+                  validators: validatorsStub
+                }
+              }
+            })
             return formMiddleware
               .validateFieldOnChangeValueMiddleware(dispatchSpy, getStateStub, action)
               .then(() => {
@@ -292,14 +319,18 @@ describe('createFormMiddleware', function () {
             const validateResult = {}
             const validatorStub = sandbox.stub().returns(Promise.resolve(validateResult))
             const validatorsStub = {
-              [formName]: {
-                validate: validatorStub
-              }
+              validate: validatorStub
             }
             const dispatchSpy = sandbox.spy()
             const getStateStub = sandbox.stub().returns(state)
             const action = formActions.changeValue({ formName, fieldName, value: 'differentValueToWhatsInStore' })
-            const formMiddleware = createFormMiddleware({ validators: validatorsStub })
+            const formMiddleware = createFormMiddleware({
+              forms: {
+                [formName]: {
+                  validators: validatorsStub
+                }
+              }
+            })
             return formMiddleware
               .validateFieldOnChangeValueMiddleware(dispatchSpy, getStateStub, action)
               .then(() => {
@@ -313,14 +344,18 @@ describe('createFormMiddleware', function () {
             const validateResult = new Error('validation error')
             const validatorStub = sandbox.stub().returns(Promise.resolve(validateResult))
             const validatorsStub = {
-              [formName]: {
-                validate: validatorStub
-              }
+              validate: validatorStub
             }
             const dispatchSpy = sandbox.spy()
             const getStateStub = sandbox.stub().returns(state)
             const action = formActions.changeValue({ formName, fieldName, value: 'differentValueToWhatsInStore' })
-            const formMiddleware = createFormMiddleware({ validators: validatorsStub })
+            const formMiddleware = createFormMiddleware({
+              forms: {
+                [formName]: {
+                  validators: validatorsStub
+                }
+              }
+            })
             return formMiddleware
               .validateFieldOnChangeValueMiddleware(dispatchSpy, getStateStub, action)
               .then(() => {
@@ -334,14 +369,18 @@ describe('createFormMiddleware', function () {
             const validateResult = new Error('validation error')
             const validatorStub = sandbox.stub().returns(Promise.reject(validateResult))
             const validatorsStub = {
-              [formName]: {
-                validate: validatorStub
-              }
+              validate: validatorStub
             }
             const dispatchSpy = sandbox.spy()
             const getStateStub = sandbox.stub().returns(state)
             const action = formActions.changeValue({ formName, fieldName, value: 'differentValueToWhatsInStore' })
-            const formMiddleware = createFormMiddleware({ validators: validatorsStub })
+            const formMiddleware = createFormMiddleware({
+              forms: {
+                [formName]: {
+                  validators: validatorsStub
+                }
+              }
+            })
             return formMiddleware
               .validateFieldOnChangeValueMiddleware(dispatchSpy, getStateStub, action)
               .then(() => {

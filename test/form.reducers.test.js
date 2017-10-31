@@ -115,28 +115,6 @@ describe('form.reducers', function () {
       expect(nextState).to.equal(initialState)
     })
   })
-  describe('validating', function () {
-    const state = {
-      testForm: {
-        testField: {}
-      }
-    }
-    it('should return a new state', function () {
-      const action = { formName: 'testForm', fieldName: 'testField' }
-      const nextState = formReducers.validating(state, action)
-      expect(state).to.not.equal(nextState)
-    })
-    it('should set the form to validating', function () {
-      const action = { formName: 'testForm', fieldName: 'testField' }
-      const nextState = formReducers.validating(state, action)
-      expect(nextState.testForm.status).to.equal(formStatuses.VALIDATING)
-    })
-    it('should set the field to validating', function () {
-      const action = { formName: 'testForm', fieldName: 'testField' }
-      const nextState = formReducers.validating(state, action)
-      expect(nextState.testForm.testField.status).to.equal(formStatuses.VALIDATING)
-    })
-  })
   describe('changeValue', function () {
     const state = {
       testForm: {

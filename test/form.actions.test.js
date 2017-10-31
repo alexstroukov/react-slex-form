@@ -160,28 +160,6 @@ describe('form.actions', function () {
       expect(changeValueAction.isSilent).to.equal(params.isSilent)
     })
   })
-  describe('validating', function () {
-    it('should create an object action', function () {
-      const params = { formName: 'testformName', fieldName: 'testFieldName' }
-      const validatingAction = formActions.validating(params)
-      expect(validatingAction !== null && typeof validatingAction === 'object').to.equal(true)
-    })
-    it('should be of type VALIDATING', function () {
-      const params = { formName: 'testformName', fieldName: 'testFieldName' }
-      const validatingAction = formActions.validating(params)
-      expect(validatingAction.type).to.equal(formActionTypes.VALIDATING)
-    })
-    it('should include the given formName in the returned object', function () {
-      const params = { formName: 'testformName', fieldName: 'testFieldName' }
-      const validatingAction = formActions.validating(params)
-      expect(validatingAction.formName).to.equal(params.formName)
-    })
-    it('should include the given fieldName in the returned object', function () {
-      const params = { formName: 'testformName', fieldName: 'testFieldName' }
-      const validatingAction = formActions.validating(params)
-      expect(validatingAction.fieldName).to.equal(params.fieldName)
-    })
-  })
   describe('updateMeta', function () {
     const params = { formName: 'testformName', fieldName: 'testFieldName', meta: { metaValue: 'testValue' } }
     it('should create an object action', function () {

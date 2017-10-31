@@ -3,7 +3,7 @@ import * as actionTypes from './form.actionTypes'
 import * as statuses from './form.statuses'
 import actions from './form.actions'
 
-export default function createFormMiddleware ({ validators = {}, submitters = {} }) {
+export default function createFormMiddleware ({ forms = {} }) {
   class FormMiddleware {
     _validateForm = ({ formName, form }) => {
       return _.chain(form)
@@ -19,7 +19,7 @@ export default function createFormMiddleware ({ validators = {}, submitters = {}
         )
         .value()
       function _validateField ({ formName, fieldName, form, field }) {
-        const validateField = validators[formName][field.validate]
+        const validateField = forms[formName].validators[field.validate]
         if (validateField) {
           return Promise
             .resolve(validateField(field.value, form))
@@ -51,7 +51,7 @@ export default function createFormMiddleware ({ validators = {}, submitters = {}
       if (action.type === actionTypes.SUBMIT_FORM) {
         const { formName } = action
         const form = _.get(getState(), `form.${formName}`)
-        const submitServiceFn = submitters[formName]
+        const submitServiceFn = forms[formName].submit
         const canSubmit = form.status === statuses.VALID
         if (canSubmit) {
           return this._validateForm({ formName, form })
@@ -91,7 +91,7 @@ export default function createFormMiddleware ({ validators = {}, submitters = {}
             `form.${formName}.${fieldName}.status`
           ])
           .value()
-        const validateField = validators[formName][validate]
+        const validateField = forms[formName].validators[validate]
         if (validateField) {
           return Promise
             .resolve(validateField(value, form))

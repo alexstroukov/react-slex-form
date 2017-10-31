@@ -61,23 +61,6 @@ class FormReducers {
       return nextState
     }
   }
-  validating = (state, action) => {
-    const { formName, fieldName } = action
-    const form = state[formName]
-    const field = form && form[fieldName]
-    const nextState = {
-      ...state,
-      [formName]: {
-        ...form,
-        status: statuses.VALIDATING,
-        [fieldName]: {
-          ...field,
-          status: statuses.VALIDATING
-        }
-      }
-    }
-    return nextState
-  }
   changeValue = (state, action) => {
     const { formName, fieldName, value, isSilent = false, meta } = action
     const form = state[formName]
