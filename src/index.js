@@ -2,11 +2,12 @@ import Field from './Field'
 import * as statuses from './form.statuses'
 import * as actionTypes from './form.actionTypes'
 import reducers from './form.reducers'
+import selectors from './form.selectors'
 import actions from './form.actions'
 import createFormMiddleware from './createFormMiddleware'
 import intitialState from './initialState'
 
-export { Field, statuses, createFormMiddleware, actionTypes, actions, reduceForm }
+export { Field, statuses, createFormMiddleware, actionTypes, actions, selectors, reduceForm }
 
 export default function reduceForm (state = intitialState, action) {
   switch (action.type) {
