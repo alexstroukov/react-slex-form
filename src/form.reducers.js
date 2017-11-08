@@ -70,7 +70,7 @@ class FormReducers {
     const currentFormStatus = _.get(form, 'status') 
     const existingMeta = _.get(field, 'meta', {})
     const touched = isSilent ? _.get(field, `touched`, false) : true
-    const hasValidator = _.has(field, `validate`)
+    const hasValidator = !!_.get(field, `validate`)
     const nextFieldStatus = hasValidator
       ? statuses.VALIDATING
       : statuses.VALID

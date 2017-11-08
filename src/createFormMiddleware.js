@@ -63,7 +63,7 @@ export default function createFormMiddleware ({ forms = {} }) {
                   .reduce((memo, { fieldName, value }) => ({ ...memo, [fieldName]: value }), {})
                   .value()
                 return Promise
-                  .resolve(submitServiceFn(formValues))
+                  .resolve(submitServiceFn(formValues, getState))
                   .then(result => {
                     dispatch(actions.submitFormSuccess({ formName, result }))
                   })
