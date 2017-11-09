@@ -5,14 +5,7 @@ import { connect } from 'react-slex-store'
 import actions from './form.actions'
 import * as statuses from './form.statuses'
 
-let registered = {}
-let initialValues = {}
-
 class Field extends Component {
-  static reset = () => {
-    registered = {}
-    initialValues = {}
-  }
   componentDidMount () {
     this.register(this.props)
   }
@@ -33,25 +26,18 @@ class Field extends Component {
   changeInitialValue = (props) => {
     const { formName, fieldName, componentInitialValue, meta, changeInitialValue, initialValue } = props
     const shouldChangeInitialValue = !_.isEqual(initialValue, componentInitialValue)
-    const registeredInitialValue = initialValues[formName + fieldName]
-    if (shouldChangeInitialValue && !_.isEqual(registeredInitialValue, componentInitialValue)) {
+    if (shouldChangeInitialValue) {
       changeInitialValue({ formName, fieldName, componentInitialValue, meta })
-      initialValues[formName + fieldName] = componentInitialValue
     }
   }
   register = (props) => {
     const { register, formName, fieldName, componentInitialValue, validate, componentInitialMeta } = props
-    if (!registered[formName + fieldName]) {
-      register({ formName, fieldName, componentInitialValue, validate, componentInitialMeta })
-      registered[formName + fieldName] = true
-    }
+    register({ formName, fieldName, componentInitialValue, validate, componentInitialMeta })
   }
   unregister = (props) => {
     const { unregister, stayRegistered, formName, fieldName } = props
     if (!stayRegistered) {
       unregister({ formName, fieldName })
-      registered[formName + fieldName] = false
-      initialValues[formName + fieldName] = undefined
     }
   }
   render () {
@@ -97,7 +83,7 @@ export default connect((dispatch, getState, ownProps) => {
   const unregister = ({ formName, fieldName }) => dispatch(actions.unregisterField({ formName, fieldName }))
   const changeValue = nextValue => dispatch(actions.changeValue({ formName, fieldName, value: nextValue }))
   const changeInitialValue = ({ formName, fieldName, componentInitialValue, meta }) => {
-    dispatch(actions.changeInitialValue({ formName, fieldName, componentInitialValue, meta }))
+    dispatch(actions.changeInitialValue({ formName, fieldName, value: componentInitialValue, meta }))
   }
   return {
     ...ownProps,
