@@ -35,6 +35,18 @@ class FormSelectors {
     } = state
     return error
   }
+  getFieldValue (state, { formName, fieldName }) {
+    const {
+      form: {
+        [formName]: {
+          [fieldName]: {
+            value: fieldValue
+          } = {}          
+        } = {}
+      }
+    } = state
+    return fieldValue
+  }
 }
 
 export default new FormSelectors()
