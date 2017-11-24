@@ -40,11 +40,26 @@ class Field extends Component {
       unregister({ formName, fieldName })
     }
   }
+  _getFieldProps = () => {
+    const { render, component, ...rest } = this.props
+    return _.omit(rest, [
+      'register',
+      'unregister',
+      'validate',
+      'changeInitialValue',
+      'shouldChangeInitialValue',
+      'componentInitialValue'
+    ])
+  }
   render () {
-    const { render, ...rest } = this.props
-    return render
-      ? render({ ..._.omit(rest, 'register', 'unregister', 'validate', 'changeInitialValue', 'shouldChangeInitialValue') })
-      : null
+    const { render, component: FieldComponent } = this.props
+    if (FieldComponent) {
+      return <FieldComponent {...this._getFieldProps()} />
+    } else if (render) {
+      return render({ ...this._getFieldProps() })
+    } else {
+      return null
+    }
   }
 }
 
@@ -62,6 +77,7 @@ Field.propTypes = {
 
   validate: PropTypes.string,
   render: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
+  component: PropTypes.any,
   changeInitialValue: PropTypes.func.isRequired,
   register: PropTypes.func.isRequired,
   unregister: PropTypes.func.isRequired
