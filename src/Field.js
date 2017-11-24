@@ -48,7 +48,10 @@ class Field extends Component {
       'validate',
       'changeInitialValue',
       'shouldChangeInitialValue',
-      'componentInitialValue'
+      'componentInitialValue',
+      'componentInitialMeta',
+      'initialValue',
+      'stayRegistered'
     ])
   }
   render () {
