@@ -1,17 +1,20 @@
 import PropTypes from 'prop-types'
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import _ from 'lodash'
 import { connect } from 'react-slex-store'
 import actions from './form.actions'
 import * as statuses from './form.statuses'
 
-class Field extends Component {
+class Field extends PureComponent {
+  componentInitialValue = this.props.componentInitialValue
+
   componentDidMount () {
     this.register(this.props)
   }
   componentWillReceiveProps (nextProps) {
     const { formName, fieldName } = nextProps
     const { formName: prevFormName, fieldName: prevFieldName } = this.props
+    this.componentInitialValue = this.props.componentInitialValue
     if (formName !== prevFormName || fieldName !== prevFieldName) {
       this.register(nextProps)
       this.unregister(this.props)
@@ -26,7 +29,8 @@ class Field extends Component {
   changeInitialValue = (props) => {
     const { formName, fieldName, componentInitialValue, meta, changeInitialValue, initialValue } = props
     const shouldChangeInitialValue = !_.isEqual(initialValue, componentInitialValue)
-    if (shouldChangeInitialValue) {
+    const initialValueChanged = !_.isEqual(this.componentInitialValue, componentInitialValue)
+    if (shouldChangeInitialValue && initialValueChanged) {
       changeInitialValue({ formName, fieldName, componentInitialValue, meta })
     }
   }
