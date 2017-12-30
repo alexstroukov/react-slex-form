@@ -1,20 +1,22 @@
 import PropTypes from 'prop-types'
 import React, { PureComponent } from 'react'
 import _ from 'lodash'
-import { connect } from 'react-slex-store'
+import connectForm from './connectForm'
 import actions from './form.actions'
+import selectors from './form.selectors'
 import * as statuses from './form.statuses'
 
 class Field extends PureComponent {
-  componentInitialValue = this.props.componentInitialValue
-
+  state = {
+    field: this.props.field
+  }
   componentDidMount () {
     this.register(this.props)
+    this.subscribe()
   }
   componentWillReceiveProps (nextProps) {
     const { formName, fieldName } = nextProps
     const { formName: prevFormName, fieldName: prevFieldName } = this.props
-    this.componentInitialValue = this.props.componentInitialValue
     if (formName !== prevFormName || fieldName !== prevFieldName) {
       this.register(nextProps)
       this.unregister(this.props)
@@ -25,18 +27,30 @@ class Field extends PureComponent {
   }
   componentWillUnmount () {
     this.unregister(this.props)
+    this.unsubscribe()
+  }
+  updateField = ({ field }) => {
+    this.setState({ field })
+  }
+  subscribe = () => {
+    const { subscribe, formName, fieldName } = this.props
+    this._unsubscribe = subscribe({ formName, fieldName, callback: this.updateField })
+  }
+  unsubscribe = () => {
+    this._unsubscribe && this._unsubscribe()
   }
   changeInitialValue = (props) => {
-    const { formName, fieldName, componentInitialValue, meta, changeInitialValue, initialValue } = props
-    const shouldChangeInitialValue = !_.isEqual(initialValue, componentInitialValue)
-    const initialValueChanged = !_.isEqual(this.componentInitialValue, componentInitialValue)
-    if (shouldChangeInitialValue && initialValueChanged) {
-      changeInitialValue({ formName, fieldName, componentInitialValue, meta })
+    const { formName, fieldName, meta, changeInitialValue, initialValue } = props
+    const initialValueHasChanged = !_.isEqual(initialValue, _.get(this.props.field, 'initialValue'))
+    if (initialValueHasChanged) {
+      changeInitialValue({ formName, fieldName, value: initialValue, meta })
     }
   }
   register = (props) => {
-    const { register, formName, fieldName, componentInitialValue, validate, componentInitialMeta } = props
-    register({ formName, fieldName, componentInitialValue, validate, componentInitialMeta })
+    const { register, formName, fieldName, field, value, validate, meta } = props
+    if (!field) {
+      register({ formName, fieldName, value, validate, meta })
+    }  
   }
   unregister = (props) => {
     const { unregister, stayRegistered, formName, fieldName } = props
@@ -46,17 +60,18 @@ class Field extends PureComponent {
   }
   _getFieldProps = () => {
     const { render, component, ...rest } = this.props
-    return _.omit(rest, [
-      'register',
-      'unregister',
-      'validate',
-      'changeInitialValue',
-      'shouldChangeInitialValue',
-      'componentInitialValue',
-      'componentInitialMeta',
-      'initialValue',
-      'stayRegistered'
-    ])
+    return _.chain(rest)
+      .omit([
+        'subscribe',
+        'field',
+        'register',
+        'unregister',
+        'validate',
+        'stayRegistered',
+        'changeInitialValue'
+      ])
+      .assign(this.state.field)
+      .value()
   }
   render () {
     const { render, component: FieldComponent } = this.props
@@ -73,13 +88,8 @@ class Field extends PureComponent {
 Field.propTypes = {
   value: PropTypes.object,
   stayRegistered: PropTypes.bool,
-  loading: PropTypes.bool.isRequired,
-  touched: PropTypes.bool.isRequired,
   formName: PropTypes.string.isRequired,
   fieldName: PropTypes.string.isRequired,
-  value: PropTypes.any,
-  messages: PropTypes.arrayOf(PropTypes.string),
-  status: PropTypes.string.isRequired,
   changeValue: PropTypes.func.isRequired,
 
   validate: PropTypes.string,
@@ -92,72 +102,21 @@ Field.propTypes = {
 
 export { Field }
 
-export default connect((dispatch, getState, ownProps) => {
-  const { formName, fieldName, value: componentInitialValue, validate, meta: componentInitialMeta } = ownProps
-  const { value, status, touched, initialValue, loading, messages, meta, submitting } = getField()
-  const register = ({ formName, fieldName, componentInitialValue, validate, componentInitialMeta }) => {
-    const fieldIsRegistered = _.chain(getState())
-      .has(`form.${formName}.${fieldName}`)
-      .value()
-    if (!fieldIsRegistered) {
-      dispatch(actions.registerField({ formName, fieldName, value: componentInitialValue, validate, meta: componentInitialMeta }))
-    }
-  }
+export default connectForm((formContext, ownProps) => {
+  const { dispatch, getState, subscribe } = formContext
+  const { formName, fieldName } = ownProps
+  const field = selectors.getField(getState(), { formName, fieldName })
+  const register = ({ formName, fieldName, value, validate, meta }) => dispatch(actions.registerField({ formName, fieldName, value, validate, meta }))
   const unregister = ({ formName, fieldName }) => dispatch(actions.unregisterField({ formName, fieldName }))
   const changeValue = nextValue => dispatch(actions.changeValue({ formName, fieldName, value: nextValue }))
-  const changeInitialValue = ({ formName, fieldName, componentInitialValue, meta }) => {
-    dispatch(actions.changeInitialValue({ formName, fieldName, value: componentInitialValue, meta }))
-  }
+  const changeInitialValue = ({ formName, fieldName, value, meta }) => dispatch(actions.changeInitialValue({ formName, fieldName, value, meta }))
   return {
     ...ownProps,
-    componentInitialMeta,
-    initialValue,
-    componentInitialValue,
-    meta,
+    subscribe,
+    field,
     register,
     unregister,
     changeValue,
-    changeInitialValue,
-    value,
-    status,
-    messages,
-    touched,
-    loading,
-    submitting
-  }
-
-  function getField () {
-    return _.chain(getState())
-      .at([
-        `form.${formName}.${fieldName}.value`,
-        `form.${formName}.${fieldName}.status`,
-        `form.${formName}.${fieldName}.error`,
-        `form.${formName}.${fieldName}.touched`,
-        `form.${formName}.${fieldName}.initialValue`,
-        `form.${formName}.${fieldName}.meta`,
-        `form.${formName}.status`
-      ])
-      .thru(([ value, status = statuses.INITIAL, error, touched = false, initialValue, meta = {}, formStatus ]) => {
-        const loading = status === statuses.VALIDATING
-        const submitting = formStatus === statuses.SUBMITTING
-        const messages = _.chain([error])
-          .flatten()
-          .reject(_.isUndefined)
-          .value() 
-        return {
-          meta,
-          messages,
-          loading,
-          submitting,
-          status,
-          error,
-          touched,
-          initialValue,
-          value: status === statuses.INITIAL
-            ? value || initialValue || componentInitialValue
-            : value
-        }
-      })
-      .value()
+    changeInitialValue
   }
 })(Field)
