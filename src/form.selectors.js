@@ -1,11 +1,9 @@
 import _ from 'lodash'
 import * as statuses from './form.statuses'
 import initialState from './initialState'
-import { FormProvider } from './FormProvider'
 
 class FormSelectors {
   getCanSubmit = (state, { formName }) => {
-    state = FormProvider.state
     const {
       [formName]: {
         status
@@ -15,7 +13,6 @@ class FormSelectors {
     return canSubmit
   }
   getSubmitting = (state, { formName }) => {
-    state = FormProvider.state
     const {
       [formName]: {
         status
@@ -25,7 +22,6 @@ class FormSelectors {
     return submitting
   }
   getSubmitError = (state, { formName }) => {
-    state = FormProvider.state
     const {
       [formName]: {
         error
@@ -34,7 +30,6 @@ class FormSelectors {
     return error
   }
   getFieldValue (state, { formName, fieldName }) {
-    state = FormProvider.state
     const {
       [formName]: {
         [fieldName]: {
@@ -45,7 +40,6 @@ class FormSelectors {
     return fieldValue
   }
   getField (state, { formName, fieldName }) {
-    state = FormProvider.state
     const {
       [formName]: {
         [fieldName]: field
@@ -55,14 +49,14 @@ class FormSelectors {
       const { status, error, touched = false, initialValue, meta = {}, formStatus } = field
       const loading = status === statuses.VALIDATING
       const submitting = formStatus === statuses.SUBMITTING
-      const messages = _.chain([error])
-        .flatten()
-        .reject(_.isUndefined)
-        .value() 
+      // const messages = _.chain([error])
+      //   .flatten()
+      //   .reject(_.isUndefined)
+      //   .value() 
       return {
         ...field,
         meta,
-        messages,
+        messages: [],
         loading,
         submitting,
         touched

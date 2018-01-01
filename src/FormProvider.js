@@ -3,6 +3,7 @@ import { connect } from 'react-slex-store'
 import actions from './form.actions'
 import * as actionTypes from './form.actionTypes'
 import reducers from './form.reducers'
+import selectors from './form.selectors'
 import React, { Component, Children } from 'react'
 
 export class FormProvider extends Component {
@@ -48,7 +49,7 @@ export class FormProvider extends Component {
     }
   }
   dispatch = (action) => {
-    const appliedAction = this.props.dispatch(this._createApplyMiddleware()(action))
+    const appliedAction = this._createApplyMiddleware()(action)
     const prevState = FormProvider.state
     const nextState = this.reduceForm(prevState, appliedAction)
     this._createApplySideEffects()({ prevState, nextState, action: appliedAction })
@@ -56,10 +57,7 @@ export class FormProvider extends Component {
     return appliedAction
   }
   getState = () => {
-    return {
-      ...this.props.getState(),
-      form: FormProvider.state
-    }
+    return FormProvider.state
   }
   _createApplySideEffects = _.once(() => {
     return _.chain([
@@ -138,17 +136,17 @@ export class FormProvider extends Component {
       }
     }
   }
-  updateField = ({ formName, fieldName }) => {
+  updateField = ({ formName, fieldName, field }) => {
     const subscribers = _.get(this.subscribers, `${formName}.${fieldName}`, [])
-    const field = _.get(FormProvider.state, `${formName}.${fieldName}`)
     for (const subscriber of subscribers) {
       subscriber({ field })
     }
   }
-  notifySubscribersOnChangeValueSideEffect = ({ action }) => {
+  notifySubscribersOnChangeValueSideEffect = ({ nextState, action }) => {
     if (action.type === actionTypes.CHANGE_VALUE) {
       const { formName, fieldName } = action
-      this.updateField({ formName, fieldName })
+      const field = selectors.getField(nextState, { formName, fieldName })
+      this.updateField({ formName, fieldName, field })
     }
   }
   submitFormMiddleware = (dispatch, getState, action) => {
@@ -267,10 +265,4 @@ FormProvider.childContextTypes = {
   formContext: PropTypes.object
 }
 
-export default connect((dispatch, getState, ownProps) => {
-  return {
-    ...ownProps,
-    dispatch,
-    getState
-  }
-})(FormProvider)
+export default FormProvider

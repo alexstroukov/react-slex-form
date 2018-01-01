@@ -60,7 +60,7 @@ class Field extends PureComponent {
   }
   _getFieldProps = () => {
     const { render, component, ...rest } = this.props
-    return _.chain(rest)
+    const nextProps = _.chain(rest)
       .omit([
         'subscribe',
         'field',
@@ -72,6 +72,7 @@ class Field extends PureComponent {
       ])
       .assign(this.state.field)
       .value()
+    return nextProps
   }
   render () {
     const { render, component: FieldComponent } = this.props

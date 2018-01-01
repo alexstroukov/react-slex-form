@@ -104,7 +104,7 @@ class FormReducers {
     const { formName, fieldName, value, validate, meta } = action
     const form = state[formName]
     const field = form && form[fieldName]
-    const existingMeta = _.get(field, 'meta', {})
+    const existingMeta = field && field.meta ? field.meta : {}
     const nextMeta = {
       ...existingMeta,
       ...meta
