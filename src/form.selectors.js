@@ -49,14 +49,14 @@ class FormSelectors {
       const { status, error, touched = false, initialValue, meta = {}, formStatus } = field
       const loading = status === statuses.VALIDATING
       const submitting = formStatus === statuses.SUBMITTING
-      // const messages = _.chain([error])
-      //   .flatten()
-      //   .reject(_.isUndefined)
-      //   .value() 
+      const messages = _.chain([error])
+        .flatten()
+        .reject(_.isUndefined)
+        .value()
       return {
         ...field,
         meta,
-        messages: [],
+        messages,
         loading,
         submitting,
         touched

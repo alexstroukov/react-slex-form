@@ -40,10 +40,10 @@ class Field extends PureComponent {
     this._unsubscribe && this._unsubscribe()
   }
   changeInitialValue = (props) => {
-    const { formName, fieldName, meta, changeInitialValue, initialValue } = props
-    const initialValueHasChanged = !_.isEqual(initialValue, _.get(this.props.field, 'initialValue'))
+    const { formName, fieldName, meta, changeInitialValue, value } = props
+    const initialValueHasChanged = !_.isEqual(value, _.get(this.props.field, 'initialValue'))
     if (initialValueHasChanged) {
-      changeInitialValue({ formName, fieldName, value: initialValue, meta })
+      changeInitialValue({ formName, fieldName, value, meta })
     }
   }
   register = (props) => {
@@ -59,19 +59,12 @@ class Field extends PureComponent {
     }
   }
   _getFieldProps = () => {
-    const { render, component, ...rest } = this.props
-    const nextProps = _.chain(rest)
-      .omit([
-        'subscribe',
-        'field',
-        'register',
-        'unregister',
-        'validate',
-        'stayRegistered',
-        'changeInitialValue'
-      ])
-      .assign(this.state.field)
-      .value()
+    const { render, component, changeValue, subscribe, field, register, unregister, validate, stayRegistered, changeInitialValue, ...rest } = this.props
+    const nextProps = {
+      changeValue,
+      ...rest,
+      ...(this.state.field || field)
+    }
     return nextProps
   }
   render () {
@@ -87,7 +80,7 @@ class Field extends PureComponent {
 }
 
 Field.propTypes = {
-  value: PropTypes.object,
+  value: PropTypes.any,
   stayRegistered: PropTypes.bool,
   formName: PropTypes.string.isRequired,
   fieldName: PropTypes.string.isRequired,

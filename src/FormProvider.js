@@ -61,7 +61,7 @@ export class FormProvider extends Component {
   }
   _createApplySideEffects = _.once(() => {
     return _.chain([
-        this.notifySubscribersOnChangeValueSideEffect
+        this.notifySubscribersOnFieldChangeSideEffect
       ])
       .concat(this.props.sideEffects)
       .filter(_.isFunction)
@@ -142,8 +142,16 @@ export class FormProvider extends Component {
       subscriber({ field })
     }
   }
-  notifySubscribersOnChangeValueSideEffect = ({ nextState, action }) => {
-    if (action.type === actionTypes.CHANGE_VALUE) {
+  notifySubscribersOnFieldChangeSideEffect = ({ nextState, action }) => {
+    if (
+      action.type === actionTypes.CHANGE_VALUE ||
+      action.type === actionTypes.CHANGE_INITIAL_VALUE ||
+      action.type === actionTypes.RESET_FIELD ||
+      action.type === actionTypes.IS_INVALID ||
+      action.type === actionTypes.IS_VALID ||
+      action.type === actionTypes.SUBMIT_FORM_SUCCESS ||
+      action.type === actionTypes.SUBMIT_FORM_FAIL
+    ) {
       const { formName, fieldName } = action
       const field = selectors.getField(nextState, { formName, fieldName })
       this.updateField({ formName, fieldName, field })
