@@ -40,6 +40,10 @@ export default function reduceForm (state = initialState, action) {
       return reducers.isInvalid(state, action)
     case actionTypes.UPDATE_META:
       return reducers.updateMeta(state, action)
+    case actionTypes.SUBSCRIBE:
+      return reducers.subscribe(state, action)
+    case actionTypes.UNSUBSCRIBE:
+      return reducers.unsubscribe(state, action)
     default:
       return state
   }

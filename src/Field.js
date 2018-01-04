@@ -89,7 +89,7 @@ Field.propTypes = {
   fieldName: PropTypes.string.isRequired,
   changeValue: PropTypes.func.isRequired,
 
-  validate: PropTypes.string,
+  validate: PropTypes.func,
   render: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
   component: PropTypes.any,
   changeInitialValue: PropTypes.func.isRequired,
