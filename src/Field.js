@@ -12,13 +12,15 @@ class Field extends PureComponent {
   }
   componentDidMount () {
     this.register(this.props)
-    this.subscribe()
+    this.subscribe(this.props)
   }
   componentWillReceiveProps (nextProps) {
     const { formName, fieldName } = nextProps
     const { formName: prevFormName, fieldName: prevFieldName } = this.props
     if (formName !== prevFormName || fieldName !== prevFieldName) {
       this.register(nextProps)
+      this.subscribe(nextProps)
+      this.unsubscribe(this.props)
       this.unregister(this.props)
     }
   }
@@ -26,18 +28,19 @@ class Field extends PureComponent {
     this.changeInitialValue(this.props)
   }
   componentWillUnmount () {
+    this.unsubscribe(this.props)
     this.unregister(this.props)
-    this.unsubscribe()
   }
   updateField = ({ field }) => {
     this.setState({ field })
   }
-  subscribe = () => {
-    const { subscribe, formName, fieldName } = this.props
-    this._unsubscribe = subscribe({ formName, fieldName, callback: this.updateField })
+  subscribe = (props) => {
+    const { subscribe, formName, fieldName } = props
+    subscribe({ formName, fieldName, callback: this.updateField })
   }
-  unsubscribe = () => {
-    this._unsubscribe && this._unsubscribe()
+  unsubscribe = (props) => {
+    const { subscribe, formName, fieldName } = props
+    unsubscribe({ formName, fieldName, callback: this.updateField })
   }
   changeInitialValue = (props) => {
     const { formName, fieldName, meta, changeInitialValue, value } = props
@@ -97,16 +100,19 @@ Field.propTypes = {
 export { Field }
 
 export default connectForm((formContext, ownProps) => {
-  const { dispatch, getState, subscribe } = formContext
+  const { dispatch, getState } = formContext
   const { formName, fieldName } = ownProps
   const field = selectors.getField(getState(), { formName, fieldName })
   const register = ({ formName, fieldName, value, validate, meta }) => dispatch(actions.registerField({ formName, fieldName, value, validate, meta }))
   const unregister = ({ formName, fieldName }) => dispatch(actions.unregisterField({ formName, fieldName }))
   const changeValue = nextValue => dispatch(actions.changeValue({ formName, fieldName, value: nextValue }))
   const changeInitialValue = ({ formName, fieldName, value, meta }) => dispatch(actions.changeInitialValue({ formName, fieldName, value, meta }))
+  const subscribe = ({ formName, fieldName, callback }) => dispatch(actions.subscribe({ formName, fieldName, callback }))
+  const unsubscribe = ({ formName, fieldName, callback }) => dispatch(actions.unsubscribe({ formName, fieldName, callback }))
   return {
     ...ownProps,
     subscribe,
+    unsubscribe,
     field,
     register,
     unregister,

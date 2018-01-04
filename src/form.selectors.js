@@ -5,45 +5,67 @@ import initialState from './initialState'
 class FormSelectors {
   getCanSubmit = (state, { formName }) => {
     const {
-      [formName]: {
-        status
-      } = {}
+      form: {
+        [formName]: {
+          status
+        } = {}
+      }
     } = state
     const canSubmit = status === statuses.VALID
     return canSubmit
   }
   getSubmitting = (state, { formName }) => {
     const {
-      [formName]: {
-        status
-      } = {}
+      form: {
+        [formName]: {
+          status
+        } = {}
+      }
     } = state
     const submitting = status === statuses.SUBMITTING
     return submitting
   }
   getSubmitError = (state, { formName }) => {
     const {
-      [formName]: {
-        error
-      } = {}
+      form: {
+        [formName]: {
+          error
+        } = {}
+      }
     } = state
     return error
   }
   getFieldValue (state, { formName, fieldName }) {
     const {
-      [formName]: {
-        [fieldName]: {
-          value: fieldValue
-        } = {}          
-      } = {}
+      form: {
+        [formName]: {
+          [fieldName]: {
+            value: fieldValue
+          } = {}          
+        } = {}
+      }
     } = state
     return fieldValue
   }
+  getFieldSubscribers (state, { formName, fieldName }) {
+    const {
+      form: {
+        [formName]: {
+          [fieldName]: {
+            subscribers: []
+          } = {}          
+        } = {}
+      }
+    } = state
+    return subscribers
+  }
   getField (state, { formName, fieldName }) {
     const {
-      [formName]: {
-        [fieldName]: field
-      } = {}
+      form: {
+        [formName]: {
+          [fieldName]: field
+        } = {}
+      }
     } = state
     if (field) {
       const { status, error, touched = false, initialValue, meta = {}, formStatus } = field

@@ -62,6 +62,54 @@ class FormReducers {
       return nextState
     }
   }
+  unsubscribe = (state, action) => {
+    const { formName, fieldName, callback } = action
+    const form = state[formName]
+    const field = form && form[fieldName]
+    const subscribers = field.subscribers || []
+    const index = subscribers.indexOf(callback)
+    if (index !== -1) {
+      const nextSubscribers = [ ...subscribers.slice(0, index), ...subscribers.slice(index + 1)]
+      const nextField = {
+        ...field,
+        subscribers: nextSubscribers
+      }
+      const nextForm = {
+        ...form,
+        [fieldName]: nextField
+      }
+      const nextState = {
+        ...state,
+        [formName]: nextForm
+      }
+      return nextState
+    } else {
+      return state
+    }
+  }
+  subscribe = (state, action) => {
+    const { formName, fieldName, callback } = action
+    const form = state[formName]
+    const field = form && form[fieldName]
+    const subscribers = field.subscribers || []
+    const nextSubscribers = [
+      ...subscribers,
+      callback
+    ]
+    const nextField = {
+      ...field,
+      subscribers: nextSubscribers
+    }
+    const nextForm = {
+      ...form,
+      [fieldName]: nextField
+    }
+    const nextState = {
+      ...state,
+      [formName]: nextForm
+    }
+    return nextState
+  }
   changeValue = (state, action) => {
     const { formName, fieldName, value, isSilent = false, meta } = action
     const form = state[formName]

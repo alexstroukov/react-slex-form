@@ -114,6 +114,24 @@ class FormActions {
     }
     return action
   }
+  subscribe = ({ formName, fieldName, callback }) => {
+    const action = {
+      type: actionTypes.SUBSCRIBE,
+      formName,
+      fieldName,
+      callback
+    }
+    return action
+  }
+  unsubscribe = ({ formName, fieldName, callback }) => {
+    const action = {
+      type: actionTypes.UNSUBSCRIBE,
+      formName,
+      fieldName,
+      callback
+    }
+    return action
+  }
 }
 
 export default new FormActions()
