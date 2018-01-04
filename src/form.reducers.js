@@ -164,6 +164,7 @@ class FormReducers {
       initialValue: value,
       value,
       validate,
+      subscribers: [],
       ...field,
       meta: nextMeta
     }

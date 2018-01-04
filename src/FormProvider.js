@@ -14,9 +14,8 @@ export class FormProvider extends Component {
   getChildContext () {
     return {
       formContext: {
-        dispatch: this.store.dispatch,
-        getState: this.store.getState,
-        submitForm
+        store: this.store,
+        submitForm: this.submitForm
       }
     }
   }
@@ -61,7 +60,6 @@ export class FormProvider extends Component {
     }
   }
   submitForm = (formName, submitServiceFn) => {
-    const { formName } = action
     const form = _.get(this.store.getState(), `form.${formName}`)
     const canSubmit = form.status === statuses.VALID
     if (canSubmit) {

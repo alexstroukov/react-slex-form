@@ -40,6 +40,6 @@ class FormMiddleware {
   }
 }
 
-return new FormMiddleware()
+export default new FormMiddleware()
 
 

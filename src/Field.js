@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import React, { PureComponent } from 'react'
 import _ from 'lodash'
-import connectForm from './connectForm'
+import connectField from './connectField'
 import actions from './form.actions'
 import selectors from './form.selectors'
 import * as statuses from './form.statuses'
@@ -39,7 +39,7 @@ class Field extends PureComponent {
     subscribe({ formName, fieldName, callback: this.updateField })
   }
   unsubscribe = (props) => {
-    const { subscribe, formName, fieldName } = props
+    const { unsubscribe, formName, fieldName } = props
     unsubscribe({ formName, fieldName, callback: this.updateField })
   }
   changeInitialValue = (props) => {
@@ -62,7 +62,7 @@ class Field extends PureComponent {
     }
   }
   _getFieldProps = () => {
-    const { render, component, changeValue, subscribe, field, register, unregister, validate, stayRegistered, changeInitialValue, ...rest } = this.props
+    const { render, component, changeValue, subscribe, unsubscribe, field, register, unregister, validate, stayRegistered, changeInitialValue, ...rest } = this.props
     const nextProps = {
       changeValue,
       ...rest,
@@ -99,8 +99,8 @@ Field.propTypes = {
 
 export { Field }
 
-export default connectForm((formContext, ownProps) => {
-  const { dispatch, getState } = formContext
+export default connectField((formContext, ownProps) => {
+  const { dispatch, getState } = formContext.store
   const { formName, fieldName } = ownProps
   const field = selectors.getField(getState(), { formName, fieldName })
   const register = ({ formName, fieldName, value, validate, meta }) => dispatch(actions.registerField({ formName, fieldName, value, validate, meta }))

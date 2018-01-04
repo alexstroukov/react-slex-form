@@ -7,11 +7,12 @@ import selectors from './form.selectors'
 import middleware from './form.middleware'
 import sideEffects from './form.sideEffects'
 import actions from './form.actions'
-import intitialState from './initialState'
+import connectForm from './connectForm'
+import initialState from './initialState'
 
-export { FormProvider, Field, statuses, actionTypes, actions, middleware, sideEffects, selectors }
+export { FormProvider, Field, statuses, actionTypes, actions, middleware, sideEffects, selectors, connectForm }
 
-export default function reduceForm (state, action) {
+export default function reduceForm (state = initialState, action) {
   switch (action.type) {
     case actionTypes.RESET_FORM_STORE:
       return reducers.resetFormStore(state, action)

@@ -25,6 +25,6 @@ class FormSideEffects {
   }
 }
 
-return new FormSideEffects()
+export default new FormSideEffects()
 
 

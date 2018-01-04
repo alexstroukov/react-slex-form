@@ -35,7 +35,7 @@ class FormSelectors {
     } = state
     return error
   }
-  getFieldValue (state, { formName, fieldName }) {
+  getFieldValue = (state, { formName, fieldName }) => {
     const {
       form: {
         [formName]: {
@@ -47,19 +47,19 @@ class FormSelectors {
     } = state
     return fieldValue
   }
-  getFieldSubscribers (state, { formName, fieldName }) {
+  getFieldSubscribers = (state, { formName, fieldName }) => {
     const {
       form: {
         [formName]: {
           [fieldName]: {
-            subscribers: []
-          } = {}          
+            subscribers = []
+          } = {}
         } = {}
       }
     } = state
     return subscribers
   }
-  getField (state, { formName, fieldName }) {
+  getField = (state, { formName, fieldName }) => {
     const {
       form: {
         [formName]: {
