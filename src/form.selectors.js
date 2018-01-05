@@ -59,6 +59,22 @@ class FormSelectors {
     } = state
     return subscribers
   }
+  getFormFieldNames = (state, { formName }) => {
+    const {
+      form: {
+        [formName]: form = {}
+      }
+    } = state
+    return _.chain(form)
+      .omit(['error', 'status'])
+      .keys()
+      .value()
+  }
+  _getFields = (form) => {
+    return _.chain(form)
+      .omit(['error', 'status'])
+      .value()
+  }
   getField = (state, { formName, fieldName }) => {
     const {
       form: {
