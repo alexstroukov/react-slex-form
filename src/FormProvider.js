@@ -3,6 +3,7 @@ import { connect } from 'react-slex-store'
 import actions from './form.actions'
 import * as actionTypes from './form.actionTypes'
 import reducers from './form.reducers'
+import * as statuses from './form.statuses'
 import selectors from './form.selectors'
 import React, { Component, Children } from 'react'
 
@@ -21,7 +22,7 @@ export class FormProvider extends Component {
   }
   _validateForm = ({ formName, form }) => {
     return _.chain(form)
-      .omit(['error', 'status'])
+      .omit(['error', 'status', 'subscribers'])
       .map((field, fieldName) => _validateField({ formName, fieldName, form, field }))
       .thru(promises => Promise
         .all(promises)
@@ -68,7 +69,7 @@ export class FormProvider extends Component {
         .then(validationErrors => {
           if (_.isEmpty(validationErrors)) {
             const formValues = _.chain(form)
-              .omit(['error', 'status']) 
+              .omit(['error', 'status', 'subscribers']) 
               .map(({ value }, fieldName) => ({ fieldName, value }))
               .reduce((memo, { fieldName, value }) => ({ ...memo, [fieldName]: value }), {})
               .value()

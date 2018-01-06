@@ -5,7 +5,7 @@ import actions from './form.actions'
 import selectors from './form.selectors'
 
 class FormSideEffects {
-  notifySubscribersOnFieldChangeSideEffect = ({ prevState, nextState, action, dispatch }) => {
+  notifyFieldSubscribersOnFieldChangeSideEffect = ({ prevState, nextState, action, dispatch }) => {
     if (
       action.type === actionTypes.CHANGE_VALUE ||
       action.type === actionTypes.RESET_FIELD ||
@@ -18,7 +18,7 @@ class FormSideEffects {
       this._notifyField({ nextState, formName, fieldName })
     }
   }
-  notifySubscribersOnFormChangeSideEffect = ({ prevState, nextState, action, dispatch }) => {
+  notifyFieldSubscribersOnFormChangeSideEffect = ({ prevState, nextState, action, dispatch }) => {
     if (
       action.type === actionTypes.RESET_FORM
     ) {
@@ -29,11 +29,33 @@ class FormSideEffects {
       }
     }
   }
+  notifyFormSubscribersOnChangeSideEffect = ({ prevState, nextState, action, dispatch }) => {
+    if (
+      action.type === actionTypes.RESET_FORM ||
+      action.type === actionTypes.CHANGE_VALUE ||
+      action.type === actionTypes.RESET_FIELD ||
+      action.type === actionTypes.IS_INVALID ||
+      action.type === actionTypes.IS_VALID ||
+      action.type === actionTypes.SUBMIT_FORM ||
+      action.type === actionTypes.SUBMIT_FORM_SUCCESS ||
+      action.type === actionTypes.SUBMIT_FORM_FAIL
+    ) {
+      const { formName } = action
+      this._notifyForm({ nextState, formName })
+    }
+  }
   _notifyField = ({ nextState, formName, fieldName }) => {
     const field = selectors.getField(nextState, { formName, fieldName })
-    const subscribers = selectors.getFieldSubscribers(nextState, { formName, fieldName })
-    for (const subscriber of subscribers) {
+    const fieldSubscribers = selectors.getFieldSubscribers(nextState, { formName, fieldName })
+    for (const subscriber of fieldSubscribers) {
       subscriber({ field })
+    }
+  }
+  _notifyForm = ({ nextState, formName }) => {
+    const form = selectors.getForm(nextState, { formName })
+    const formSubscribers = selectors.getFormSubscribers(nextState, { formName })
+    for (const subscriber of formSubscribers) {
+      subscriber({ form })
     }
   }
 }

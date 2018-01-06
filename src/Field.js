@@ -12,15 +12,15 @@ class Field extends PureComponent {
   }
   componentDidMount () {
     this.register(this.props)
-    this.subscribe(this.props)
+    this.subscribeField(this.props)
   }
   componentWillReceiveProps (nextProps) {
     const { formName, fieldName } = nextProps
     const { formName: prevFormName, fieldName: prevFieldName } = this.props
     if (formName !== prevFormName || fieldName !== prevFieldName) {
       this.register(nextProps)
-      this.subscribe(nextProps)
-      this.unsubscribe(this.props)
+      this.subscribeField(nextProps)
+      this.unsubscribeField(this.props)
       this.unregister(this.props)
     }
   }
@@ -28,19 +28,19 @@ class Field extends PureComponent {
     this.changeInitialValue(this.props)
   }
   componentWillUnmount () {
-    this.unsubscribe(this.props)
+    this.unsubscribeField(this.props)
     this.unregister(this.props)
   }
   updateField = ({ field }) => {
     this.setState({ field })
   }
-  subscribe = (props) => {
-    const { subscribe, formName, fieldName } = props
-    subscribe({ formName, fieldName, callback: this.updateField })
+  subscribeField = (props) => {
+    const { subscribeField, formName, fieldName } = props
+    subscribeField({ formName, fieldName, callback: this.updateField })
   }
-  unsubscribe = (props) => {
-    const { unsubscribe, formName, fieldName } = props
-    unsubscribe({ formName, fieldName, callback: this.updateField })
+  unsubscribeField = (props) => {
+    const { unsubscribeField, formName, fieldName } = props
+    unsubscribeField({ formName, fieldName, callback: this.updateField })
   }
   changeInitialValue = (props) => {
     const { formName, fieldName, meta, changeInitialValue, value } = props
@@ -62,7 +62,7 @@ class Field extends PureComponent {
     }
   }
   _getFieldProps = () => {
-    const { render, component, changeValue, subscribe, unsubscribe, field, register, unregister, validate, stayRegistered, changeInitialValue, ...rest } = this.props
+    const { render, component, changeValue, subscribeField, unsubscribeField, field, register, unregister, validate, stayRegistered, changeInitialValue, ...rest } = this.props
     const nextProps = {
       changeValue,
       ...rest,
@@ -107,12 +107,12 @@ export default connectField((formContext, ownProps) => {
   const unregister = ({ formName, fieldName }) => dispatch(actions.unregisterField({ formName, fieldName }))
   const changeValue = nextValue => dispatch(actions.changeValue({ formName, fieldName, value: nextValue }))
   const changeInitialValue = ({ formName, fieldName, value, meta }) => dispatch(actions.changeInitialValue({ formName, fieldName, value, meta }))
-  const subscribe = ({ formName, fieldName, callback }) => dispatch(actions.subscribe({ formName, fieldName, callback }))
-  const unsubscribe = ({ formName, fieldName, callback }) => dispatch(actions.unsubscribe({ formName, fieldName, callback }))
+  const subscribeField = ({ formName, fieldName, callback }) => dispatch(actions.subscribeField({ formName, fieldName, callback }))
+  const unsubscribeField = ({ formName, fieldName, callback }) => dispatch(actions.unsubscribeField({ formName, fieldName, callback }))
   return {
     ...ownProps,
-    subscribe,
-    unsubscribe,
+    subscribeField,
+    unsubscribeField,
     field,
     register,
     unregister,

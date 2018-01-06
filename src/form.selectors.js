@@ -59,6 +59,16 @@ class FormSelectors {
     } = state
     return subscribers
   }
+  getFormSubscribers = (state, { formName }) => {
+    const {
+      form: {
+        [formName]: {
+          subscribers = []
+        } = {}
+      }
+    } = state
+    return subscribers
+  }
   getFormFieldNames = (state, { formName }) => {
     const {
       form: {
@@ -66,13 +76,8 @@ class FormSelectors {
       }
     } = state
     return _.chain(form)
-      .omit(['error', 'status'])
+      .omit(['error', 'status', 'subscribers'])
       .keys()
-      .value()
-  }
-  _getFields = (form) => {
-    return _.chain(form)
-      .omit(['error', 'status'])
       .value()
   }
   getField = (state, { formName, fieldName }) => {
@@ -101,6 +106,26 @@ class FormSelectors {
       }
     } else {
       return field
+    }
+  }
+  getForm = (state, { formName }) => {
+    const {
+      form: {
+        [formName]: form
+      }
+    } = state
+    if (form) {
+      const { status, error: submitError } = form
+      const canSubmit = status === statuses.VALID
+      const submitting = status === statuses.SUBMITTING
+      return {
+        ...form,
+        submitError,
+        canSubmit,
+        submitting
+      }
+    } else {
+      return form
     }
   }
 }

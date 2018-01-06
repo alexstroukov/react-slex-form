@@ -62,7 +62,45 @@ class FormReducers {
       return nextState
     }
   }
-  unsubscribe = (state, action) => {
+  unsubscribeForm = (state, action) => {
+    const { formName, callback } = action
+    const form = state[formName] || {}
+    const subscribers = form.subscribers || []
+    const index = subscribers.indexOf(callback)
+    if (index !== -1) {
+      const nextSubscribers = [ ...subscribers.slice(0, index), ...subscribers.slice(index + 1)]
+      const nextForm = {
+        ...form,
+        subscribers: nextSubscribers
+      }
+      const nextState = {
+        ...state,
+        [formName]: nextForm
+      }
+      return nextState
+    } else {
+      return state
+    }
+  }
+  subscribeForm = (state, action) => {
+    const { formName, callback } = action
+    const form = state[formName] || {}
+    const subscribers = form.subscribers || []
+    const nextSubscribers = [
+      ...subscribers,
+      callback
+    ]
+    const nextForm = {
+      ...form,
+      subscribers: nextSubscribers
+    }
+    const nextState = {
+      ...state,
+      [formName]: nextForm
+    }
+    return nextState
+  }
+  unsubscribeField = (state, action) => {
     const { formName, fieldName, callback } = action
     const form = state[formName]
     const field = form && form[fieldName]
@@ -87,7 +125,7 @@ class FormReducers {
       return state
     }
   }
-  subscribe = (state, action) => {
+  subscribeField = (state, action) => {
     const { formName, fieldName, callback } = action
     const form = state[formName]
     const field = form && form[fieldName]
@@ -171,6 +209,7 @@ class FormReducers {
     const nextState = {
       ...state,
       [formName]: {
+        subscribers: [],
         status: statuses.INITIAL, // will get overwritten if form exists with a status
         ...form,
         [fieldName]: nextField
@@ -333,7 +372,7 @@ class FormReducers {
   }
   _getFields = (form) => {
     return _.chain(form)
-      .omit(['error', 'status'])
+      .omit(['error', 'status', 'subscribers'])
       .value()
   }
   _getNextFormStatus = ({ form, omitFieldName, replaceFieldName, replaceFieldValue, defaultStatus }) => {
