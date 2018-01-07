@@ -7,6 +7,7 @@ import selectors from './form.selectors'
 class FormSideEffects {
   notifyFieldSubscribersOnFieldChangeSideEffect = ({ prevState, nextState, action, dispatch }) => {
     if (
+      action.type === actionTypes.CHANGE_INITIAL_VALUE ||
       action.type === actionTypes.CHANGE_VALUE ||
       action.type === actionTypes.RESET_FIELD ||
       action.type === actionTypes.IS_INVALID ||
