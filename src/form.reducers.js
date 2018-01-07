@@ -323,6 +323,7 @@ class FormReducers {
         }, { ...form, error: undefined, status: statuses.INITIAL })
         .value()
     const nextState = {
+      ...state,
       [formName]: nextForm
     }
     return nextState
