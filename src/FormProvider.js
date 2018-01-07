@@ -77,9 +77,11 @@ export class FormProvider extends Component {
               .resolve(submitServiceFn(formValues))
               .then(result => {
                 this.store.dispatch(actions.submitFormSuccess({ formName, result }))
+                return result
               })
               .catch(error => {
                 this.store.dispatch(actions.submitFormFail({ formName, error: error.message }))
+                throw error
               })
           } else {
             this.store.dispatch(actions.submitFormFail({ formName, validationErrors }))

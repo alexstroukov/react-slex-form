@@ -8,9 +8,10 @@ import middleware from './form.middleware'
 import sideEffects from './form.sideEffects'
 import actions from './form.actions'
 import connectForm from './connectForm'
+import withForm from './withForm'
 import initialState from './initialState'
 
-export { FormProvider, Field, statuses, actionTypes, actions, middleware, sideEffects, selectors, connectForm }
+export { FormProvider, Field, statuses, actionTypes, actions, middleware, sideEffects, selectors, connectForm, withForm }
 
 export default function reduceForm (state = initialState, action) {
   switch (action.type) {

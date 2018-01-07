@@ -305,28 +305,32 @@ class FormReducers {
   resetForm = (state, action) => {
     const { formName } = action
     const form = state[formName]
-    const nextForm = _.chain(form)
-        .thru(this._getFields)
-        .map((field, fieldName) => {
-          const nextField = this._resetField({ field })
-          return {
-            fieldName,
-            field: nextField
-          }
-        })
-        .reduce((memo, next) => {
-          const { fieldName, field } = next
-          return {
-            ...memo,
-            [fieldName]: field
-          }
-        }, { ...form, error: undefined, status: statuses.INITIAL })
-        .value()
-    const nextState = {
-      ...state,
-      [formName]: nextForm
+    if (form) {
+      const nextForm = _.chain(form)
+          .thru(this._getFields)
+          .map((field, fieldName) => {
+            const nextField = this._resetField({ field })
+            return {
+              fieldName,
+              field: nextField
+            }
+          })
+          .reduce((memo, next) => {
+            const { fieldName, field } = next
+            return {
+              ...memo,
+              [fieldName]: field
+            }
+          }, { ...form, error: undefined, status: statuses.INITIAL })
+          .value()
+      const nextState = {
+        ...state,
+        [formName]: nextForm
+      }
+      return nextState
+    } else {
+      return state
     }
-    return nextState
   }
   isInvalid = (state, action) => {
     const { formName, fieldName, error } = action
