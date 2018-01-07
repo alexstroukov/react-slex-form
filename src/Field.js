@@ -11,6 +11,7 @@ class Field extends PureComponent {
     field: this.props.field
   }
   componentDidMount () {
+    this._updateField = ({ field }) => this.setState({ field })
     this.register(this.props)
     this.subscribeField(this.props)
   }
@@ -28,11 +29,12 @@ class Field extends PureComponent {
     this.changeInitialValue(this.props)
   }
   componentWillUnmount () {
+    this._updateField = undefined
     this.unsubscribeField(this.props)
     this.unregister(this.props)
   }
   updateField = ({ field }) => {
-    this.setState({ field })
+    this._updateField && this._updateField({ field })
   }
   subscribeField = (props) => {
     const { subscribeField, formName, fieldName } = props
