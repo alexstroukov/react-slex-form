@@ -8,7 +8,7 @@ import * as statuses from './form.statuses'
 
 class Field extends PureComponent {
   state = {
-    field: this.props.field
+    field: this.props.getField({ formName: this.props.formName, fieldName: this.props.fieldName })
   }
   componentDidMount () {
     this._updateField = ({ field }) => this.setState({ field })
@@ -47,8 +47,9 @@ class Field extends PureComponent {
     unsubscribeField({ formName, fieldName, callback: this.updateField })
   }
   changeInitialValue = (props) => {
-    const { formName, fieldName, meta, changeInitialValue, value } = props
-    const initialValueHasChanged = !_.isEqual(value, _.get(this.props.field, 'initialValue'))
+    const { formName, fieldName, meta, changeInitialValue, value, getField } = props
+    const field = getField({ formName, fieldName })
+    const initialValueHasChanged = !_.isEqual(value, _.get(field, 'initialValue'))
     if (initialValueHasChanged) {
       changeInitialValue({ formName, fieldName, value, meta })
     }
@@ -64,11 +65,11 @@ class Field extends PureComponent {
     }
   }
   _getFieldProps = () => {
-    const { render, component, changeValue, subscribeField, unsubscribeField, field, register, unregister, validate, stayRegistered, changeInitialValue, ...rest } = this.props
+    const { render, component, changeValue, subscribeField, unsubscribeField, getField, register, unregister, validate, stayRegistered, changeInitialValue, ...rest } = this.props
     const nextProps = {
       changeValue,
       ...rest,
-      ...(this.state.field || field)
+      ...(this.state.field || getField({ formName: this.props.formName, fieldName: this.props.fieldName }))
     }
     return nextProps
   }
@@ -104,7 +105,7 @@ export { Field }
 export default connectField((formContext, ownProps) => {
   const { dispatch, getState } = formContext.store
   const { formName, fieldName } = ownProps
-  const field = selectors.getField(getState(), { formName, fieldName })
+  const getField = ({ formName, fieldName }) => selectors.getField(getState(), { formName, fieldName })
   const register = ({ formName, fieldName, value, validate, meta }) => dispatch(actions.registerField({ formName, fieldName, value, validate, meta }))
   const unregister = ({ formName, fieldName }) => dispatch(actions.unregisterField({ formName, fieldName }))
   const changeValue = nextValue => dispatch(actions.changeValue({ formName, fieldName, value: nextValue }))
@@ -115,7 +116,7 @@ export default connectField((formContext, ownProps) => {
     ...ownProps,
     subscribeField,
     unsubscribeField,
-    field,
+    getField,
     register,
     unregister,
     changeValue,
