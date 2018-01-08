@@ -30,8 +30,10 @@ class Field extends PureComponent {
   }
   componentWillUnmount () {
     this._updateField = undefined
-    this.unsubscribeField(this.props)
-    this.unregister(this.props)
+    setTimeout(() => {
+      this.unsubscribeField(this.props)
+      this.unregister(this.props)
+    })
   }
   updateField = ({ field }) => {
     this._updateField && this._updateField({ field })
@@ -52,10 +54,8 @@ class Field extends PureComponent {
     }
   }
   register = (props) => {
-    const { register, formName, fieldName, field, value, validate, meta } = props
-    if (!field) {
-      register({ formName, fieldName, value, validate, meta })
-    }  
+    const { register, formName, fieldName, value, validate, meta } = props
+    register({ formName, fieldName, value, validate, meta })
   }
   unregister = (props) => {
     const { unregister, stayRegistered, formName, fieldName } = props

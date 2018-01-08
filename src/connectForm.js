@@ -10,6 +10,7 @@ function connectForm (formName) {
         super(props, context)
         const formContext = this.props.formContext || this.context.formContext
         this.store = formContext.store
+        this._submitForm = formContext.submitForm
         this.state = {
           form: selectors.getForm(this.store.getState(), { formName })
         }
@@ -26,6 +27,9 @@ function connectForm (formName) {
       resetForm = () => {
         this.store.dispatch(actions.resetForm({ formName }))
       }
+      submitForm = (submitServiceFn) => {
+        return this._submitForm(formName, submitServiceFn)
+      }
       render () {
         const formContext = this.props.formContext || this.context.formContext
         const { store, submitForm } = formContext
@@ -38,7 +42,7 @@ function connectForm (formName) {
             submitError={submitError}
             getFormState={store.getState}
             dispatchForm={store.dispatch}
-            submitForm={_.partial(submitForm, formName)}
+            submitForm={this.submitForm}
             resetForm={this.resetForm}
           />
         )
