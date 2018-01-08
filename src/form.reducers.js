@@ -62,92 +62,6 @@ class FormReducers {
       return nextState
     }
   }
-  unsubscribeForm = (state, action) => {
-    const { formName, callback } = action
-    const form = state[formName] || {}
-    const subscribers = form.subscribers || []
-    const index = subscribers.indexOf(callback)
-    if (index !== -1) {
-      const nextSubscribers = [ ...subscribers.slice(0, index), ...subscribers.slice(index + 1)]
-      const nextForm = {
-        ...form,
-        subscribers: nextSubscribers
-      }
-      const nextState = {
-        ...state,
-        [formName]: nextForm
-      }
-      return nextState
-    } else {
-      return state
-    }
-  }
-  subscribeForm = (state, action) => {
-    const { formName, callback } = action
-    const form = state[formName] || {}
-    const subscribers = form.subscribers || []
-    const nextSubscribers = [
-      ...subscribers,
-      callback
-    ]
-    const nextForm = {
-      ...form,
-      subscribers: nextSubscribers
-    }
-    const nextState = {
-      ...state,
-      [formName]: nextForm
-    }
-    return nextState
-  }
-  unsubscribeField = (state, action) => {
-    const { formName, fieldName, callback } = action
-    const form = state[formName]
-    const field = form && form[fieldName]
-    const subscribers = field.subscribers || []
-    const index = subscribers.indexOf(callback)
-    if (index !== -1) {
-      const nextSubscribers = [ ...subscribers.slice(0, index), ...subscribers.slice(index + 1)]
-      const nextField = {
-        ...field,
-        subscribers: nextSubscribers
-      }
-      const nextForm = {
-        ...form,
-        [fieldName]: nextField
-      }
-      const nextState = {
-        ...state,
-        [formName]: nextForm
-      }
-      return nextState
-    } else {
-      return state
-    }
-  }
-  subscribeField = (state, action) => {
-    const { formName, fieldName, callback } = action
-    const form = state[formName]
-    const field = form && form[fieldName]
-    const subscribers = field.subscribers || []
-    const nextSubscribers = [
-      ...subscribers,
-      callback
-    ]
-    const nextField = {
-      ...field,
-      subscribers: nextSubscribers
-    }
-    const nextForm = {
-      ...form,
-      [fieldName]: nextField
-    }
-    const nextState = {
-      ...state,
-      [formName]: nextForm
-    }
-    return nextState
-  }
   changeValue = (state, action) => {
     const { formName, fieldName, value, isSilent = false, meta } = action
     const form = state[formName]
@@ -202,14 +116,12 @@ class FormReducers {
       initialValue: value,
       value,
       validate,
-      subscribers: [],
       ...field,
       meta: nextMeta
     }
     const nextState = {
       ...state,
       [formName]: {
-        subscribers: [],
         status: statuses.INITIAL, // will get overwritten if form exists with a status
         ...form,
         [fieldName]: nextField
@@ -377,7 +289,7 @@ class FormReducers {
   }
   _getFields = (form) => {
     return _.chain(form)
-      .omit(['error', 'status', 'subscribers'])
+      .omit(['error', 'status'])
       .value()
   }
   _getNextFormStatus = ({ form, omitFieldName, replaceFieldName, replaceFieldValue, defaultStatus }) => {

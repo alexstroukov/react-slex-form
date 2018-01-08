@@ -22,7 +22,7 @@ export class FormProvider extends Component {
   }
   _validateForm = ({ formName, form }) => {
     return _.chain(form)
-      .omit(['error', 'status', 'subscribers'])
+      .omit(['error', 'status'])
       .map((field, fieldName) => _validateField({ formName, fieldName, form, field }))
       .thru(promises => Promise
         .all(promises)
@@ -69,7 +69,7 @@ export class FormProvider extends Component {
         .then(validationErrors => {
           if (_.isEmpty(validationErrors)) {
             const formValues = _.chain(form)
-              .omit(['error', 'status', 'subscribers']) 
+              .omit(['error', 'status']) 
               .map(({ value }, fieldName) => ({ fieldName, value }))
               .reduce((memo, { fieldName, value }) => ({ ...memo, [fieldName]: value }), {})
               .value()

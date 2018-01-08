@@ -3,6 +3,8 @@ import * as actionTypes from './form.actionTypes'
 import * as statuses from './form.statuses'
 import actions from './form.actions'
 import selectors from './form.selectors'
+import formSubscribers from './formSubscribers'
+import fieldSubscribers from './fieldSubscribers'
 
 class FormSideEffects {
   notifyFieldSubscribersOnFieldChangeSideEffect = ({ prevState, nextState, action, dispatch }) => {
@@ -47,17 +49,15 @@ class FormSideEffects {
   }
   _notifyField = ({ nextState, formName, fieldName }) => {
     const field = selectors.getField(nextState, { formName, fieldName })
-    const fieldSubscribers = selectors.getFieldSubscribers(nextState, { formName, fieldName })
-    for (const subscriber of fieldSubscribers) {
+    fieldSubscribers.notifySubscribers(formName + fieldName, subscriber => {
       subscriber({ field })
-    }
+    })
   }
   _notifyForm = ({ nextState, formName }) => {
     const form = selectors.getForm(nextState, { formName })
-    const formSubscribers = selectors.getFormSubscribers(nextState, { formName })
-    for (const subscriber of formSubscribers) {
+    formSubscribers.notifySubscribers(formName, subscriber => {
       subscriber({ form })
-    }
+    })
   }
 }
 

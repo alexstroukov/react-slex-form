@@ -5,6 +5,7 @@ import connectField from './connectField'
 import actions from './form.actions'
 import selectors from './form.selectors'
 import * as statuses from './form.statuses'
+import fieldSubscribers from './fieldSubscribers'
 
 class Field extends PureComponent {
   state = {
@@ -39,12 +40,12 @@ class Field extends PureComponent {
     this._updateField && this._updateField({ field })
   }
   subscribeField = (props) => {
-    const { subscribeField, formName, fieldName } = props
-    subscribeField({ formName, fieldName, callback: this.updateField })
+    const { formName, fieldName } = props
+    fieldSubscribers.subscribe(formName + fieldName, this.updateField)
   }
   unsubscribeField = (props) => {
-    const { unsubscribeField, formName, fieldName } = props
-    unsubscribeField({ formName, fieldName, callback: this.updateField })
+    const { formName, fieldName } = props
+    fieldSubscribers.unsubscribe(formName + fieldName, this.updateField)
   }
   changeInitialValue = (props) => {
     const { formName, fieldName, meta, changeInitialValue, value, getField } = props
@@ -65,7 +66,7 @@ class Field extends PureComponent {
     }
   }
   _getFieldProps = () => {
-    const { render, component, changeValue, subscribeField, unsubscribeField, getField, register, unregister, validate, stayRegistered, changeInitialValue, ...rest } = this.props
+    const { render, component, changeValue, getField, register, unregister, validate, stayRegistered, changeInitialValue, ...rest } = this.props
     const nextProps = {
       changeValue,
       ...rest,
@@ -110,12 +111,8 @@ export default connectField((formContext, ownProps) => {
   const unregister = ({ formName, fieldName }) => dispatch(actions.unregisterField({ formName, fieldName }))
   const changeValue = nextValue => dispatch(actions.changeValue({ formName, fieldName, value: nextValue }))
   const changeInitialValue = ({ formName, fieldName, value, meta }) => dispatch(actions.changeInitialValue({ formName, fieldName, value, meta }))
-  const subscribeField = ({ formName, fieldName, callback }) => dispatch(actions.subscribeField({ formName, fieldName, callback }))
-  const unsubscribeField = ({ formName, fieldName, callback }) => dispatch(actions.unsubscribeField({ formName, fieldName, callback }))
   return {
     ...ownProps,
-    subscribeField,
-    unsubscribeField,
     getField,
     register,
     unregister,

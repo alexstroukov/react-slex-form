@@ -41,14 +41,6 @@ export default function reduceForm (state = initialState, action) {
       return reducers.isInvalid(state, action)
     case actionTypes.UPDATE_META:
       return reducers.updateMeta(state, action)
-    case actionTypes.SUBSCRIBE_FIELD:
-      return reducers.subscribeField(state, action)
-    case actionTypes.UNSUBSCRIBE_FIELD:
-      return reducers.unsubscribeField(state, action)
-    case actionTypes.SUBSCRIBE_FORM:
-      return reducers.subscribeForm(state, action)
-    case actionTypes.UNSUBSCRIBE_FORM:
-      return reducers.unsubscribeForm(state, action)
     default:
       return state
   }

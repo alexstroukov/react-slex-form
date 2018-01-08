@@ -114,40 +114,6 @@ class FormActions {
     }
     return action
   }
-  subscribeField = ({ formName, fieldName, callback }) => {
-    const action = {
-      type: actionTypes.SUBSCRIBE_FIELD,
-      formName,
-      fieldName,
-      callback
-    }
-    return action
-  }
-  unsubscribeField = ({ formName, fieldName, callback }) => {
-    const action = {
-      type: actionTypes.UNSUBSCRIBE_FIELD,
-      formName,
-      fieldName,
-      callback
-    }
-    return action
-  }
-  subscribeForm = ({ formName, callback }) => {
-    const action = {
-      type: actionTypes.SUBSCRIBE_FORM,
-      formName,
-      callback
-    }
-    return action
-  }
-  unsubscribeForm = ({ formName, callback }) => {
-    const action = {
-      type: actionTypes.UNSUBSCRIBE_FORM,
-      formName,
-      callback
-    }
-    return action
-  }
 }
 
 export default new FormActions()

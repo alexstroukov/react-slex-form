@@ -2,6 +2,7 @@ import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import selectors from './form.selectors'
 import actions from './form.actions'
+import formSubscribers from './formSubscribers'
 
 function connectForm (formName) {
   return WrappedComponent => {
@@ -16,10 +17,10 @@ function connectForm (formName) {
         }
       }
       componentDidMount () {
-        this.store.dispatch(actions.subscribeForm({ formName, callback: this.updateForm }))
+        formSubscribers.subscribe(formName, this.updateForm)
       }
       componentWillUnmount () {
-        this.store.dispatch(actions.unsubscribeForm({ formName, callback: this.updateForm }))
+        formSubscribers.unsubscribe(formName, this.updateForm)
       }
       updateForm = ({ form }) => {
         this.setState({ form })

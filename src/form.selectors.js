@@ -47,28 +47,6 @@ class FormSelectors {
     } = state
     return fieldValue
   }
-  getFieldSubscribers = (state, { formName, fieldName }) => {
-    const {
-      form: {
-        [formName]: {
-          [fieldName]: {
-            subscribers = []
-          } = {}
-        } = {}
-      }
-    } = state
-    return subscribers
-  }
-  getFormSubscribers = (state, { formName }) => {
-    const {
-      form: {
-        [formName]: {
-          subscribers = []
-        } = {}
-      }
-    } = state
-    return subscribers
-  }
   getFormFieldNames = (state, { formName }) => {
     const {
       form: {
@@ -76,7 +54,7 @@ class FormSelectors {
       }
     } = state
     return _.chain(form)
-      .omit(['error', 'status', 'subscribers'])
+      .omit(['error', 'status'])
       .keys()
       .value()
   }
