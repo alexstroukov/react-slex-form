@@ -67,7 +67,7 @@ class FormSelectors {
       }
     } = state
     if (field) {
-      const { status, error, touched = false, initialValue, meta = {}, formStatus } = field
+      const { value, status, error, touched = false, initialValue, meta = {}, validate, formStatus } = field
       const loading = status === statuses.VALIDATING
       const submitting = formStatus === statuses.SUBMITTING
       const messages = _.chain([error])
@@ -75,7 +75,8 @@ class FormSelectors {
         .reject(_.isUndefined)
         .value()
       return {
-        ...field,
+        value,
+        initialValue,
         meta,
         messages,
         loading,
