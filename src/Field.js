@@ -20,8 +20,10 @@ class Field extends PureComponent {
     const { formName, fieldName } = nextProps
     const { formName: prevFormName, fieldName: prevFieldName } = this.props
     if (formName !== prevFormName || fieldName !== prevFieldName) {
+      const nextField = nextProps.getField({ formName: nextProps.formName, fieldName: nextProps.fieldName })
       this.register(nextProps)
       this.subscribeField(nextProps)
+      this.updateField({ field: nextField})
       this.unsubscribeField(this.props)
       this.unregister(this.props)
     }
@@ -107,7 +109,12 @@ export default connectField((formContext, ownProps) => {
   const { dispatch, getState } = formContext.store
   const { formName, fieldName } = ownProps
   const getField = ({ formName, fieldName }) => selectors.getField(getState(), { formName, fieldName })
-  const register = ({ formName, fieldName, value, validate, meta }) => dispatch(actions.registerField({ formName, fieldName, value, validate, meta }))
+  const register = ({ formName, fieldName, value, validate, meta }) => {
+    const fieldIsRegistered = selectors.getFieldIsRegistered(getState(), { formName, fieldName })
+    if (!fieldIsRegistered) {
+      dispatch(actions.registerField({ formName, fieldName, value, validate, meta }))
+    }
+  }
   const unregister = ({ formName, fieldName }) => dispatch(actions.unregisterField({ formName, fieldName }))
   const changeValue = nextValue => dispatch(actions.changeValue({ formName, fieldName, value: nextValue }))
   const changeInitialValue = ({ formName, fieldName, value, meta }) => dispatch(actions.changeInitialValue({ formName, fieldName, value, meta }))

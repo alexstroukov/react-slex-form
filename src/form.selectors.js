@@ -87,6 +87,16 @@ class FormSelectors {
       return field
     }
   }
+  getFieldIsRegistered = (state, { formName, fieldName }) => {
+    const {
+      form: {
+        [formName]: {
+          [fieldName]: field
+        } = {}
+      }
+    } = state
+    return !!field
+  }
   getForm = (state, { formName }) => {
     const {
       form: {

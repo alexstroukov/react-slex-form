@@ -15,7 +15,8 @@ class FormSideEffects {
       action.type === actionTypes.IS_INVALID ||
       action.type === actionTypes.IS_VALID ||
       action.type === actionTypes.SUBMIT_FORM_SUCCESS ||
-      action.type === actionTypes.SUBMIT_FORM_FAIL
+      action.type === actionTypes.SUBMIT_FORM_FAIL ||
+      action.type === actionTypes.UPDATE_META
     ) {
       const { formName, fieldName } = action
       this._notifyField({ nextState, formName, fieldName })
