@@ -4,102 +4,107 @@
 $ npm install slex-form
 ```
 
-`react-slex-form` is a component driven form implementation for `react`. It is connected to `slex-store` via `react-slex-store` and its state is kept in its own store similar to `redux-form`.
+`react-slex-form` is a component driven form implementation for `react`. It is connected to `slex-store` via context through a `FormProvider` but usues a completely separate store from the rest of the application. Field updates are propagated via subscriptions to ensure only relevant UI is updated.
 
 ## Example Usage
 
-### Adding to store
+### Creating form store
+
+```javascript
+import slexStore from 'slex-store'
+import formReducer, { actionTypes as formActionTypes, middleware as formMiddleware, sideEffects as formSideEffects } from 'react-slex-form'
+
+const createFormStore = () => {
+  const store =
+    slexStore.createStore(
+      slexStore.createDispatch({
+        reducer: slexStore.createReducer({
+          form: formReducer
+        }),
+        middleware: [
+          formMiddleware.validateFieldOnChangeValueMiddleware
+        ],
+        sideEffects: [
+          formSideEffects.notifyFieldSubscribersOnFieldChangeSideEffect,
+          formSideEffects.notifyFieldSubscribersOnFormChangeSideEffect,
+          formSideEffects.notifyFormSubscribersOnChangeSideEffect
+        ]
+      })
+    )
+  return store
+}
+
+export default createFormStore
+```
+
+### Connecting form via FormProvider
 
 ```javascript
 import React from 'react'
 import ReactDOM from 'react-dom'
-import slexStore from 'slex-store'
-import form, { createFormMiddleware } from 'react-slex-form'
+import { Provider } from 'react-slex-store'
+import { FormProvider } from 'react-slex-form'
+import { createApplicationStore, createFormStore } from 'react-slex-form'
 
-const formMiddleware = createFormMiddleware({
-  forms: {
-    formName: {
-      submit: function formSubmitFunction (formValues) {
-        // do async submission here
-        return Promise.resolve('Returning a promise will wait until submitter completes before dispatching submitFormSuccess or submitFormFail actions')
-      },
-      validators: {
-        validate1: function forceValidateFail (value, form) {
-          return new Error('Return Error object when validation fails')
-        },
-        validate2: function forceValidatePass (value, form) {
-          return 'Return anything else when validation resolves with no errors'
-        }
-      }
-    }
-  }
-})
+const applicationStore = createApplicationStore()
+const formStore = createFormStore()
 
-const store =
-  slexStore.createStore(
-    slexStore.createDispatch({
-      reducer: slexStore.createReducer({
-        form
-      }),
-      middleware: [
-        formMiddleware.submitFormMiddleware,
-        formMiddleware.validateFieldOnChangeValueMiddleware
-      ]
-    })
-  )
+applicationStore.subscribe(renderApp)
+
+function renderApp () {
+  ReactDOM.render((
+    <Provider store={applicationStore}>
+      <FormProvider store={formStore}>
+        ...
+      </FormProvider>
+    </Provider>
+  ), document.getElementById('...'))
+}
 
 ```
 
-Rendering the field component automatically registers the field against the form in the `slex-store`. To prevent fields from being unregistered when they are unmmounted use the `stayRegistered` prop. Submitting the form will asynchronously run the registered form `submitter`
 
+### Registering forms using `<Field />` component
 
 ```javascript
 import React, { Component } from 'react'
-import { Field, statuses as formStatuses, actions as formActions } from 'react-slex-form'
-import { connect } from 'react-slex-store'
+import { Field, connectForm, statuses as formStatuses, actions as formActions } from 'react-slex-form'
 
-class Form extends Component {
-  _renderField ({ formName, fieldName, value, status, changeValue, loading, submitting, touched, messages }) {
-   return (
-     ...
-   ) 
-  }
+const formName = 'login'
 
-  render () {
-    const { submitForm } = this.props
-    return (
+const Form = (props) => {
+  const { login, loading, submitting, canSubmit, submitError, resetForm } = this.props
+  const login = () => submitForm(form => {
+    const { username, password } = form
+    return loginService.login({ username, password })
+  })
+  return (
+    <div>
       <Field
-        formName='formName'
-        fieldName={'fieldName'}
-        render={this._renderField}
-        validate={'validate1'}
+        formName={formName}
+        fieldName={'username'}
+        render={TextInput}
       />
-      <Button disabled={loading || submitting} onClick={submitForm} />
-    )
-  }
+      <Field
+        formName={formName}
+        fieldName={'password'}
+        render={TextInput}
+      />
+      <Button onClick={resetForm}>
+        Reset
+      </Button>
+      <Button disabled={!canSubmit} onClick={login}>
+        {submitting
+          ? 'Logging in'
+          : 'Login'
+        }
+      </Button>
+      {submitError}
+    </div>
+  )
 }
 
-export default connect((dispatch, getState, ownProps) => {
-  const {
-    form: {
-      loginForm: {
-        status: loginFormStatus
-      } = {}
-    }
-  } = getState()
-  const canSubmit = loginFormStatus === formStatuses.VALID
-  const submitting = loginFormStatus === formStatuses.SUBMITTING
-  const validating = loginFormStatus === formStatuses.VALIDATING
-  const submitForm = () => {
-    dispatch(formActions.submitForm('loginForm'))
-  }
-  return {
-    ...ownProps,
-    canSubmit,
-    submitForm,
-    submitting
-  }
-})(Form)
+export default connectForm(formName)(Form)
 
 ```
 
