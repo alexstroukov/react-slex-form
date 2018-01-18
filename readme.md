@@ -63,20 +63,19 @@ function renderApp () {
 
 ```
 
-
-### Registering forms using `<Field />` component
+### Creating a form
 
 ```javascript
 import React, { Component } from 'react'
 import { Field, connectForm, statuses as formStatuses, actions as formActions } from 'react-slex-form'
 
-const formName = 'login'
+const formName = 'register'
 
 const Form = (props) => {
-  const { login, loading, submitting, canSubmit, submitError, resetForm } = this.props
-  const login = () => submitForm(form => {
+  const { submitForm, loading, submitting, canSubmit, submitError, resetForm } = this.props
+  const register = () => submitForm(form => {
     const { username, password } = form
-    return loginService.login({ username, password })
+    return registerService.register({ username, password })
   })
   return (
     <div>
@@ -93,10 +92,10 @@ const Form = (props) => {
       <Button onClick={resetForm}>
         Reset
       </Button>
-      <Button disabled={!canSubmit} onClick={login}>
+      <Button disabled={!canSubmit} onClick={register}>
         {submitting
-          ? 'Logging in'
-          : 'Login'
+          ? 'Registering'
+          : 'Register'
         }
       </Button>
       {submitError}
@@ -108,29 +107,120 @@ export default connectForm(formName)(Form)
 
 ```
 
-## Field Validation
+### Creating an editable form
 
-You can validate field values by providing a key for a `validator` to `Field`. It can be be sync or async and resolve `Error` for any invalid values `(value, form) => Promise<Error|any> || Error|any`
-
-```
-<Field validate={'validateUsername'} formName={formName} fieldName={fieldName} />
-```
-
-## Useful middleware
-
-### Resetting form store upon logout
-
-Usually when a user logs out out want to reset your stores back to their initial states. In `react-slex-form` you can dispatch `resetFormStore`.
+To create an editable from wrap your form in an `editable` higher order component. It provides two properties to your form: `editing` and `toggleEdit`. `toggleEdit` works in conjunction with connect form and also resets the form when going from editing to non editing state.
 
 ```javascript
-import { actions as formActions } from 'react-slex-form'
+import React, { Component } from 'react'
+import { Field, connectForm, statuses as formStatuses, actions as formActions } from 'react-slex-form'
 
-function resetFormStoreOnLogoutMiddleware (dispatch, getState, action) {
-  const { type: actionType } = action
-  if (actionType === 'LOGOUT') {
-    dispatch(formActions.resetFormStore())
+const formName = 'register'
+
+const Form = (props) => {
+  const { submitForm, loading, submitting, canSubmit, submitError, resetForm, editing, toggleEdit } = this.props
+  const register = () => submitForm(form => {
+    const { username, password } = form
+    return registerService.register({ username, password })
+  })
+  return (
+    <div>
+      <Field
+        formName={formName}
+        fieldName={'username'}
+        render={TextInput}
+      />
+      <Field
+        formName={formName}
+        fieldName={'password'}
+        render={TextInput}
+      />
+      <Button onClick={toggleEdit}>
+        {editing
+          ? 'Editing'
+          : 'Edit'
+        }
+      </Button>
+      <Button disabled={!canSubmit} onClick={register}>
+        {submitting
+          ? 'Registering'
+          : 'Register'
+        }
+      </Button>
+      {submitError}
+    </div>
+  )
+}
+
+export default connectForm(formName)(editable(Form))
+
+```
+
+
+### Creating form with validation
+
+You can validate field values by providing a `validator` function as a prop to `Field`. 
+
+Validation supports both sync and async validators out of the box. A failed validation must return or resolve an `Error` for any invalid values. `(value, form) => Promise<Error|any> || Error|any`
+
+```javascript
+import React, { Component } from 'react'
+import { Field, connectForm, statuses as formStatuses, actions as formActions } from 'react-slex-form'
+
+const formName = 'register'
+
+const validateRequired = (value, form) => {
+  if (value) {
+    return new Error('The value cannot be empty.')
   }
 }
+
+const validateUnique = (value, form) => {
+  return validationService
+    .validateUsernameInUse(value)
+    .then(usernameIsInUse => {
+      if (usernameIsInUse) {
+        return new Error('The username is already taken.')
+      }
+    })
+}
+
+const Form = (props) => {
+  const { submitForm, loading, submitting, canSubmit, submitError, resetForm } = this.props
+  const register = () => submitForm(form => {
+    const { username, password } = form
+    return registerService.register({ username, password })
+  })
+  return (
+    <div>
+      <Field
+        formName={formName}
+        fieldName={'username'}
+        validate={validateUnique}
+        render={TextInput}
+      />
+      <Field
+        formName={formName}
+        fieldName={'password'}
+        validate={validateRequired}
+        render={TextInput}
+      />
+      <Button onClick={resetForm}>
+        Reset
+      </Button>
+      <Button disabled={!canSubmit} onClick={register}>
+        {submitting
+          ? 'Registering'
+          : 'Register'
+        }
+      </Button>
+      {submitError}
+    </div>
+  )
+}
+
+export default connectForm(formName)(Form)
+
 ```
 
 ## Function Reference
@@ -138,8 +228,6 @@ function resetFormStoreOnLogoutMiddleware (dispatch, getState, action) {
 ### Actions
 
 `resetFormStore()` - sets store back to its initial state and clears all forms
-
-`submitForm({ formName })` - revalidates and submits form using validators and submitters
 
 `resetForm({ formName })` - resets a form back to its initial state
 
