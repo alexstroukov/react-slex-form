@@ -105,8 +105,8 @@ Field.propTypes = {
 
 export { Field }
 
-export default connectField((formContext, ownProps) => {
-  const { dispatch, getState } = formContext.store
+export default connectField((store, ownProps) => {
+  const { dispatch, getState } = store
   const { formName, fieldName } = ownProps
   const getField = ({ formName, fieldName }) => selectors.getField(getState(), { formName, fieldName })
   const register = ({ formName, fieldName, value, validate, meta }) => {

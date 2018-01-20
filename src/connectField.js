@@ -5,16 +5,16 @@ function connectField (fn) {
   return WrappedComponent => {
     class ConnectedField extends Component {
       render () {
-        const formContext = this.props.formContext || this.context.formContext
-        const nextProps = fn(formContext, this.props)
+        const store = this.props.store || this.context.formStore
+        const nextProps = fn(store, this.props)
         return <WrappedComponent {...nextProps} />
       }
     }
     ConnectedField.propTypes = {
-      formContext: PropTypes.object
+      formStore: PropTypes.object
     }
     ConnectedField.contextTypes = {
-      formContext: PropTypes.object
+      formStore: PropTypes.object
     }
     return ConnectedField
   }

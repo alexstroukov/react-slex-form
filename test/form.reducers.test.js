@@ -10,7 +10,6 @@ describe('form.reducers', function () {
   beforeEach(function () {
     sandbox.restore()
   })
-
   afterEach(function () {
     sandbox.restore()
   })

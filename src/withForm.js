@@ -5,12 +5,8 @@ import actions from './form.actions'
 
 function withForm (WrappedComponent) {
   class ConnectedForm extends Component {
-    constructor (props, context) {
-      super(props, context)
-      const formContext = this.props.formContext || this.context.formContext
-      this.store = formContext.store
-    }
     render () {
+      const store = this.props.store || this.context.formStore
       return (
         <WrappedComponent
           {...this.props}
@@ -21,10 +17,10 @@ function withForm (WrappedComponent) {
     }
   }
   ConnectedForm.propTypes = {
-    formContext: PropTypes.object
+    formStore: PropTypes.object
   }
   ConnectedForm.contextTypes = {
-    formContext: PropTypes.object
+    formStore: PropTypes.object
   }
   return ConnectedForm
 }

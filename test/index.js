@@ -1,4 +1,5 @@
+import './form.middleware.test'
 import './form.actions.test'
 import './form.reducers.test'
 import './Field.test'
-// import './createFormMiddleware.test'
+import './connectForm.test'
