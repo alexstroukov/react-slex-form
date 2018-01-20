@@ -10,8 +10,8 @@ function withForm (WrappedComponent) {
       return (
         <WrappedComponent
           {...this.props}
-          getFormState={this.store.getState}
-          dispatchForm={this.store.dispatch}
+          getFormState={store.getState}
+          dispatchForm={store.dispatch}
         />
       )
     }

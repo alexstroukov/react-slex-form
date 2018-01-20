@@ -9,7 +9,6 @@ import formActions from '../src/form.actions'
 import * as formStatuses from '../src/form.statuses'
 import formSelectors from '../src/form.selectors'
 import slexStore from 'slex-store'
-import testUtils from './testUtils';
 
 // need adapter to work with react ^16
 configure({ adapter: new ReactSixteenAdapter() })
@@ -220,71 +219,71 @@ describe('connectForm', function () {
           })
       })
     })
-  })
-  describe('when the form doesnt have any validation errors but the submitter fails', function () {
-    let store
-    let state
-    let ComponentStub
-    let validatorStub
-    let validatorStub2
-    let submitterStub
-    let dispatchSpy
-    let getStateStub
-    let submitFormActionStub
-    let submitFormFailActionStub
-    const validateResult = undefined
-    const submitResult = new Error('submit error')
-    const submitFormActionStubResult = {}
-    const submitFormFailActionStubResult = {}
-    beforeEach(function () {
-      store =
-        slexStore.createStore(
-          slexStore.createDispatch({
-            reducer: slexStore.createReducer({
-              form
+    describe('when the form doesnt have any validation errors but the submitter fails', function () {
+      let store
+      let state
+      let ComponentStub
+      let validatorStub
+      let validatorStub2
+      let submitterStub
+      let dispatchSpy
+      let getStateStub
+      let submitFormActionStub
+      let submitFormFailActionStub
+      const validateResult = undefined
+      const submitResult = new Error('submit error')
+      const submitFormActionStubResult = {}
+      const submitFormFailActionStubResult = {}
+      beforeEach(function () {
+        store =
+          slexStore.createStore(
+            slexStore.createDispatch({
+              reducer: slexStore.createReducer({
+                form
+              })
             })
-          })
-        )
-      validatorStub = sandbox.stub().returns(Promise.resolve(validateResult))
-      validatorStub2 = sandbox.stub().returns(Promise.resolve(validateResult))
-      state = {
-        form: {
-          [formName]: {
-            status: formStatuses.VALID,
-            [fieldName]: {
-              validate: validatorStub
-            },
-            [fieldName2]: {
-              validate: validatorStub2
+          )
+        validatorStub = sandbox.stub().returns(Promise.resolve(validateResult))
+        validatorStub2 = sandbox.stub().returns(Promise.resolve(validateResult))
+        state = {
+          form: {
+            [formName]: {
+              status: formStatuses.VALID,
+              [fieldName]: {
+                validate: validatorStub
+              },
+              [fieldName2]: {
+                validate: validatorStub2
+              }
             }
           }
         }
-      }
-      dispatchSpy = sandbox.spy(store, 'dispatch')
-      getStateStub = sandbox.stub(store, 'getState').returns(state)
-      submitterStub = sandbox.stub().returns(Promise.reject(submitResult))
-      submitFormActionStub = sandbox.stub(formActions, 'submitForm').returns(submitFormActionStubResult)
-      submitFormFailActionStub = sandbox.stub(formActions, 'submitFormFail').returns(submitFormFailActionStubResult)
-      ComponentStub = sandbox.stub().returns(null)
-      const WrappedComponent = connectForm(formName)(ComponentStub)
-      mount(<WrappedComponent store={store} />)
-    })
-    it('should dispatch submitForm, then validate all fields, then apply submitter, then dispatch submitFormFail', function () {
-      const submitForm = ComponentStub.firstCall.args[0].submitForm
-      return submitForm(submitterStub)
-        .then((result) => {
-          expect(submitterStub.calledOnce).to.equal(true)
-          expect(validatorStub.called).to.equal(true)
-          expect(validatorStub.lastCall.calledBefore(dispatchSpy.secondCall)).to.equal(true)
-          expect(validatorStub2.called).to.equal(true)
-          expect(validatorStub2.lastCall.calledBefore(dispatchSpy.secondCall)).to.equal(true)
-          expect(submitterStub.firstCall.calledBefore(dispatchSpy.secondCall)).to.equal(true)
-          expect(submitFormFailActionStub.calledOnce).to.equal(true)
-          expect(submitFormFailActionStub.firstCall.args[0].formName).to.equal(formName)
-          expect(submitFormFailActionStub.firstCall.args[0].error).to.equal(submitResult.message)
-          expect(dispatchSpy.firstCall.args[0]).to.equal(submitFormActionStubResult)
-          expect(dispatchSpy.secondCall.args[0]).to.equal(submitFormFailActionStubResult)
-        })
+        dispatchSpy = sandbox.spy(store, 'dispatch')
+        getStateStub = sandbox.stub(store, 'getState').returns(state)
+        submitterStub = sandbox.stub().returns(Promise.reject(submitResult))
+        submitFormActionStub = sandbox.stub(formActions, 'submitForm').returns(submitFormActionStubResult)
+        submitFormFailActionStub = sandbox.stub(formActions, 'submitFormFail').returns(submitFormFailActionStubResult)
+        ComponentStub = sandbox.stub().returns(null)
+        const WrappedComponent = connectForm(formName)(ComponentStub)
+        mount(<WrappedComponent store={store} />)
+      })
+      it('should dispatch submitForm, then validate all fields, then apply submitter, then dispatch submitFormFail', function () {
+        const submitForm = ComponentStub.firstCall.args[0].submitForm
+        return submitForm(submitterStub)
+          .then((result) => {
+            expect(submitterStub.calledOnce).to.equal(true)
+            expect(validatorStub.called).to.equal(true)
+            expect(validatorStub.lastCall.calledBefore(dispatchSpy.secondCall)).to.equal(true)
+            expect(validatorStub2.called).to.equal(true)
+            expect(validatorStub2.lastCall.calledBefore(dispatchSpy.secondCall)).to.equal(true)
+            expect(submitterStub.firstCall.calledBefore(dispatchSpy.secondCall)).to.equal(true)
+            expect(submitFormFailActionStub.calledOnce).to.equal(true)
+            expect(submitFormFailActionStub.firstCall.args[0].formName).to.equal(formName)
+            expect(submitFormFailActionStub.firstCall.args[0].error).to.equal(submitResult.message)
+            expect(dispatchSpy.firstCall.args[0]).to.equal(submitFormActionStubResult)
+            expect(dispatchSpy.secondCall.args[0]).to.equal(submitFormFailActionStubResult)
+          })
+      })
     })
   })
   describe('resetForm', function () {
