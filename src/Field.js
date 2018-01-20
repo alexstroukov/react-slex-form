@@ -33,10 +33,8 @@ class Field extends PureComponent {
   }
   componentWillUnmount () {
     this._updateField = undefined
-    setTimeout(() => {
-      this.unsubscribeField(this.props)
-      this.unregister(this.props)
-    })
+    this.unsubscribeField(this.props)
+    this.unregister(this.props)
   }
   updateField = ({ field }) => {
     this._updateField && this._updateField({ field })

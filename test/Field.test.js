@@ -8,7 +8,6 @@ import form from '../src'
 import formActions from '../src/form.actions'
 import * as formStatuses from '../src/form.statuses'
 import slexStore from 'slex-store'
-import testUtils from './testUtils';
 
 // need adapter to work with react ^16
 configure({ adapter: new ReactSixteenAdapter() })
@@ -76,15 +75,10 @@ describe('Field', function () {
       const unregisterFieldStub = sandbox.stub(formActions, 'unregisterField').returns(stubUnregisterFieldAction)
       const wrapper = mount(<Field store={store} formName={formName} fieldName={fieldName} />)
       wrapper.unmount()
-
-      return testUtils
-        .sleep(16)()
-        .then(() => {
-          expect(dispatchSpy.calledTwice).to.be.true
-          expect(registerFieldStub.calledOnce).to.be.true
-          expect(unregisterFieldStub.calledOnce).to.be.true
-          expect(dispatchSpy.secondCall.args[0]).to.equal(stubUnregisterFieldAction)
-        })
+      expect(dispatchSpy.calledTwice).to.be.true
+      expect(registerFieldStub.calledOnce).to.be.true
+      expect(unregisterFieldStub.calledOnce).to.be.true
+      expect(dispatchSpy.secondCall.args[0]).to.equal(stubUnregisterFieldAction)
     })
     it('should skip unregistering the field on the store if the field is rendered with stayRegistered prop', function () {
       const dispatchSpy = sandbox.spy(store, 'dispatch')
@@ -94,14 +88,10 @@ describe('Field', function () {
       const unregisterFieldStub = sandbox.stub(formActions, 'unregisterField').returns(stubUnregisterFieldAction)
       const wrapper = mount(<Field store={store} formName={formName} fieldName={fieldName} stayRegistered />)
       wrapper.unmount()
-      return testUtils
-        .sleep(16)()
-        .then(() => {
-          expect(dispatchSpy.calledOnce).to.be.true
-          expect(registerFieldStub.calledOnce).to.be.true
-          expect(unregisterFieldStub.notCalled).to.be.true
-          expect(dispatchSpy.firstCall.args[0]).to.equal(stubRegisterFieldAction)
-        })
+      expect(dispatchSpy.calledOnce).to.be.true
+      expect(registerFieldStub.calledOnce).to.be.true
+      expect(unregisterFieldStub.notCalled).to.be.true
+      expect(dispatchSpy.firstCall.args[0]).to.equal(stubRegisterFieldAction)
     })
   })
   describe('when its a valid field', function () {

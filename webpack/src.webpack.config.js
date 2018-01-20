@@ -23,8 +23,7 @@ const config = {
   },
   externals: {
     'react': 'react',
-    'lodash': 'lodash',
-    'react-slex-store': 'react-slex-store'
+    'lodash': 'lodash'
   },
   module: {
     rules: [
