@@ -15,12 +15,9 @@ const editableShared = subject => WrappedComponent => editable(class EditableSha
     this.props.toggleEdit(false)
   }
   toggleEdit = (editing) => {
-    debugger
     editSubscribers.notifySubscribers(subject, (cancelEdit) => {
       if (cancelEdit !== this.cancelEdit) {
         cancelEdit()
-      } else {
-        debugger
       }
     })
     this.props.toggleEdit(editing)
