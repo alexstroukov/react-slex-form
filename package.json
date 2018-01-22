@@ -1,6 +1,6 @@
 {
   "name": "react-slex-form",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "repository": "https://github.com/alexstroukov/react-slex-form",
   "license": "MIT",
   "main": "compiled/reactSlexForm.js",
