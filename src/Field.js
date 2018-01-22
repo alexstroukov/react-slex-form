@@ -15,6 +15,7 @@ class Field extends PureComponent {
     this._updateField = ({ field }) => this.setState({ field })
     this.register(this.props)
     this.subscribeField(this.props)
+    this.updateField({ field: this.props.getField({ formName: this.props.formName, fieldName: this.props.fieldName }) })
   }
   componentWillReceiveProps (nextProps) {
     const { formName, fieldName } = nextProps
@@ -23,7 +24,7 @@ class Field extends PureComponent {
       const nextField = nextProps.getField({ formName: nextProps.formName, fieldName: nextProps.fieldName })
       this.register(nextProps)
       this.subscribeField(nextProps)
-      this.updateField({ field: nextField})
+      this.updateField({ field: nextField })
       this.unsubscribeField(this.props)
       this.unregister(this.props)
     }
@@ -37,7 +38,8 @@ class Field extends PureComponent {
     this.unregister(this.props)
   }
   updateField = ({ field }) => {
-    this._updateField && this._updateField({ field })
+    const isSameValue = _.isEqual(field, this.state.field)
+    !isSameValue && this._updateField && this._updateField({ field })
   }
   subscribeField = (props) => {
     const { formName, fieldName } = props
