@@ -53,7 +53,7 @@ class FormReducers {
             field: nextField
           }
         })
-        .reduce((memo, { fieldName, field }) => ({ ...memo, [fieldName]: field }), { ...form, status: statuses.INVALID, error })
+        .reduce((memo, { fieldName, field }) => ({ ...memo, [fieldName]: field }), { ...form, status: statuses.INVALID, error: 'Validation failed' })
         .value()
       const nextState = {
         ...state,
