@@ -22,8 +22,16 @@ const editableShared = subject => WrappedComponent => editable(class EditableSha
     })
     this.props.toggleEdit(editing)
   }
+  submit = (...args) => {
+    const { submit } = this.props
+    return submit(...args)
+      .then((result) => {
+        this.toggleEdit(false)
+        return result
+      })
+  }
   render () {
-    return <WrappedComponent {...this.props} toggleEdit={this.toggleEdit}/>
+    return <WrappedComponent {...this.props} toggleEdit={this.toggleEdit} submit={this.submit} />
   }
 })
 

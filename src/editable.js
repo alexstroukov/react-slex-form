@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
+import editableConnectedSubscribers from './editableConnectedSubscribers'
 
 const editable = WrappedComponent => class EditableWrapper extends Component {
   state = {
@@ -47,6 +48,9 @@ const editable = WrappedComponent => class EditableWrapper extends Component {
       this.props.resetForm()
     }
     this._toggleEdit && this._toggleEdit(editing)
+    editableConnectedSubscribers.notifySubscribers(this.props.formName, (setEditing) => {
+      setEditing(editing)
+    })
   }
   toggleSubmit = (submitting = !this.state.submitting) => {
     this._toggleSubmit && this._toggleSubmit(this._isEvent(submitting) ? !this.state.submitting : submitting)
