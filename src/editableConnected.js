@@ -6,29 +6,29 @@ import editable from './editable'
 import editableConnectedSubscribers from './editableConnectedSubscribers'
 
 const editableConnected = subject => WrappedComponent => editable(class EditableConnectedWrapper extends Component {
-  state = { editing: false }
+  state = { subjectEditing: false }
   componentWillMount () {
-    this._setEditing = ({ editing }) => this.setState({ editing })
+    this._setEditing = ({ subjectEditing }) => this.setState({ subjectEditing })
     this.unsubscribe = editableConnectedSubscribers.subscribe(subject, this.setEditing)
   }
   componentWillUnmount () {
     this._setEditing = undefined
     this.unsubscribe && this.unsubscribe()
   }
-  setEditing = (editing) => {
-    this._setEditing && this._setEditing({ editing })
+  setEditing = (subjectEditing) => {
+    this._setEditing && this._setEditing({ subjectEditing })
   }
-  toggleEdit = (editing) => {
+  toggleEdit = (subjectEditing) => {
     editSubscribers.notifySubscribers(subject, (cancelEdit) => {
       cancelEdit()
     })
-    this.props.toggleEdit(editing)
+    this.props.toggleEdit(subjectEditing)
   }
   _generateProps = () => {
     return {
       ...this.props,
       toggleEdit: this.toggleEdit,
-      [subject + 'Editing']: this.state.editing
+      [subject + 'Editing']: this.state.subjectEditing
     }
   }
   render () {
