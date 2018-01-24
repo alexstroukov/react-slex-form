@@ -94,6 +94,8 @@ function connectForm (formName) {
             .catch(error => {
               this.store.dispatch(actions.submitFormFail({ formName, error: error.message }))
             })
+        } else {
+          return Promise.reject(new Error('Cannot submit form while submit in progress'))
         }
       }
       render () {

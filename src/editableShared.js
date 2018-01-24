@@ -7,6 +7,9 @@ import editable from './editable'
 const editableShared = subject => WrappedComponent => editable(class EditableSharedWrapper extends Component {
   componentWillMount () {
     this.unsubscribe = editSubscribers.subscribe(subject, this.cancelEdit)
+    if (this.props.editing) {
+      this.toggleEdit(this.props.editing)
+    }
   }
   componentWillUnmount () {
     this.unsubscribe && this.unsubscribe()
