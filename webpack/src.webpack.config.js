@@ -22,8 +22,7 @@ const config = {
     sourcePrefix: '\t'
   },
   externals: {
-    'react': 'react',
-    'lodash': 'lodash'
+    'react': 'react'
   },
   module: {
     rules: [
