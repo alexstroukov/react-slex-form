@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/alexstroukov/react-slex-form.svg?style=svg)](https://circleci.com/gh/alexstroukov/react-slex-form)
+
 # Slex Form
 
 ```
