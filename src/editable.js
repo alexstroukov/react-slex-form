@@ -38,6 +38,9 @@ const editable = WrappedComponent => class EditableWrapper extends Component {
     this._cancelEdit = undefined
     this._toggleEdit = undefined
     this._toggleSubmit = undefined
+    editableConnectedSubscribers.notifySubscribers(this.props.formName, (setEditing) => {
+      setEditing(false)
+    })
   }
   cancelEdit = (submitting = false) => {
     this._cancelEdit && this._cancelEdit(this._isEvent(submitting) ? !this.state.submitting : submitting)
