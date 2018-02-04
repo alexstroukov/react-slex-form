@@ -70,7 +70,7 @@ function connectForm (formName) {
       }
       submitForm = (submitServiceFn) => {
         const form = _.get(this.store.getState(), `form.${formName}`)
-        const canSubmit = form.status === statuses.VALID
+        const canSubmit = selectors.getCanSubmit(this.store.getState(), { formName })
         if (canSubmit) {
           this.store.dispatch(actions.submitForm({ formName }))
           return this._validateForm({ formName, form })

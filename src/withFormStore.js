@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import selectors from './form.selectors'
 import actions from './form.actions'
 
-function withForm (WrappedComponent) {
+function withFormStore (WrappedComponent) {
   class ConnectedForm extends Component {
     render () {
       const store = this.props.store || this.context.formStore
@@ -25,4 +25,4 @@ function withForm (WrappedComponent) {
   return ConnectedForm
 }
 
-export default withForm
+export default withFormStore
