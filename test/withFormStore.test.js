@@ -3,7 +3,7 @@ import { mount, configure } from 'enzyme'
 import ReactSixteenAdapter from 'enzyme-adapter-react-16'
 import { expect } from 'chai'
 import sinon from 'sinon'
-import withForm from '../src/withForm'
+import withFormStore from '../src/withFormStore'
 import form from '../src'
 import formActions from '../src/form.actions'
 import * as formStatuses from '../src/form.statuses'
@@ -13,7 +13,7 @@ import slexStore from 'slex-store'
 // need adapter to work with react ^16
 configure({ adapter: new ReactSixteenAdapter() })
 
-describe('withForm', function () {
+describe('withFormStore', function () {
   const sandbox = sinon.sandbox.create()
   const formName = 'formName'
   beforeEach(function () {
@@ -35,7 +35,7 @@ describe('withForm', function () {
           })
         )
       ComponentStub = sandbox.stub().returns(null)
-      const WrappedComponent = withForm(ComponentStub)
+      const WrappedComponent = withFormStore(ComponentStub)
       mount(<WrappedComponent store={store} />)
     })
     it('should provide form component with dispatchForm function', function () {
