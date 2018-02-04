@@ -5,30 +5,30 @@ import editSubscribers from './editSubscribers'
 import editable from './editable'
 import editableConnectedSubscribers from './editableConnectedSubscribers'
 
-const editableConnected = subject => WrappedComponent => editable(class EditableConnectedWrapper extends Component {
-  state = { subjectEditing: false }
+const editableConnected = ({ formName, alias = 'editing' }) => WrappedComponent => editable(class EditableConnectedWrapper extends Component {
+  state = { editing: false }
   componentWillMount () {
-    this._setEditing = ({ subjectEditing }) => this.setState({ subjectEditing })
+    this._setEditing = ({ editing }) => this.setState({ editing })
     this.unsubscribe = editableConnectedSubscribers.subscribe(subject, this.setEditing)
   }
   componentWillUnmount () {
     this._setEditing = undefined
     this.unsubscribe && this.unsubscribe()
   }
-  setEditing = (subjectEditing) => {
-    this._setEditing && this._setEditing({ subjectEditing })
+  setEditing = (editing) => {
+    this._setEditing && this._setEditing({ editing })
   }
-  toggleEdit = (subjectEditing) => {
+  toggleEdit = (editing) => {
     editSubscribers.notifySubscribers(subject, (cancelEdit) => {
       cancelEdit()
     })
-    this.props.toggleEdit(subjectEditing)
+    this.props.toggleEdit(editing)
   }
   _generateProps = () => {
     return {
       ...this.props,
       toggleEdit: this.toggleEdit,
-      [subject + 'Editing']: this.state.subjectEditing
+      [alias]: this.state.editing
     }
   }
   render () {

@@ -4,9 +4,9 @@ import _ from 'lodash'
 import editSubscribers from './editSubscribers'
 import editable from './editable'
 
-const editableShared = subject => WrappedComponent => editable(class EditableSharedWrapper extends Component {
+const editableShared = ({ formName }) => WrappedComponent => editable(class EditableSharedWrapper extends Component {
   componentWillMount () {
-    this.unsubscribe = editSubscribers.subscribe(subject, this.cancelEdit)
+    this.unsubscribe = editSubscribers.subscribe(formName, this.cancelEdit)
     if (this.props.editing) {
       this.toggleEdit(this.props.editing)
     }
@@ -18,7 +18,7 @@ const editableShared = subject => WrappedComponent => editable(class EditableSha
     this.props.toggleEdit(false)
   }
   toggleEdit = (editing) => {
-    editSubscribers.notifySubscribers(subject, (cancelEdit) => {
+    editSubscribers.notifySubscribers(formName, (cancelEdit) => {
       if (cancelEdit !== this.cancelEdit) {
         cancelEdit()
       }
