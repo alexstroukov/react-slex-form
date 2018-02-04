@@ -9,7 +9,7 @@ const editableConnected = ({ formName, alias = 'editing' }) => WrappedComponent 
   state = { editing: false }
   componentWillMount () {
     this._setEditing = ({ editing }) => this.setState({ editing })
-    this.unsubscribe = editableConnectedSubscribers.subscribe(subject, this.setEditing)
+    this.unsubscribe = editableConnectedSubscribers.subscribe(formName, this.setEditing)
   }
   componentWillUnmount () {
     this._setEditing = undefined
@@ -19,7 +19,7 @@ const editableConnected = ({ formName, alias = 'editing' }) => WrappedComponent 
     this._setEditing && this._setEditing({ editing })
   }
   toggleEdit = (editing) => {
-    editSubscribers.notifySubscribers(subject, (cancelEdit) => {
+    editSubscribers.notifySubscribers(formName, (cancelEdit) => {
       cancelEdit()
     })
     this.props.toggleEdit(editing)
