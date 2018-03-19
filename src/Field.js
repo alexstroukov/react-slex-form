@@ -12,6 +12,7 @@ class Field extends PureComponent {
     field: this.props.getField({ formName: this.props.formName, fieldName: this.props.fieldName })
   }
   componentDidMount () {
+    this._initialValue = this.props.value
     this._updateField = ({ field }) => this.setState({ field })
     this.register(this.props)
     this.subscribeField(this.props)
@@ -53,7 +54,9 @@ class Field extends PureComponent {
     const { formName, fieldName, meta, changeInitialValue, value, getField } = props
     const field = getField({ formName, fieldName })
     const initialValueHasChanged = !_.isEqual(value, _.get(field, 'initialValue'))
-    if (initialValueHasChanged) {
+    const hasBeenSet = this._initialValue === value
+    if (initialValueHasChanged && !hasBeenSet) {
+      this._initialValue = value
       changeInitialValue({ formName, fieldName, value, meta })
     }
   }
