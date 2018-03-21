@@ -7,15 +7,6 @@ import formSubscribers from './formSubscribers'
 import fieldSubscribers from './fieldSubscribers'
 
 class FormSideEffects {
-  shareFormActionsWithApplicationStore = applicationStore => ({ action }) => {
-    if (
-      action.type === actionTypes.SUBMIT_FORM ||
-      action.type === actionTypes.SUBMIT_FORM_SUCCESS ||
-      action.type === actionTypes.SUBMIT_FORM_FAIL
-    ) {
-      applicationStore.dispatch(action)
-    }
-  }
   notifyFieldSubscribersOnFieldChangeSideEffect = ({ prevState, nextState, action, dispatch }) => {
     if (
       action.type === actionTypes.CHANGE_INITIAL_VALUE ||
