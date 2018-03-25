@@ -6,7 +6,7 @@
 $ npm install slex-form
 ```
 
-`react-slex-form` is a component driven form implementation for `react`. It is connected to `slex-store` via context through a `FormProvider` but usues a completely separate store from the rest of the application. Field updates are propagated via subscriptions to ensure only relevant UI is updated.
+`react-slex-form` is a component driven form implementation for `react`. It is connected to `slex-store` via context through a `Provider` (`react-slex-store`). Field updates are propagated via subscriptions to ensure only relevant UI is updated.
 
 ## Example Usage
 
@@ -39,7 +39,7 @@ const createFormStore = () => {
 export default createFormStore
 ```
 
-### Connecting form via FormProvider
+### Connecting form via Provider
 
 ```javascript
 import React from 'react'
@@ -49,16 +49,13 @@ import { FormProvider } from 'react-slex-form'
 import { createApplicationStore, createFormStore } from 'react-slex-form'
 
 const applicationStore = createApplicationStore()
-const formStore = createFormStore()
 
 applicationStore.subscribe(renderApp)
 
 function renderApp () {
   ReactDOM.render((
     <Provider store={applicationStore}>
-      <FormProvider store={formStore}>
         ...
-      </FormProvider>
     </Provider>
   ), document.getElementById('...'))
 }

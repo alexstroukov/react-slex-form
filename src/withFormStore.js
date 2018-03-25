@@ -6,7 +6,7 @@ import actions from './form.actions'
 function withFormStore (WrappedComponent) {
   class ConnectedForm extends Component {
     render () {
-      const store = this.props.store || this.context.formStore
+      const store = this.props.store || this.context.store
       return (
         <WrappedComponent
           {...this.props}
@@ -17,10 +17,10 @@ function withFormStore (WrappedComponent) {
     }
   }
   ConnectedForm.propTypes = {
-    formStore: PropTypes.object
+    store: PropTypes.object
   }
   ConnectedForm.contextTypes = {
-    formStore: PropTypes.object
+    store: PropTypes.object
   }
   return ConnectedForm
 }

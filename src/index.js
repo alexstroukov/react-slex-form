@@ -1,5 +1,4 @@
 import Field from './Field'
-import FormProvider from './FormProvider'
 import * as statuses from './form.statuses'
 import * as actionTypes from './form.actionTypes'
 import reducers from './form.reducers'
@@ -15,7 +14,7 @@ import editable from './editable'
 import editableShared from './editableShared'
 import editableConnected from './editableConnected'
 
-export { editable, editableShared, editableConnected, FormProvider, Field, statuses, actionTypes, actions, middleware, sideEffects, selectors, connectForm, withFormStore, withFormState }
+export { editable, editableShared, editableConnected, Field, statuses, actionTypes, actions, middleware, sideEffects, selectors, connectForm, withFormStore, withFormState }
 
 export default function reduceForm (state = initialState, action) {
   switch (action.type) {

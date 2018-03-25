@@ -11,7 +11,7 @@ function withFormState (formName) {
     class ConnectedForm extends Component {
       constructor (props, context) {
         super(props, context)
-        this.store = this.props.store || this.context.formStore
+        this.store = props.store || context.store
         this.state = {
           form: selectors.getForm(this.store.getState(), { formName })
         }
@@ -38,10 +38,10 @@ function withFormState (formName) {
       }
     }
     ConnectedForm.propTypes = {
-      formStore: PropTypes.object
+      store: PropTypes.object
     }
     ConnectedForm.contextTypes = {
-      formStore: PropTypes.object
+      store: PropTypes.object
     }
     return ConnectedForm
   }
