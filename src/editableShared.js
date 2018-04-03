@@ -5,7 +5,7 @@ import editSubscribers from './editSubscribers'
 import editable from './editable'
 
 const editableShared = ({ formName }) => WrappedComponent => editable(class EditableSharedWrapper extends Component {
-  componentWillMount () {
+  componentDidMount () {
     this.unsubscribe = editSubscribers.subscribe(formName, this.cancelEdit)
     if (this.props.editing) {
       this.toggleEdit(this.props.editing)

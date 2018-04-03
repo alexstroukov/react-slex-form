@@ -7,7 +7,7 @@ import editableConnectedSubscribers from './editableConnectedSubscribers'
 
 const editableConnected = ({ formName, alias = 'editing' }) => WrappedComponent => editable(class EditableConnectedWrapper extends Component {
   state = { editing: false }
-  componentWillMount () {
+  componentDidMount () {
     this._setEditing = ({ editing }) => this.setState({ editing })
     this.unsubscribe = editableConnectedSubscribers.subscribe(formName, this.setEditing)
   }
