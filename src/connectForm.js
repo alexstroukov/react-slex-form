@@ -5,6 +5,7 @@ import selectors from './form.selectors'
 import actions from './form.actions'
 import * as statuses from './form.statuses'
 import formSubscribers from './formSubscribers'
+import validatorsStore from './validatorsStore'
 
 function connectForm (formName) {
   return WrappedComponent => {
@@ -42,9 +43,10 @@ function connectForm (formName) {
           )
           .value()
         function _validateField ({ formName, fieldName, form, field }) {
-          if (field.validate) {
+          const validate = validatorsStore.getValidator({ formName, fieldName })
+          if (validate) {
             return Promise
-              .resolve(field.validate(field.value, form))
+              .resolve(validate(field.value, form))
               .then(error => {
                 return {
                   fieldName,
