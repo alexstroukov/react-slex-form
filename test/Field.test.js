@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
-import { mount, configure } from 'enzyme'
+import { mount, shallow, configure } from 'enzyme'
 import ReactSixteenAdapter from 'enzyme-adapter-react-16'
 import { expect } from 'chai'
 import sinon from 'sinon'
 import Field from '../src/Field'
+import FormProvider from '../src/FormProvider'
 import form from '../src'
 import formActions from '../src/form.actions'
 import * as formStatuses from '../src/form.statuses'
@@ -43,7 +44,11 @@ describe('Field', function () {
       dispatchSpy = sandbox.spy(store, 'dispatch')
       renderStub = sandbox.stub().returns(null)
       registerFieldStub = sandbox.stub(formActions, 'registerField').returns(stubRegisterFieldAction)
-      mount(<Field store={store} formName={formName} fieldName={fieldName} render={renderStub} {...ownProps} />)
+      mount(
+        <FormProvider store={store}>
+          <Field formName={formName} fieldName={fieldName} render={renderStub} {...ownProps} />
+        </FormProvider>
+      )
     })
     it('should register the field on the store', function () {
       expect(dispatchSpy.calledOnce).to.be.true
@@ -73,7 +78,11 @@ describe('Field', function () {
       const stubRegisterFieldAction = {}
       const registerFieldStub = sandbox.stub(formActions, 'registerField').returns(stubRegisterFieldAction)
       const unregisterFieldStub = sandbox.stub(formActions, 'unregisterField').returns(stubUnregisterFieldAction)
-      const wrapper = mount(<Field store={store} formName={formName} fieldName={fieldName} />)
+      const wrapper = mount(
+        <FormProvider store={store}>
+          <Field formName={formName} fieldName={fieldName} />
+        </FormProvider>
+      )
       wrapper.unmount()
       expect(dispatchSpy.calledTwice).to.be.true
       expect(registerFieldStub.calledOnce).to.be.true
@@ -86,7 +95,11 @@ describe('Field', function () {
       const stubRegisterFieldAction = {}
       const registerFieldStub = sandbox.stub(formActions, 'registerField').returns(stubRegisterFieldAction)
       const unregisterFieldStub = sandbox.stub(formActions, 'unregisterField').returns(stubUnregisterFieldAction)
-      const wrapper = mount(<Field store={store} formName={formName} fieldName={fieldName} stayRegistered />)
+      const wrapper = mount(
+        <FormProvider store={store}>
+          <Field formName={formName} fieldName={fieldName} stayRegistered />
+        </FormProvider>
+      )
       wrapper.unmount()
       expect(dispatchSpy.calledOnce).to.be.true
       expect(registerFieldStub.calledOnce).to.be.true
@@ -134,7 +147,11 @@ describe('Field', function () {
       unregisterFieldStub = sandbox.stub(formActions, 'unregisterField').returns(stubUnregisterFieldAction)
       renderStub = sandbox.stub().returns(<MyField />)
       dispatchSpy = sandbox.spy(store, 'dispatch')
-      wrapper = mount(<Field store={store} formName={formName} fieldName={fieldName} render={renderStub} />)
+      wrapper = mount(
+        <FormProvider store={store}>
+          <Field formName={formName} fieldName={fieldName} render={renderStub} />
+        </FormProvider>
+      )
     })
     it('should render the result of the render function that was passed through props', function () {
       const renderedField = wrapper.find('MyField')
@@ -208,7 +225,11 @@ describe('Field', function () {
       unregisterFieldStub = sandbox.stub(formActions, 'unregisterField').returns(stubUnregisterFieldAction)
       renderStub = sandbox.stub().returns(<MyField />)
       dispatchSpy = sandbox.spy(store, 'dispatch')
-      wrapper = mount(<Field store={store} formName={formName} fieldName={fieldName} render={renderStub} />)
+      wrapper = mount(
+        <FormProvider store={store}>
+          <Field formName={formName} fieldName={fieldName} render={renderStub} />
+        </FormProvider>
+      )
     })
     it('should render the field value from the store', function () {
       expect(renderStub.calledOnce).to.be.true
@@ -218,6 +239,7 @@ describe('Field', function () {
   describe('when its a field that has been provided a value different from the one on the store', function () {
     let store
     let wrapper
+    let field
     let registerFieldStub
     let unregisterFieldStub
     const stubRegisterFieldAction = {}
@@ -233,13 +255,17 @@ describe('Field', function () {
         )
       registerFieldStub = sandbox.stub(formActions, 'registerField').returns(stubRegisterFieldAction)
       unregisterFieldStub = sandbox.stub(formActions, 'unregisterField').returns(stubUnregisterFieldAction)
-      wrapper = mount(<Field store={store} value={1} formName={formName} fieldName={fieldName} />)
+      wrapper = shallow(
+        <FormProvider store={store} />
+      )
+      const formProviderForm = wrapper.instance().getChildContext().form
+      field = mount(<Field store={store} form={formProviderForm} value={1} formName={formName} fieldName={fieldName} />)
     })
     it('should change the fields initial value in the store', function () {
       const dispatchSpy = sandbox.spy(store, 'dispatch')
       const stubChangeInitialValue = {}
       const changeInitialValueStub = sandbox.stub(formActions, 'changeInitialValue').returns(stubChangeInitialValue)
-      wrapper.setProps({ value: 2 })
+      field.setProps({ value: 2 })
       expect(dispatchSpy.callCount).to.equal(1)
       expect(changeInitialValueStub.calledOnce).to.be.true
       expect(changeInitialValueStub.firstCall.args[0].value).to.equal(2)
@@ -278,7 +304,11 @@ describe('Field', function () {
       registerFieldStub = sandbox.stub(formActions, 'registerField').returns(stubRegisterFieldAction)
       unregisterFieldStub = sandbox.stub(formActions, 'unregisterField').returns(stubUnregisterFieldAction)
       renderStub = sandbox.stub().returns(null)
-      wrapper = mount(<Field store={store} formName={formName} fieldName={fieldName} render={renderStub} />)
+      wrapper = mount(
+        <FormProvider store={store}>
+          <Field formName={formName} fieldName={fieldName} render={renderStub} />
+        </FormProvider>
+      )
     })
     it('should get loading true', function () {
       expect(renderStub.calledOnce).to.be.true
@@ -318,7 +348,11 @@ describe('Field', function () {
       registerFieldStub = sandbox.stub(formActions, 'registerField').returns(stubRegisterFieldAction)
       unregisterFieldStub = sandbox.stub(formActions, 'unregisterField').returns(stubUnregisterFieldAction)
       renderStub = sandbox.stub().returns(null)
-      wrapper = mount(<Field store={store} formName={formName} fieldName={fieldName} render={renderStub} />)
+      wrapper = mount(
+        <FormProvider store={store}>
+          <Field formName={formName} fieldName={fieldName} render={renderStub} />
+        </FormProvider>
+      )
     })
     it('should get submitting true', function () {
       expect(renderStub.calledOnce).to.be.true
@@ -360,7 +394,11 @@ describe('Field', function () {
       registerFieldStub = sandbox.stub(formActions, 'registerField').returns(stubRegisterFieldAction)
       unregisterFieldStub = sandbox.stub(formActions, 'unregisterField').returns(stubUnregisterFieldAction)
       renderStub = sandbox.stub().returns(null)
-      wrapper = mount(<Field store={store} formName={formName} fieldName={fieldName} render={renderStub} />)
+      wrapper = mount(
+        <FormProvider store={store}>
+          <Field formName={formName} fieldName={fieldName} render={renderStub} />
+        </FormProvider>
+      )
     })
     it('should get an array of string messages from the fields error in the store', function () {
       expect(renderStub.calledOnce).to.be.true

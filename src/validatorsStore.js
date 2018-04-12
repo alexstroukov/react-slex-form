@@ -12,6 +12,9 @@ class ValidatorsStore {
   getValidator = ({ formName, fieldName }) => {
     return this.validators[formName + fieldName]
   }
+  hasValidator = ({ formName, fieldName }) => {
+    return !!this.getValidator({ formName, fieldName })
+  }
 }
 
 export default new ValidatorsStore()

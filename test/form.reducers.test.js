@@ -4,6 +4,7 @@ import formReducers from '../src/form.reducers'
 import initialState from '../src/initialState'
 import * as formActionTypes from '../src/form.actionTypes'
 import * as formStatuses from '../src/form.statuses'
+import validatorsStore from '../src/validatorsStore'
 
 describe('form.reducers', function () {
   const sandbox = sinon.sandbox.create()
@@ -154,6 +155,9 @@ describe('form.reducers', function () {
         }
       }
       const action = { formName: 'testForm', fieldName: 'testField', value: 'testValue' }
+      beforeEach(function () {
+        sandbox.stub(validatorsStore, 'hasValidator').returns(true)
+      })
       it('should set the form to validating', function () {
         const nextState = formReducers.changeValue(state, action)
         expect(nextState.testForm.status).to.equal(formStatuses.VALIDATING)
@@ -174,6 +178,9 @@ describe('form.reducers', function () {
         }
       }
       const action = { formName: 'testForm', fieldName: 'testField', value: 'testValue' }
+      beforeEach(function () {
+        sandbox.stub(validatorsStore, 'hasValidator').returns(false)
+      })
       it('should set the form to validating', function () {
         const nextState = formReducers.changeValue(state, action)
         expect(nextState.testForm.status).to.equal(formStatuses.VALID)
@@ -264,11 +271,6 @@ describe('form.reducers', function () {
         const nextState = formReducers.registerField(state, action)
         expect(nextState.testForm[action.fieldName].initialValue).to.equal(action.value)
       })
-      it('should set the field validate to the validate from the action', function () {
-        const action = { formName: 'testForm', fieldName: 'testField', value: 'testValue', validate: () => {} }
-        const nextState = formReducers.registerField(state, action)
-        expect(nextState.testForm[action.fieldName].validate).to.equal(action.validate)
-      })
     })
 
     describe('given the field is already registered', function () {
@@ -305,11 +307,6 @@ describe('form.reducers', function () {
         const action = { formName: 'testForm', fieldName: 'testField', value: 'testValue', validate: () => {} }
         const nextState = formReducers.registerField(state, action)
         expect(nextState.testForm[action.fieldName].initialValue).to.equal(action.value)
-      })
-      it('should set the field validate to the validate from the action', function () {
-        const action = { formName: 'testForm', fieldName: 'testField', value: 'testValue', validate: () => {} }
-        const nextState = formReducers.registerField(state, action)
-        expect(nextState.testForm[action.fieldName].validate).to.equal(action.validate)
       })
     })
   })

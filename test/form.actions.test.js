@@ -280,11 +280,6 @@ describe('form.actions', function () {
       const registerFieldAction = formActions.registerField(params)
       expect(registerFieldAction.value).to.equal(params.value)
     })
-    it('should include the given validate in the returned object', function () {
-      const params = { formName: 'testformName', fieldName: 'testFieldName', value: 'testValue', validate: () => {} }
-      const registerFieldAction = formActions.registerField(params)
-      expect(registerFieldAction.validate).to.equal(params.validate)
-    })
   })
   describe('unregisterField', function () {
     it('should create an object action', function () {

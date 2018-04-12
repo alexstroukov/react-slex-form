@@ -10,7 +10,6 @@ export class FormProvider extends Component {
   constructor (props, context) {
     super(props, context)
     this.store = context.store || props.store
-    this.validators = {}
   }
   getChildContext () {
     return {
@@ -41,9 +40,12 @@ export class FormProvider extends Component {
   }
   unregisterField = ({ formName, fieldName }) => {
     this.store.dispatch(actions.unregisterField({ formName, fieldName }))
+    validatorsStore.removeValidator({ formName, fieldName })
   }
   render () {
-    return Children.only(this.props.children)
+    return this.props.children
+      ? Children.only(this.props.children)
+      : null
   }
 }
 
