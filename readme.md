@@ -23,9 +23,6 @@ const createFormStore = () => {
         reducer: slexStore.createReducer({
           form: formReducer
         }),
-        middleware: [
-          formMiddleware.validateFieldOnChangeValueMiddleware
-        ],
         sideEffects: [
           formSideEffects.notifyFieldSubscribersOnFieldChangeSideEffect,
           formSideEffects.notifyFieldSubscribersOnFormChangeSideEffect,

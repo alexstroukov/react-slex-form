@@ -1,6 +1,6 @@
-import './form.middleware.test'
 import './form.actions.test'
 import './form.reducers.test'
 import './Field.test'
+import './FormProvider.test'
 import './connectForm.test'
 import './withFormState.test'

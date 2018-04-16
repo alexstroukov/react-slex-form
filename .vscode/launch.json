@@ -15,7 +15,7 @@
 			],
 			"cwd": "${workspaceRoot}",
 			"runtimeExecutable": null,
-			"console": "externalTerminal",
+			"console": "internalConsole",
 			"preLaunchTask": null,
 			"env": {
 				"NODE_ENV": "development"
@@ -53,7 +53,7 @@
 		// 	"args": ["${workspaceRoot}/compiled/client-test"],
 		// 	"cwd": "${workspaceRoot}",
 		// 	"runtimeExecutable": null,
-		// 	"console": "externalTerminal",
+		// 	"console": "internalConsole",
 		// 	"preLaunchTask": null,
 		// 	"env": {
 		// 		"NODE_ENV": "development"
