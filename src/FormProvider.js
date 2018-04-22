@@ -70,7 +70,6 @@ export class FormProvider extends Component {
     validatorsStore.removeValidator({ formName, fieldName })
   }
   render () {
-    debugger
     return this.props.children
       ? Children.only(this.props.children)
       : null

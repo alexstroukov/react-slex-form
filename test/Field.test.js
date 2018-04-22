@@ -110,8 +110,10 @@ describe('Field', function () {
   describe('when its a valid field', function () {
     let store
     let wrapper
+    let field
     let registerFieldStub
     let unregisterFieldStub
+    let changeValueStub
     let getStateStub
     let renderStub
     let dispatchSpy
@@ -147,25 +149,29 @@ describe('Field', function () {
       unregisterFieldStub = sandbox.stub(formActions, 'unregisterField').returns(stubUnregisterFieldAction)
       renderStub = sandbox.stub().returns(<MyField />)
       dispatchSpy = sandbox.spy(store, 'dispatch')
-      wrapper = mount(
-        <FormProvider store={store}>
-          <Field formName={formName} fieldName={fieldName} render={renderStub} />
-        </FormProvider>
+
+      wrapper = shallow(
+        <FormProvider store={store} />
+      )
+      const formProviderForm = wrapper.instance().getChildContext().form
+      changeValueStub = sandbox.stub(formProviderForm, 'changeValue').returns(stubChangeValueAction)
+      field = mount(
+        <Field store={store} form={formProviderForm} formName={formName} fieldName={fieldName} render={renderStub} />
       )
     })
     it('should render the result of the render function that was passed through props', function () {
-      const renderedField = wrapper.find('MyField')
+      const renderedField = field.find('MyField')
       expect(renderedField).to.have.length(1)
     })
     it('should render with a changeValue function which changes value on the store', function () {
-      const changeValueStub = sandbox.stub(formActions, 'changeValue').returns(stubChangeValueAction)
       expect(renderStub.calledOnce).to.be.true
       expect(renderStub.firstCall.args[0].changeValue).to.be.a('function')
-
       const nextValue = 'nextValue'
       renderStub.firstCall.args[0].changeValue(nextValue)
-      expect(dispatchSpy.callCount).to.equal(1)
-      expect(dispatchSpy.firstCall.args[0]).to.equal(stubChangeValueAction)
+      expect(changeValueStub.callCount).to.equal(1)
+      expect(changeValueStub.firstCall.args[0].formName).to.equal(formName)
+      expect(changeValueStub.firstCall.args[0].fieldName).to.equal(fieldName)
+      expect(changeValueStub.firstCall.args[0].value).to.equal(nextValue)
     })
     it('should render the field value from the store', function () {
       expect(renderStub.calledOnce).to.be.true

@@ -19,7 +19,6 @@ describe('FormProvider', function () {
   let store
   let wrapper
   beforeEach(function () {
-    debugger
     sandbox.restore()
     StubComponent = sandbox.stub().returns(null)
     store =
