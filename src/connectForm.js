@@ -4,8 +4,6 @@ import _ from 'lodash'
 import selectors from './form.selectors'
 import actions from './form.actions'
 import * as statuses from './form.statuses'
-import formSubscribers from './formSubscribers'
-import validatorsStore from './validatorsStore'
 
 function connectForm (formName) {
   return WrappedComponent => {
@@ -18,10 +16,21 @@ function connectForm (formName) {
         }
       }
       componentDidMount () {
-        formSubscribers.subscribe(formName, this.updateForm)
+        this.subscribeForm()
       }
       componentWillUnmount () {
-        formSubscribers.unsubscribe(formName, this.updateForm)
+        this.unsubscribe && this.unsubscribe()
+      }
+      subscribeForm = (props) => {
+        this.unsubscribe = this.store.subscribe((state) => {
+          const nextForm = selectors.getForm(state, { formName })
+          if (this.state.form !== nextForm) {
+            this.updateForm({ form: nextForm })
+          }
+        })
+      }
+      unsubscribeForm = (props) => {
+        this.unsubscribe && this.unsubscribe()
       }
       updateForm = ({ form }) => {
         this.setState({ form })
@@ -29,76 +38,8 @@ function connectForm (formName) {
       resetForm = () => {
         this.store.dispatch(actions.resetForm({ formName }))
       }
-      _validateForm = ({ formName, form }) => {
-        return _.chain(form)
-          .omit(['error', 'status'])
-          .map((field, fieldName) => _validateField({ formName, fieldName, form, field }))
-          .thru(promises => Promise
-            .all(promises)
-            .then(validationResults => _.chain(validationResults)
-              .filter(validationResult => validationResult.error)
-              .reduce((memo, { fieldName, error }) => ({ ...memo, [fieldName]: error }), {})
-              .value()
-            )
-          )
-          .value()
-        function _validateField ({ formName, fieldName, form, field }) {
-          const validate = validatorsStore.getValidator({ formName, fieldName })
-          if (validate) {
-            return Promise
-              .resolve(validate(field.value, form))
-              .then(error => {
-                return {
-                  fieldName,
-                  error: _.isError(error)
-                    ? error.message
-                    : undefined
-                }
-              })
-              .catch(error => {
-                return {
-                  fieldName,
-                  error: error.message
-                }
-              })
-          } else {
-            return Promise
-              .resolve({
-                fieldName,
-                error: undefined
-              })
-          }
-        }
-      }
-      submitForm = (submitServiceFn) => {
-        const form = _.get(this.store.getState(), `form.${formName}`)
-        const canSubmit = selectors.getCanSubmit(this.store.getState(), { formName })
-        if (canSubmit) {
-          this.store.dispatch(actions.submitForm({ formName }))
-          return this._validateForm({ formName, form })
-            .then(validationErrors => {
-              if (_.isEmpty(validationErrors)) {
-                const formValues = _.chain(form)
-                  .omit(['error', 'status']) 
-                  .map(({ value }, fieldName) => ({ fieldName, value }))
-                  .reduce((memo, { fieldName, value }) => ({ ...memo, [fieldName]: value }), {})
-                  .value()
-                return Promise
-                  .resolve(submitServiceFn(formValues))
-                  .then(result => {
-                    this.store.dispatch(actions.submitFormSuccess({ formName, result }))
-                    return result
-                  })
-              } else {
-                this.store.dispatch(actions.submitFormFail({ formName, validationErrors }))
-              }
-            })
-            .catch(error => {
-              this.store.dispatch(actions.submitFormFail({ formName, error: error.message }))
-            })
-        } else {
-          return Promise.reject(new Error('Cannot submit form while submit in progress'))
-        }
+      submitForm = () => {
+        this.store.dispatch(actions.submitForm({ formName }))
       }
       render () {
         const { submitting = false, canSubmit = false, submitError } = this.state.form || {}

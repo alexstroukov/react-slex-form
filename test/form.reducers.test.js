@@ -4,7 +4,6 @@ import formReducers from '../src/form.reducers'
 import initialState from '../src/initialState'
 import * as formActionTypes from '../src/form.actionTypes'
 import * as formStatuses from '../src/form.statuses'
-import validatorsStore from '../src/validatorsStore'
 
 describe('form.reducers', function () {
   const sandbox = sinon.sandbox.create()

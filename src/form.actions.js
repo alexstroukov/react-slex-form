@@ -86,12 +86,13 @@ class FormActions {
     }
     return action
   }
-  registerField = ({ formName, fieldName, value, meta }) => {
+  registerField = ({ formName, fieldName, validate, value, meta }) => {
     const action = {
       type: actionTypes.REGISTER_FIELD,
       formName,
       fieldName,
       value,
+      validate,
       meta
     }
     return action

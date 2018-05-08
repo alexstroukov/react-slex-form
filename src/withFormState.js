@@ -4,7 +4,6 @@ import _ from 'lodash'
 import selectors from './form.selectors'
 import actions from './form.actions'
 import * as statuses from './form.statuses'
-import formSubscribers from './formSubscribers'
 
 function withFormState (formName) {
   return WrappedComponent => {
@@ -17,10 +16,21 @@ function withFormState (formName) {
         }
       }
       componentDidMount () {
-        formSubscribers.subscribe(formName, this.updateForm)
+        this.subscribeForm()
       }
       componentWillUnmount () {
-        formSubscribers.unsubscribe(formName, this.updateForm)
+        this.unsubscribeForm()
+      }
+      subscribeForm = (props) => {
+        this.unsubscribe = this.store.subscribe((state) => {
+          const nextForm = selectors.getForm(state, { formName })
+          if (this.state.form !== nextForm) {
+            this.updateForm({ form: nextForm })
+          }
+        })
+      }
+      unsubscribeForm = (props) => {
+        this.unsubscribe && this.unsubscribe()
       }
       updateForm = ({ form }) => {
         this.setState({ form })

@@ -4,12 +4,12 @@ import _ from 'lodash'
 import actions from './form.actions'
 import selectors from './form.selectors'
 import * as statuses from './form.statuses'
-import fieldSubscribers from './fieldSubscribers'
 
 class Field extends PureComponent {
   constructor (props, context) {
     super(props, context)
-    this.form = context.form || props.form
+    this.store = props.store || context.store
+    this.form = props.form || context.form
     this.state = {
       field: this.form.getField({ formName: this.props.formName, fieldName: this.props.fieldName })
     }
@@ -47,11 +47,15 @@ class Field extends PureComponent {
   }
   subscribeField = (props) => {
     const { formName, fieldName } = props
-    fieldSubscribers.subscribe(formName + fieldName, this.updateField)
+    this.unsubscribe = this.store.subscribe((state) => {
+      const nextField = this.form.getField({ formName, fieldName })
+      if (this.state.field !== nextField) {
+        this.updateField({ field: nextField })
+      }
+    })
   }
   unsubscribeField = (props) => {
-    const { formName, fieldName } = props
-    fieldSubscribers.unsubscribe(formName + fieldName, this.updateField)
+    this.unsubscribe && this.unsubscribe()
   }
   changeInitialValue = (props) => {
     const { formName, fieldName, meta, value } = props
@@ -107,10 +111,12 @@ Field.propTypes = {
   validate: PropTypes.func,
   render: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
   component: PropTypes.any,
+  store: PropTypes.object
 }
 
 Field.contextTypes = {
-  form: PropTypes.object
+  form: PropTypes.object,
+  store: PropTypes.object
 }
 
 export { Field }

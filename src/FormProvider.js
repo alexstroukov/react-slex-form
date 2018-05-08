@@ -4,7 +4,6 @@ import _ from 'lodash'
 import selectors from './form.selectors'
 import actions from './form.actions'
 import * as statuses from './form.statuses'
-import validatorsStore from './validatorsStore'
 
 export class FormProvider extends Component {
   constructor (props, context) {
@@ -27,33 +26,6 @@ export class FormProvider extends Component {
   }
   changeValue = ({ formName, fieldName, value }) => {
     this.store.dispatch(actions.changeValue({ formName, fieldName, value }))
-    const validate = validatorsStore.getValidator({ formName, fieldName })
-    if (validate) {
-      const [ form, status ] = _.at(this.store.getState(), [
-        `form.${formName}`,
-        `form.${formName}.${fieldName}.status`
-      ])
-      return Promise
-        .resolve(validate(value, form))
-        .then(validationResult => {
-          const currentValue = _.get(this.store.getState(), `form.${formName}.${fieldName}.value`)
-          const currentStatus = _.get(this.store.getState(), `form.${formName}.${fieldName}.status`)
-          if (currentValue === value && currentStatus !== statuses.INITIAL) {
-            if (_.isError(validationResult)) {
-              this.store.dispatch(actions.isInvalid({ formName, fieldName, error: validationResult.message }))
-            } else {
-              this.store.dispatch(actions.isValid({ formName, fieldName }))
-            }
-          }
-        })
-        .catch(error => {
-          const currentValue = _.get(this.store.getState(), `form.${formName}.${fieldName}.value`)
-          const currentStatus = _.get(this.store.getState(), `form.${formName}.${fieldName}.status`)
-          if (currentValue === value && currentStatus !== statuses.INITIAL) {
-            this.store.dispatch(actions.isInvalid({ formName, fieldName, error: error.message }))
-          }
-        })
-    }
   }
   changeInitialValue = ({ formName, fieldName, value, meta }) => {
     this.store.dispatch(actions.changeInitialValue({ formName, fieldName, value, meta }))
@@ -61,13 +33,11 @@ export class FormProvider extends Component {
   registerField = ({ formName, fieldName, value, validate, meta }) => {    
     const fieldIsRegistered = selectors.getFieldIsRegistered(this.store.getState(), { formName, fieldName })
     if (!fieldIsRegistered) {
-      this.store.dispatch(actions.registerField({ formName, fieldName, value, meta }))
-      validatorsStore.setValidator({ formName, fieldName, validate })
+      this.store.dispatch(actions.registerField({ formName, fieldName, value, validate, meta }))
     }
   }
   unregisterField = ({ formName, fieldName }) => {
     this.store.dispatch(actions.unregisterField({ formName, fieldName }))
-    validatorsStore.removeValidator({ formName, fieldName })
   }
   render () {
     return this.props.children

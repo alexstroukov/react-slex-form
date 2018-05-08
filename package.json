@@ -37,11 +37,13 @@
   },
   "dependencies": {
     "lodash": "4.17.2",
-    "prop-types": "15.5.10"
+    "prop-types": "15.5.10",
+    "slex-memoize": "0.1.1"
   },
   "peerDependencies": {
     "react": "^16.0.0",
-    "slex-store": "^0.1.0"
+    "slex-store": "^0.1.0",
+    "react-slex-store": "^0.1.0"
   },
   "devDependencies": {
     "slex-store": "^0.1.0",

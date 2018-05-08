@@ -1,7 +1,6 @@
 import _ from 'lodash'
 import * as statuses from './form.statuses'
 import initialState from './initialState'
-import validatorsStore from './validatorsStore'
 
 class FormReducers {
   resetFormStore = (state, action) => {
@@ -71,7 +70,7 @@ class FormReducers {
     const currentFormStatus = _.get(form, 'status') 
     const existingMeta = _.get(field, 'meta', {})
     const touched = isSilent ? _.get(field, `touched`, false) : true
-    const hasValidator = validatorsStore.hasValidator({ formName, fieldName })
+    const hasValidator = _.has(field, `validate`)
     const nextFieldStatus = hasValidator
       ? statuses.VALIDATING
       : statuses.VALID
@@ -102,7 +101,7 @@ class FormReducers {
     return nextState
   }
   registerField = (state, action) => {
-    const { formName, fieldName, value, meta } = action
+    const { formName, fieldName, value, validate, meta } = action
     const form = state[formName]
     const field = form && form[fieldName]
     const existingMeta = field && field.meta ? field.meta : {}
@@ -111,6 +110,7 @@ class FormReducers {
       ...meta
     }
     const nextField = {
+      validate,
       status: statuses.INITIAL,
       error: undefined,
       touched: false,
@@ -289,7 +289,7 @@ class FormReducers {
   }
   _getFields = (form) => {
     return _.chain(form)
-      .omit(['error', 'status'])
+      .omit(['error', 'status', 'validate'])
       .value()
   }
   _getNextFormStatus = ({ form, omitFieldName, replaceFieldName, replaceFieldValue, defaultStatus }) => {

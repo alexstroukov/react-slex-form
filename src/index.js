@@ -13,9 +13,22 @@ import editable from './editable'
 import editableShared from './editableShared'
 import editableConnected from './editableConnected'
 
-export { editable, editableShared, editableConnected, Field, FormProvider, statuses, actionTypes, actions, sideEffects, selectors, connectForm, withFormState }
+function reduceFormClient (state = initialState, action) {
+  switch (action.type) {
+    case actionTypes.REGISTER_FIELD:
+      return reducers.registerField(state, action)
+    case actionTypes.UNREGISTER_FIELD:
+      return reducers.unregisterField(state, action)
+    case actionTypes.CHANGE_INITIAL_VALUE:
+      return reducers.changeInitialValue(state, action)
+    case actionTypes.CHANGE_VALUE:
+      return reducers.changeValue(state, action)
+    default:
+      return state
+  }
+}
 
-export default function reduceForm (state = initialState, action) {
+function reduceFormWorker (state = initialState, action) {
   switch (action.type) {
     case actionTypes.RESET_FORM_STORE:
       return reducers.resetFormStore(state, action)
@@ -27,10 +40,6 @@ export default function reduceForm (state = initialState, action) {
       return reducers.submitFormFail(state, action)
     case actionTypes.CHANGE_VALUE:
       return reducers.changeValue(state, action)
-    case actionTypes.REGISTER_FIELD:
-      return reducers.registerField(state, action)
-    case actionTypes.UNREGISTER_FIELD:
-      return reducers.unregisterField(state, action)
     case actionTypes.RESET_FIELD:
       return reducers.resetField(state, action)
     case actionTypes.RESET_FORM:
@@ -47,3 +56,8 @@ export default function reduceForm (state = initialState, action) {
       return state
   }
 }
+
+
+export { editable, reduceFormClient, reduceFormWorker, editableShared, editableConnected, Field, FormProvider, statuses, actionTypes, actions, sideEffects, selectors, connectForm, withFormState }
+
+

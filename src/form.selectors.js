@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import * as statuses from './form.statuses'
 import initialState from './initialState'
+import { memoizeOptions } from 'slex-memoize'
 
 class FormSelectors {
   getCanSubmit = (state, { formName }) => {
@@ -54,7 +55,7 @@ class FormSelectors {
       }
     } = state
     return _.chain(form)
-      .omit(['error', 'status'])
+      .omit(['error', 'status', 'validate'])
       .keys()
       .value()
   }
@@ -68,26 +69,30 @@ class FormSelectors {
       }
     } = state
     if (field) {
-      const { value, status, error, touched = false, initialValue, meta = {}, validate } = field
-      const loading = status === statuses.VALIDATING
-      const submitting = formStatus === statuses.SUBMITTING
-      const messages = _.chain([error])
-        .flatten()
-        .reject(_.isUndefined)
-        .value()
-      return {
-        value,
-        initialValue,
-        meta,
-        messages,
-        loading,
-        submitting,
-        touched
-      }
+      return this._getField({ field, formStatus })
     } else {
-      return field
+      return undefined
     }
   }
+  _getField = memoizeOptions(({ field, formStatus }) => {
+    const { value, status, error, touched = false, initialValue, meta = {}, validate } = field
+    const loading = status === statuses.VALIDATING
+    const submitting = formStatus === statuses.SUBMITTING
+    const messages = _.chain([error])
+      .flatten()
+      .reject(_.isUndefined)
+      .value()
+    return {
+      value,
+      initialValue,
+      meta,
+      messages,
+      loading,
+      submitting,
+      touched
+    }
+  })
+
   getFieldIsRegistered = (state, { formName, fieldName }) => {
     const {
       form: {
@@ -105,19 +110,22 @@ class FormSelectors {
       }
     } = state
     if (form) {
-      const { status, error: submitError } = form
-      const canSubmit = status === statuses.VALID
-      const submitting = status === statuses.SUBMITTING
-      return {
-        ...form,
-        submitError,
-        canSubmit,
-        submitting
-      }
+      return this._getForm({ form })
     } else {
-      return form
+      return undefined
     }
   }
+  _getForm = memoizeOptions(({ form }) => {
+    const { status, error: submitError } = form
+    const canSubmit = status === statuses.VALID
+    const submitting = status === statuses.SUBMITTING
+    return {
+      ...form,
+      submitError,
+      canSubmit,
+      submitting
+    }
+  })
 }
 
 export default new FormSelectors()

@@ -7,7 +7,6 @@ import FormProvider from '../src/FormProvider'
 import form from '../src'
 import formActions from '../src/form.actions'
 import * as formStatuses from '../src/form.statuses'
-import validatorsStore from '../src/validatorsStore'
 import slexStore from 'slex-store'
 
 // need adapter to work with react ^16

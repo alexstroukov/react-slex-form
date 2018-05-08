@@ -22,12 +22,7 @@ const createFormStore = () => {
       slexStore.createDispatch({
         reducer: slexStore.createReducer({
           form: formReducer
-        }),
-        sideEffects: [
-          formSideEffects.notifyFieldSubscribersOnFieldChangeSideEffect,
-          formSideEffects.notifyFieldSubscribersOnFormChangeSideEffect,
-          formSideEffects.notifyFormSubscribersOnChangeSideEffect
-        ]
+        })
       })
     )
   return store
