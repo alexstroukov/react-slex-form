@@ -16,7 +16,7 @@ class Field extends PureComponent {
   }
   componentDidMount () {
     this._initialValue = this.props.value
-    this._updateField = ({ field }) => this.setState({ field })
+    this._updateField = ({ field, fieldName }) => this.setState({ field, fieldName })
     this.register(this.props)
     this.subscribeField(this.props)
     this.updateField({ field: this.form.getField({ formName: this.props.formName, fieldName: this.props.fieldName }) })
@@ -27,9 +27,9 @@ class Field extends PureComponent {
     if (formName !== prevFormName || fieldName !== prevFieldName) {
       const nextField = this.form.getField({ formName: nextProps.formName, fieldName: nextProps.fieldName })
       this.register(nextProps)
+      this.unsubscribeField(this.props)
       this.subscribeField(nextProps)
       this.updateField({ field: nextField })
-      this.unsubscribeField(this.props)
       this.unregister(this.props)
     }
   }
@@ -43,7 +43,7 @@ class Field extends PureComponent {
   }
   updateField = ({ field }) => {
     const isSameValue = _.isEqual(field, this.state.field)
-    !isSameValue && this._updateField && this._updateField({ field })
+    !isSameValue && this._updateField && this._updateField({ field, fieldName: this.props.fieldName })
   }
   subscribeField = (props) => {
     const { formName, fieldName } = props
@@ -55,6 +55,7 @@ class Field extends PureComponent {
     })
   }
   unsubscribeField = (props) => {
+    const { formName, fieldName } = props
     this.unsubscribe && this.unsubscribe()
   }
   changeInitialValue = (props) => {
@@ -83,10 +84,11 @@ class Field extends PureComponent {
   }
   _getFieldProps = () => {
     const { render, component, validate, stayRegistered, ...rest } = this.props
+    const field = this.state.field || this.form.getField({ formName: this.props.formName, fieldName: this.props.fieldName })
     const nextProps = {
       changeValue: this.changeValue,
       ...rest,
-      ...(this.state.field || this.form.getField({ formName: this.props.formName, fieldName: this.props.fieldName }))
+      ...field
     }
     return nextProps
   }
