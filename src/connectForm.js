@@ -49,8 +49,6 @@ function connectForm (formName) {
             submitting={submitting}
             canSubmit={canSubmit}
             submitError={submitError}
-            getFormState={this.store.getState}
-            dispatchForm={this.store.dispatch}
             submitForm={this.submitForm}
             resetForm={this.resetForm}
           />
