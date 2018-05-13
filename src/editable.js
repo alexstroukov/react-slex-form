@@ -1,14 +1,12 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import editableConnectedSubscribers from './editableConnectedSubscribers'
+import isEvent from './isEvent'
 
 const editable = WrappedComponent => class EditableWrapper extends Component {
   state = {
     editing: !!this.props.editing,
     submitting: !!this.props.submitting
-  }
-  _isEvent = (value) => {
-    return value && value.target
   }
   componentWillReceiveProps (nextProps) {
     if (this.state.submitting !== !!nextProps.submitting) {
@@ -43,10 +41,10 @@ const editable = WrappedComponent => class EditableWrapper extends Component {
     })
   }
   cancelEdit = (submitting = false) => {
-    this._cancelEdit && this._cancelEdit(this._isEvent(submitting) ? !this.state.submitting : submitting)
+    this._cancelEdit && this._cancelEdit(isEvent(submitting) ? !this.state.submitting : submitting)
   }
   toggleEdit = (editing) => {
-    editing = this._isEvent(editing) || editing === undefined ? !this.state.editing : editing
+    editing = isEvent(editing) || editing === undefined ? !this.state.editing : editing
     if (this.state.editing && !editing) {
       this.props.resetForm()
     }
@@ -56,7 +54,7 @@ const editable = WrappedComponent => class EditableWrapper extends Component {
     })
   }
   toggleSubmit = (submitting = !this.state.submitting) => {
-    this._toggleSubmit && this._toggleSubmit(this._isEvent(submitting) ? !this.state.submitting : submitting)
+    this._toggleSubmit && this._toggleSubmit(isEvent(submitting) ? !this.state.submitting : submitting)
   }
   render () {
     const { editing } = this.state

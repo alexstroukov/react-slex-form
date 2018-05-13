@@ -4,6 +4,7 @@ import _ from 'lodash'
 import selectors from './form.selectors'
 import actions from './form.actions'
 import * as statuses from './form.statuses'
+import isEvent from './isEvent'
 
 function connectForm (formName) {
   return WrappedComponent => {
@@ -39,7 +40,7 @@ function connectForm (formName) {
         this.store.dispatch(actions.resetForm({ formName }))
       }
       submitForm = (props) => {
-        this.store.dispatch(actions.submitForm({ formName, props }))
+        this.store.dispatch(actions.submitForm({ formName, props: isEvent(props) ? undefined : props }))
       }
       render () {
         const { submitting = false, canSubmit = false, submitError } = this.state.form || {}

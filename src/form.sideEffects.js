@@ -58,6 +58,7 @@ class FormSideEffects {
   submitForm  = ({ validators = {}, submitters = {} }) => {
     return ({ dispatch, prevState, nextState, action, getState }) => {
       if (action.type === actionTypes.SUBMIT_FORM) {
+        const { formName, props } = action
         const form = _.get(prevState, `form.${formName}`)
         return this._validateForm({ formName, form, prevState, validators })
           .then(validationErrors => {
@@ -69,17 +70,17 @@ class FormSideEffects {
                 .value()
               const submitServiceFn = this._getSubmitter({ submitters, formName }) || _.noop
               return Promise
-                .resolve(submitServiceFn({ form: formValues, dispatch, getState, ...action.props }))
+                .resolve(submitServiceFn({ form: formValues, dispatch, getState, ...props }))
                 .then(result => {
-                  this.store.dispatch(actions.submitFormSuccess({ formName, result }))
+                  dispatch(actions.submitFormSuccess({ formName, result }))
                   return result
                 })
             } else {
-              this.store.dispatch(actions.submitFormFail({ formName, validationErrors }))
+              dispatch(actions.submitFormFail({ formName, validationErrors }))
             }
           })
           .catch(error => {
-            this.store.dispatch(actions.submitFormFail({ formName, error: error.message }))
+            dispatch(actions.submitFormFail({ formName, error: error.message }))
           })
       }
     }
@@ -96,23 +97,23 @@ class FormSideEffects {
             `form.${formName}.${fieldName}.status`
           ])
           return Promise
-            .resolve(validate(value, form))
+            .resolve(validate(action.value, form))
             .then(validationResult => {
               const currentValue = _.get(getState(), `form.${formName}.${fieldName}.value`)
               const currentStatus = _.get(getState(), `form.${formName}.${fieldName}.status`)
-              if (currentValue === value && currentStatus !== statuses.INITIAL) {
+              if (currentValue === action.value && currentStatus !== statuses.INITIAL) {
                 if (_.isError(validationResult)) {
-                  this.store.dispatch(actions.isInvalid({ formName, fieldName, error: validationResult.message }))
+                  dispatch(actions.isInvalid({ formName, fieldName, error: validationResult.message }))
                 } else {
-                  this.store.dispatch(actions.isValid({ formName, fieldName }))
+                  dispatch(actions.isValid({ formName, fieldName }))
                 }
               }
             })
             .catch(error => {
               const currentValue = _.get(getState(), `form.${formName}.${fieldName}.value`)
               const currentStatus = _.get(getState(), `form.${formName}.${fieldName}.status`)
-              if (currentValue === value && currentStatus !== statuses.INITIAL) {
-                this.store.dispatch(actions.isInvalid({ formName, fieldName, error: error.message }))
+              if (currentValue === action.value && currentStatus !== statuses.INITIAL) {
+                dispatch(actions.isInvalid({ formName, fieldName, error: error.message }))
               }
             })
         }
