@@ -38,8 +38,8 @@ function connectForm (formName) {
       resetForm = () => {
         this.store.dispatch(actions.resetForm({ formName }))
       }
-      submitForm = () => {
-        this.store.dispatch(actions.submitForm({ formName }))
+      submitForm = (props) => {
+        this.store.dispatch(actions.submitForm({ formName, props }))
       }
       render () {
         const { submitting = false, canSubmit = false, submitError } = this.state.form || {}

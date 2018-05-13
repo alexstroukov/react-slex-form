@@ -54,10 +54,7 @@ class FormSelectors {
         [formName]: form = {}
       }
     } = state
-    return _.chain(form)
-      .omit(['error', 'status', 'validate'])
-      .keys()
-      .value()
+    return this._getFormFieldNames({ form })
   }
   getField = (state, { formName, fieldName }) => {
     const {
@@ -74,25 +71,6 @@ class FormSelectors {
       return undefined
     }
   }
-  _getField = memoizeOptions(({ field, formStatus }) => {
-    const { value, status, error, touched = false, initialValue, meta = {}, validate } = field
-    const loading = status === statuses.VALIDATING
-    const submitting = formStatus === statuses.SUBMITTING
-    const messages = _.chain([error])
-      .flatten()
-      .reject(_.isUndefined)
-      .value()
-    return {
-      value,
-      initialValue,
-      meta,
-      messages,
-      loading,
-      submitting,
-      touched
-    }
-  })
-
   getFieldIsRegistered = (state, { formName, fieldName }) => {
     const {
       form: {
@@ -115,6 +93,27 @@ class FormSelectors {
       return undefined
     }
   }
+  getFieldValidatorName = (state, { formName, fieldName }) => {
+    const {
+      form: {
+        [formName]: {
+          status: formStatus,
+          [fieldName]: field
+        } = {}
+      }
+    } = state
+    if (field) {
+      return field.validate
+    } else {
+      return undefined
+    }
+  }
+  _getFormFieldNames = memoizeOptions(({ form }) => {
+    return _.chain(form)
+      .omit(['error', 'status', 'validate'])
+      .keys()
+      .value()
+  })
   _getForm = memoizeOptions(({ form }) => {
     const { status, error: submitError } = form
     const canSubmit = status === statuses.VALID
@@ -124,6 +123,24 @@ class FormSelectors {
       submitError,
       canSubmit,
       submitting
+    }
+  })
+  _getField = memoizeOptions(({ field, formStatus }) => {
+    const { value, status, error, touched = false, initialValue, meta = {}, validate } = field
+    const loading = status === statuses.VALIDATING
+    const submitting = formStatus === statuses.SUBMITTING
+    const messages = _.chain([error])
+      .flatten()
+      .reject(_.isUndefined)
+      .value()
+    return {
+      value,
+      initialValue,
+      meta,
+      messages,
+      loading,
+      submitting,
+      touched
     }
   })
 }

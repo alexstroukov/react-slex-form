@@ -13,9 +13,10 @@ class FormSideEffects {
       submitForm({ dispatch, prevState, nextState, action, getState })
     }
   }
-  _validateForm = ({ formName, form, validators }) => {
+  _validateForm = ({ formName, form, prevState, validators }) => {
     const _validateField = ({ formName, fieldName, form, field }) => {
-      const validate = this._getValidator({ validators, formName, fieldName })
+      const validatorName = selectors.getFieldValidatorName(prevState, { formName, fieldName })
+      const validate = this._getValidator({ validators, validatorName })
       if (validate) {
         return Promise
           .resolve(validate(field.value, form))
@@ -58,7 +59,7 @@ class FormSideEffects {
     return ({ dispatch, prevState, nextState, action, getState }) => {
       if (action.type === actionTypes.SUBMIT_FORM) {
         const form = _.get(prevState, `form.${formName}`)
-        return this._validateForm({ formName, form, validators })
+        return this._validateForm({ formName, form, prevState, validators })
           .then(validationErrors => {
             if (_.isEmpty(validationErrors)) {
               const formValues = _.chain(form)
@@ -68,7 +69,7 @@ class FormSideEffects {
                 .value()
               const submitServiceFn = this._getSubmitter({ submitters, formName }) || _.noop
               return Promise
-                .resolve(submitServiceFn(formValues))
+                .resolve(submitServiceFn({ form: formValues, dispatch, getState, ...action.props }))
                 .then(result => {
                   this.store.dispatch(actions.submitFormSuccess({ formName, result }))
                   return result
@@ -87,7 +88,8 @@ class FormSideEffects {
     return ({ dispatch, prevState, nextState, action, getState }) => {
       if (action.type === actionTypes.CHANGE_VALUE) {
         const { formName, fieldName } = action
-        const validate = this._getValidator({ validators, formName, fieldName })
+        const validatorName = selectors.getFieldValidatorName(prevState, { formName, fieldName })
+        const validate = this._getValidator({ validators, validatorName })
         if (validate) {
           const [ form, status ] = _.at(prevState, [
             `form.${formName}`,
@@ -117,17 +119,11 @@ class FormSideEffects {
       }
     }
   }
-  _getValidator = ({ validators, formName, fieldName }) => {
-    return validators[formName + fieldName]
-  }
-  _hasValidator = ({ validators, formName, fieldName }) => {
-    return !!this._getValidator({ validators, formName, fieldName })
+  _getValidator = ({ validators, validatorName }) => {
+    return validators[validatorName]
   }
   _getSubmitter = ({ submitters, formName }) => {
     return submitters[formName]
-  }
-  _hasSubmitter = ({ submitters, formName }) => {
-    return !!this._getSubmitter({ submitters, formName })
   }
 }
 

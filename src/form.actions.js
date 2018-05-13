@@ -19,10 +19,11 @@ class FormActions {
     }
     return action
   }
-  submitForm = ({ formName }) => {
+  submitForm = ({ formName, props }) => {
     const action = {
       type: actionTypes.SUBMIT_FORM,
-      formName
+      formName,
+      props
     }
     return action
   }
