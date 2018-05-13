@@ -110,7 +110,7 @@ Field.propTypes = {
   formName: PropTypes.string.isRequired,
   fieldName: PropTypes.string.isRequired,
 
-  validate: PropTypes.func,
+  validate: PropTypes.string,
   render: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
   component: PropTypes.any,
   store: PropTypes.object
