@@ -56,9 +56,20 @@ const editable = WrappedComponent => class EditableWrapper extends Component {
   toggleSubmit = (submitting = !this.state.submitting) => {
     this._toggleSubmit && this._toggleSubmit(isEvent(submitting) ? !this.state.submitting : submitting)
   }
+  submitForm = (...args) => {
+    this._toggleSubmit && this._toggleSubmit(true)
+    this.props.submitForm && this.props.submitForm(...args)
+  }
   render () {
     const { editing } = this.state
-    return <WrappedComponent {...this.props} editing={editing} toggleEdit={this.toggleEdit} />
+    const { submitForm } = this.props
+    const propsSubmitForm = submitForm ? this.submitForm : undefined
+    return <WrappedComponent
+      {...this.props}
+      editing={editing}
+      toggleEdit={this.toggleEdit}
+      submitForm={propsSubmitForm}
+    />
   }
 }
 
