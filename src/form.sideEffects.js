@@ -120,10 +120,10 @@ class FormSideEffects {
     }
   }
   _getValidator = ({ validators, validatorName }) => {
-    return validators[validatorName]
+    return _.get(validators, validatorName)
   }
   _getSubmitter = ({ submitters, formName }) => {
-    return submitters[formName]
+    return _.get(submitters, formName)
   }
 }
 
