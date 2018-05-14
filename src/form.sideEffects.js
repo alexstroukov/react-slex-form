@@ -55,7 +55,7 @@ class FormSideEffects {
       )
       .value()
   }
-  submitForm  = ({ validators = {}, submitters = {} }) => {
+  submitForm = ({ validators = {}, submitters = {} }) => {
     return ({ dispatch, prevState, nextState, action, getState }) => {
       if (action.type === actionTypes.SUBMIT_FORM) {
         const { formName, props } = action

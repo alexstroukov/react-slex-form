@@ -14,6 +14,11 @@ const editableShared = ({ formName }) => WrappedComponent => editable(class Edit
   componentWillUnmount () {
     this.unsubscribe && this.unsubscribe()
   }
+  componentWillReceiveProps (nextProps) {
+    if (this.props.submitting && !nextProps.submitting) {
+      this.toggleEdit(false)
+    }
+  }
   cancelEdit = () => {
     this.props.toggleEdit(false)
   }
@@ -25,16 +30,12 @@ const editableShared = ({ formName }) => WrappedComponent => editable(class Edit
     })
     this.props.toggleEdit(editing)
   }
-  submit = (...args) => {
-    const { submit } = this.props
-    return submit(...args)
-      .then((result) => {
-        this.toggleEdit(false)
-        return result
-      })
-  }
   render () {
-    return <WrappedComponent {...this.props} toggleEdit={this.toggleEdit} submit={this.submit} />
+    return <WrappedComponent
+      {...this.props}
+      toggleEdit={this.toggleEdit}
+      submitForm={this.props.submitForm}
+    />
   }
 })
 
