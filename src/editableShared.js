@@ -15,7 +15,7 @@ const editableShared = ({ formName }) => WrappedComponent => editable(class Edit
     this.unsubscribe && this.unsubscribe()
   }
   componentWillReceiveProps (nextProps) {
-    if (this.props.submitting && !nextProps.submitting) {
+    if (this.props.submitting && !nextProps.submitting && !nextProps.submitError) {
       this.toggleEdit(false)
     }
   }
