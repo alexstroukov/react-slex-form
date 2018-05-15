@@ -59,12 +59,13 @@ class FormActions {
     }
     return action
   }
-  changeValue = ({ formName, fieldName, value, isSilent = true, meta }) => {
+  changeValue = ({ formName, fieldName, value, isSilent = true, meta, skipValidate = false }) => {
     const action = {
       type: actionTypes.CHANGE_VALUE,
       formName,
       fieldName,
       isSilent,
+      skipValidate,
       value,
       meta
     }

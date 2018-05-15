@@ -63,7 +63,7 @@ class FormReducers {
     }
   }
   changeValue = (state, action) => {
-    const { formName, fieldName, value, isSilent = false, meta } = action
+    const { formName, fieldName, value, isSilent = false, meta, skipValidate = false } = action
     const form = state[formName]
     const field = form && form[fieldName]
     const currentFieldStatus = _.get(field, 'status') 
@@ -71,10 +71,11 @@ class FormReducers {
     const existingMeta = _.get(field, 'meta', {})
     const touched = isSilent ? _.get(field, `touched`, false) : true
     const hasValidator = !!_.get(field, `validate`)
-    const nextFieldStatus = hasValidator
+    const willValidate = hasValidator && !skipValidate
+    const nextFieldStatus = willValidate
       ? statuses.VALIDATING
       : statuses.VALID
-    const nextFormStatus = hasValidator
+    const nextFormStatus = willValidate
       ? statuses.VALIDATING
       : this._getNextFormStatus({ form, omitFieldName: fieldName, defaultStatus: statuses.VALID })
   

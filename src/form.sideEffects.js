@@ -88,10 +88,10 @@ class FormSideEffects {
   validateFieldOnChangeValue = ({ validators = {} }) => {
     return ({ dispatch, prevState, nextState, action, getState }) => {
       if (action.type === actionTypes.CHANGE_VALUE) {
-        const { formName, fieldName } = action
+        const { formName, fieldName, skipValidate } = action
         const validatorName = selectors.getFieldValidatorName(prevState, { formName, fieldName })
         const validate = this._getValidator({ validators, validatorName })
-        if (validate) {
+        if (validate && !skipValidate) {
           const [ form, status ] = _.at(prevState, [
             `form.${formName}`,
             `form.${formName}.${fieldName}.status`
