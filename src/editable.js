@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import editableConnectedSubscribers from './editableConnectedSubscribers'
-import isEvent from './isEvent'
+import { isEvent } from './utils'
 
 const editable = WrappedComponent => class EditableWrapper extends Component {
   state = {

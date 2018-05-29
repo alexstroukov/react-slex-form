@@ -389,10 +389,7 @@ describe('Field', function () {
             [fieldName]: {
               status: formStatuses.INVALID,
               value: 2,
-              error: [
-                'testError1',
-                'testError2'
-              ]
+              error: 'testError1',
             }
           }
         }
@@ -406,10 +403,9 @@ describe('Field', function () {
         </FormProvider>
       )
     })
-    it('should get an array of string messages from the fields error in the store', function () {
+    it('should get error from the store', function () {
       expect(renderStub.calledOnce).to.be.true
-      expect(renderStub.firstCall.args[0].messages[0]).to.equal('testError1')
-      expect(renderStub.firstCall.args[0].messages[1]).to.equal('testError2')
+      expect(renderStub.firstCall.args[0].error).to.equal('testError1')
     })
   })
 })

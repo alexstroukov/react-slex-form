@@ -129,15 +129,11 @@ class FormSelectors {
     const { value, status, error, touched = false, initialValue, meta = {}, validate } = field
     const loading = status === statuses.VALIDATING
     const submitting = formStatus === statuses.SUBMITTING
-    const messages = _.chain([error])
-      .flatten()
-      .reject(_.isUndefined)
-      .value()
     return {
       value,
       initialValue,
       meta,
-      messages,
+      error,
       loading,
       submitting,
       touched

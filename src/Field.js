@@ -3,6 +3,8 @@ import React, { PureComponent } from 'react'
 import _ from 'lodash'
 import actions from './form.actions'
 import selectors from './form.selectors'
+import fieldValueSubscribers from './fieldValueSubscribers'
+import initialValuesStore from './initialValuesStore'
 import * as statuses from './form.statuses'
 
 class Field extends PureComponent {
@@ -10,61 +12,96 @@ class Field extends PureComponent {
     super(props, context)
     this.store = props.store || context.store
     this.form = props.form || context.form
+    const { formName, fieldName, value, meta } = props
+    initialValuesStore.set(formName + fieldName, value)
     this.state = {
-      field: this.form.getField({ formName: this.props.formName, fieldName: this.props.fieldName })
+      value,
+      meta,
+      error: undefined,
+      loading: false,
+      submitting: false,
+      touched: false
     }
   }
   componentDidMount () {
-    this._initialValue = this.props.value
-    this._updateField = ({ field, fieldName }) => this.setState({ field, fieldName })
+    this._updateValue = ({ value }) => {
+      const valueIsDifferent = this.state.value !== value || !_.isEqual(this.state.value, value)
+      if (valueIsDifferent) {
+        this.setState({ value })
+      }
+    }
+    this._updateField = ({ value, meta, error, loading, submitting, touched }) => {
+      const valueIsDifferent = this.state.value !== value || !_.isEqual(this.state.value, value)
+      const metaIsDifferent = !_.isEqual(this.state.meta, meta)
+      const errorIsDifferent = this.state.error !== error
+      const loadingIsDifferent = this.state.loading !== loading
+      const submittingIsDifferent = this.state.submitting !== submitting
+      const touchedIsDifferent = this.state.touched !== touched
+      if (valueIsDifferent || metaIsDifferent || errorIsDifferent || loadingIsDifferent || submittingIsDifferent || touchedIsDifferent) {
+        this.setState({
+          value: valueIsDifferent ? value : this.state.value,
+          meta: metaIsDifferent ? meta : this.state.meta,
+          error: errorIsDifferent ? error : this.state.error,
+          loading: loadingIsDifferent ? loading : this.state.loading,
+          submitting: submittingIsDifferent ? submitting : this.state.submitting,
+          touched: touchedIsDifferent ? touched : this.state.touched
+        })
+      }
+    }
+    this.updateValue({ value: this.props.value })
     this.register(this.props)
     this.subscribeField(this.props)
-    this.updateField({ field: this.form.getField({ formName: this.props.formName, fieldName: this.props.fieldName }) })
   }
   componentWillReceiveProps (nextProps) {
-    const { formName, fieldName } = nextProps
+    const { formName, fieldName, value } = nextProps
     const { formName: prevFormName, fieldName: prevFieldName } = this.props
     if (formName !== prevFormName || fieldName !== prevFieldName) {
-      const nextField = this.form.getField({ formName: nextProps.formName, fieldName: nextProps.fieldName })
+      this.unregister(this.props)
       this.register(nextProps)
       this.unsubscribeField(this.props)
       this.subscribeField(nextProps)
-      this.updateField({ field: nextField })
-      this.unregister(this.props)
+      initialValuesStore.set(formName + fieldName, value)
+      this.updateValue({ value })
     }
   }
   componentDidUpdate () {
     this.changeInitialValue(this.props)
   }
   componentWillUnmount () {
+    this._updateValue = undefined
     this._updateField = undefined
     this.unsubscribeField(this.props)
     this.unregister(this.props)
   }
-  updateField = ({ field }) => {
-    const isSameValue = _.isEqual(field, this.state.field)
-    !isSameValue && this._updateField && this._updateField({ field, fieldName: this.props.fieldName })
+  updateValue = ({ value }) => {
+    this._updateValue && this._updateValue({ value })
+  }
+  updateField = ({ value, meta, error, loading, submitting, touched }) => {
+    this._updateField && this._updateField({ value, meta, error, loading, submitting, touched })
   }
   subscribeField = (props) => {
-    const { formName, fieldName } = props
-    this.unsubscribe = this.store.subscribe((state) => {
-      const nextField = this.form.getField({ formName, fieldName })
-      if (this.state.field !== nextField) {
-        this.updateField({ field: nextField })
+    const { formName, fieldName, value } = props
+    this.unsubscribeStore = this.store.subscribe((state) => {
+      const field = selectors.getField(state, { formName, fieldName })
+      if (field) {
+        this.updateField(field)
       }
     })
+    this.unsubscribeFieldValue = fieldValueSubscribers.subscribe(formName + fieldName, this.updateValue)
   }
   unsubscribeField = (props) => {
     const { formName, fieldName } = props
-    this.unsubscribe && this.unsubscribe()
+    this.unsubscribeFieldValue && this.unsubscribeFieldValue()
+    this.unsubscribeFieldValue = undefined
+    this.unsubscribeStore && this.unsubscribeStore()
+    this.unsubscribeStore = undefined
   }
   changeInitialValue = (props) => {
-    const { formName, fieldName, meta, value } = props
-    const field = this.form.getField({ formName, fieldName })
-    const initialValueHasChanged = !_.isEqual(value, _.get(field, 'initialValue'))
-    const hasBeenSet = this._initialValue === value
-    if (initialValueHasChanged && !hasBeenSet) {
-      this._initialValue = value
+    const { formName, fieldName, value, meta } = props
+    const currentInitialValue = initialValuesStore.get(formName + fieldName)
+    const initialValueHasChanged = currentInitialValue !== value && !_.isEqual(currentInitialValue, value)
+    if (initialValueHasChanged) {
+      initialValuesStore.set(formName + fieldName, value)
       this.form.changeInitialValue({ formName, fieldName, value, meta })
     }
   }
@@ -80,15 +117,22 @@ class Field extends PureComponent {
   }
   changeValue = (value) => {
     const { formName, fieldName } = this.props
+    fieldValueSubscribers.notifySubscribers(formName + fieldName, (updateValue) => {
+      if (updateValue !== this.updateValue) {
+        updateValue({ value })
+      }
+    })
+    this.updateValue({ value })
     this.form.changeValue({ formName, fieldName, value })
   }
+
   _getFieldProps = () => {
     const { render, component, validate, stayRegistered, ...rest } = this.props
-    const field = this.state.field || this.form.getField({ formName: this.props.formName, fieldName: this.props.fieldName })
     const nextProps = {
       changeValue: this.changeValue,
+      initialValue: initialValuesStore.get(this.props.formName + this.props.fieldName),
       ...rest,
-      ...field
+      ...this.state
     }
     return nextProps
   }

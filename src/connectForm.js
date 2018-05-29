@@ -4,7 +4,7 @@ import _ from 'lodash'
 import selectors from './form.selectors'
 import actions from './form.actions'
 import * as statuses from './form.statuses'
-import isEvent from './isEvent'
+import { isEvent } from './utils'
 
 function connectForm (formName) {
   return WrappedComponent => {

@@ -4,6 +4,7 @@ import _ from 'lodash'
 import selectors from './form.selectors'
 import actions from './form.actions'
 import * as statuses from './form.statuses'
+import { buffer } from './utils'
 
 export class FormProvider extends Component {
   constructor (props, context) {
@@ -16,28 +17,27 @@ export class FormProvider extends Component {
         registerField: this.registerField,
         unregisterField: this.unregisterField,
         changeValue: this.changeValue,
-        changeInitialValue: this.changeInitialValue,
-        getField: this.getField
+        changeInitialValue: this.changeInitialValue
       }
     }
   }
-  getField = ({ formName, fieldName }) => {
-    return selectors.getField(this.store.getState(), { formName, fieldName })
-  }
+  bufferedDispatch = buffer(actions => {
+    this.store.dispatch(actions)
+  })
   changeValue = ({ formName, fieldName, value }) => {
-    this.store.dispatch(actions.changeValue({ formName, fieldName, value }))
+    this.bufferedDispatch(actions.changeValue({ formName, fieldName, value }))
   }
   changeInitialValue = ({ formName, fieldName, value, meta }) => {
-    this.store.dispatch(actions.changeInitialValue({ formName, fieldName, value, meta }))
+    this.bufferedDispatch(actions.changeInitialValue({ formName, fieldName, value, meta }))
   }
   registerField = ({ formName, fieldName, value, validate, meta }) => {    
     const fieldIsRegistered = selectors.getFieldIsRegistered(this.store.getState(), { formName, fieldName })
     if (!fieldIsRegistered) {
-      this.store.dispatch(actions.registerField({ formName, fieldName, value, validate, meta }))
+      this.bufferedDispatch(actions.registerField({ formName, fieldName, value, validate, meta }))
     }
   }
   unregisterField = ({ formName, fieldName }) => {
-    this.store.dispatch(actions.unregisterField({ formName, fieldName }))
+    this.bufferedDispatch(actions.unregisterField({ formName, fieldName }))
   }
   render () {
     return this.props.children
